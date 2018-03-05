@@ -14,9 +14,11 @@ public class BaseService {
 
     int countClasses;
     int countIndividuals;
-    int countExactMatch;
+    int countMatch;
+    int countTotalMatch;
     String aux;
     AnnotationAssertationEntity an;
+    HashMap<String,HashMap<String,Integer>> maps;
     HashMap<String,Integer> mappings;
     int counter;
     String MapIRI;
@@ -29,10 +31,12 @@ public class BaseService {
 
         countClasses=0;
         countIndividuals=0;
-        countExactMatch=0;
+        countMatch=0;
+        countTotalMatch=0;
         aux="";
         an = null;
         mappings = new HashMap<>();
+        maps = new HashMap<>();
         counter = 0;
         MapIRI="";
 

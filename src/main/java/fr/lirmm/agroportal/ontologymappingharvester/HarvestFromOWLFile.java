@@ -172,7 +172,7 @@ public class HarvestFromOWLFile extends BaseService  implements HarvestService {
         System.out.println("Matches to: http://www.w3.org/2004/02/skos/core#exactMatch");
         System.out.println("----------------------------------------------------------");
 
-        System.out.println("Total ExactMatches: "+countExactMatch);
+        System.out.println("Total ExactMatches: "+countTotalMatch);
         System.out.println("----------------------------------------------------------");
 
 

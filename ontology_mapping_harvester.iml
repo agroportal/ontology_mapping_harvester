@@ -85,5 +85,6 @@
     <orderEntry type="library" name="Maven: org.semanticweb.elk:elk-util-common:0.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.semanticweb.elk:elk-util-io:0.4.1" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.14" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.7" level="project" />
   </component>
 </module>

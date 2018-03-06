@@ -8,9 +8,11 @@ public class Main {
 
 
         HarvestFromSKOSFile hfsf = new HarvestFromSKOSFile();
-        hfsf.loadOntology();
-        hfsf.findMatches();
-        hfsf.printResults();
+        if(hfsf.loadOntology()){
+            hfsf.findMatches();
+            hfsf.saveFile();
+            hfsf.printResults();
+        }
 
 
 //        HarvestFromOBOFile hfof = new HarvestFromOBOFile();

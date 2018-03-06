@@ -4,6 +4,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
+import java.io.File;
 import java.util.HashMap;
 
 public class BaseService {
@@ -22,6 +23,9 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     int counter;
     String MapIRI;
+    File fileIN;
+    File fileOUT;
+    StringBuffer sb;
 
 
     public BaseService(){
@@ -39,6 +43,7 @@ public class BaseService {
         maps = new HashMap<>();
         counter = 0;
         MapIRI="";
+        sb = new StringBuffer("");
 
     }
 

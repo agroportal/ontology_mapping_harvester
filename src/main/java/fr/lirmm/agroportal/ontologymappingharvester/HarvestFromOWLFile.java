@@ -22,7 +22,7 @@ public class HarvestFromOWLFile extends BaseService  implements HarvestService {
 
 
     @Override
-    public void loadOntology() {
+    public boolean loadOntology() {
 
 
         JFileChooser fileChooser = new JFileChooser();
@@ -66,6 +66,8 @@ public class HarvestFromOWLFile extends BaseService  implements HarvestService {
         }else{
             System.out.println("No file selected !!!");
         }
+        return true;
+
     }
 
     @Override
@@ -185,5 +187,11 @@ public class HarvestFromOWLFile extends BaseService  implements HarvestService {
             it.remove(); // avoids a ConcurrentModificationException
         }
 
+    }
+
+    @Override
+    public void saveFile() {
+        String workingDir = System.getProperty("user.dir");
+        System.out.println("Current working directory : " + workingDir);
     }
 }

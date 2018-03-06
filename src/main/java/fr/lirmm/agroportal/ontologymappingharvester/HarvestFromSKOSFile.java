@@ -1,13 +1,21 @@
 package fr.lirmm.agroportal.ontologymappingharvester;
 
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
+
 import javax.swing.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -16,7 +24,7 @@ import java.util.Set;
 public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 
 
-    private File fileA;
+
     private String[] SKOS_MATCH;
 
 
@@ -27,20 +35,20 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 
 
     @Override
-    public void loadOntology() {
+    public boolean loadOntology() {
 
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         int result = fileChooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
-            fileA = fileChooser.getSelectedFile();
+            fileIN = fileChooser.getSelectedFile();
 
 
             //fileA = new File("/home/abrahao/data/downloads/thesaurus_pour_agroportal.rdf");
 
             try {
-                oA = man.loadOntologyFromOntologyDocument(fileA);
+                oA = man.loadOntologyFromOntologyDocument(fileIN);
             } catch (OWLOntologyCreationException e) {
                 e.printStackTrace();
             }
@@ -68,29 +76,33 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 //            } else {
 //                System.out.println("Sem ID");
 //            }
+            return true;
         } else {
             System.out.println("No file selected !!!");
+            return false;
         }
     }
 
     @Override
     public void findMatches() {
 
-        System.out.println("----------------------------------------------------------");
+        boolean countIndividualsFlag = true;
 
-        System.out.println("Classes");
+        sb.append("----------------------------------------------------------\n");
+
+        sb.append("Classes\n");
         for (OWLClass c : oA.getClassesInSignature()) {
-            System.out.println(c.toString());
+            sb.append(c.toString()+"\n");
             countClasses++;
         }
-        System.out.println("Total Classes: " + countClasses);
-        System.out.println("----------------------------------------------------------");
+        sb.append("Total Classes: " + countClasses+"\n");
+        sb.append("----------------------------------------------------------\n");
 
-        System.out.println("Filter - Individuals");
+        sb.append("Filter - Individuals\n");
 
         for (int x = 0; x < SKOS_MATCH.length; x++) {
 
-            System.out.println("======================" + SKOS_MATCH[x] + "=======================");
+            sb.append("======================= Searching for: " + SKOS_MATCH[x] + "=======================\n");
 
             for (OWLNamedIndividual ind : oA.getIndividualsInSignature()) {
 
@@ -107,7 +119,7 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
                     if (aux.indexOf(SKOS_MATCH[x]) > -1) {
 
                         an = Util.getAnnotationAssertationEntity(ax, countMatch++);
-                        System.out.println(an.toString());
+                        sb.append(an.toString()+"\n");
                         MapIRI = an.getOntology2();
                         if (mappings.containsKey(MapIRI)) {
                             counter = mappings.get(MapIRI);
@@ -132,19 +144,19 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 //                    System.out.println("Object Property Assertion Axiom " + ax);
 //                }
 
-
+            if(countIndividualsFlag) {
                 countIndividuals++;
+            }
 
             }
             if (mappings.size() > 0) {
 
                 HashMap<String, Integer> mmp = SerializationUtils.clone(mappings);
                 maps.put(SKOS_MATCH[x], mmp);
-                System.out.println("Mappings: " + mappings.size());
-                System.out.println("Maps: " + maps.size());
 
             }
             mappings.clear();
+            countIndividualsFlag=false;
         }
 
     }
@@ -153,28 +165,45 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
     @Override
     public void printResults() {
 
-        if (an.getOntology1() != null) {
+        System.out.println(sb);
 
-            System.out.println("Ontology Examined: " + an.getOntology1());
-            System.out.println("----------------------------------------------------------");
 
-            System.out.println("Total Individuals: " + countIndividuals);
-            System.out.println("----------------------------------------------------------");
+    }
+
+    @Override
+    public void saveFile() {
+
+
+        String path = fileIN.getAbsolutePath();
+
+        Path p = Paths.get(path);
+        String fileName = p.getFileName().toString();
+        String directory = p.getParent().toString();
+
+
+        if (an != null && an.getOntology1() != null) {
+
+            sb.append("----------------------------------------------------------\n");
+            sb.append("Ontology Examined: " + an.getOntology1()+"\n");
+            sb.append("----------------------------------------------------------\n");
+
+            sb.append("Total Individuals: " + countIndividuals+"\n");
+            sb.append("----------------------------------------------------------\n");
 
 
             for (Map.Entry<String, HashMap<String, Integer>> entry : maps.entrySet()) {
                 String key = entry.getKey();
                 HashMap<String, Integer> value = entry.getValue();
 
-                System.out.println("Matches to: " + key);
-                System.out.println("----------------------------------------------------------");
+                sb.append("Matches to: " + key+"\n");
+                sb.append("----------------------------------------------------------\n");
 
                 for (Map.Entry<String, Integer> entry2 : value.entrySet()) {
                     String key2 = entry2.getKey();
                     Integer value2 = entry2.getValue();
 
-                    System.out.println("SubTotal: " + key2 + " --> " + value2);
-                    System.out.println("----------------------------------------------------------");
+                    sb.append("SubTotal: " + key2 + " --> " + value2+"\n");
+                    sb.append("----------------------------------------------------------\n");
 
                 }
 
@@ -182,18 +211,25 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
             }
 
 
-            System.out.println("Number of matched ontologies: " + mappings.size());
-            System.out.println("----------------------------------------------------------");
-            Iterator it = mappings.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry) it.next();
-                System.out.println(pair.getKey() + " = " + pair.getValue());
-                it.remove(); // avoids a ConcurrentModificationException
-            }
+
 
         } else {
-            System.out.println("No matchs for skos exact match!");
+            sb.append("No matchs founded!\n");
+        }
+
+
+        File f = new File(directory + File.separator+(fileName.replace(".rdf","").replace(".xrdf",""))+".txt");
+        System.out.println(fileName);
+        System.out.println(directory);
+        System.out.println(f.getAbsolutePath());
+
+        try {
+            FileUtils.writeStringToFile(f,sb.toString(),"UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
+
+
 }

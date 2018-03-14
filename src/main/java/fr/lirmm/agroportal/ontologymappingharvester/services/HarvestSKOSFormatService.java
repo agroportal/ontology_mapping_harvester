@@ -1,6 +1,7 @@
-package fr.lirmm.agroportal.ontologymappingharvester;
+package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 
+import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.semanticweb.owlapi.model.OWLAxiom;
@@ -8,27 +9,22 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
-
 import javax.swing.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class HarvestFromSKOSFile extends BaseService implements HarvestService {
-
+public class HarvestSKOSFormatService extends BaseService implements HarvestService {
 
 
     private String[] SKOS_MATCH;
 
 
-    public HarvestFromSKOSFile() {
+    public HarvestSKOSFormatService() {
         super();
         SKOS_MATCH = new String[]{"http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
     }
@@ -92,10 +88,10 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 
         sb.append("Classes\n");
         for (OWLClass c : oA.getClassesInSignature()) {
-            sb.append(c.toString()+"\n");
+            sb.append(c.toString() + "\n");
             countClasses++;
         }
-        sb.append("Total Classes: " + countClasses+"\n");
+        sb.append("Total Classes: " + countClasses + "\n");
         sb.append("----------------------------------------------------------\n");
 
         sb.append("Filter - Individuals\n");
@@ -119,7 +115,7 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
                     if (aux.indexOf(SKOS_MATCH[x]) > -1) {
 
                         an = Util.getAnnotationAssertationEntity(ax, countMatch++);
-                        sb.append(an.toString()+"\n");
+                        sb.append(an.toString() + "\n");
                         MapIRI = an.getOntology2();
                         if (mappings.containsKey(MapIRI)) {
                             counter = mappings.get(MapIRI);
@@ -144,9 +140,9 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 //                    System.out.println("Object Property Assertion Axiom " + ax);
 //                }
 
-            if(countIndividualsFlag) {
-                countIndividuals++;
-            }
+                if (countIndividualsFlag) {
+                    countIndividuals++;
+                }
 
             }
             if (mappings.size() > 0) {
@@ -156,7 +152,7 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
 
             }
             mappings.clear();
-            countIndividualsFlag=false;
+            countIndividualsFlag = false;
         }
 
     }
@@ -184,10 +180,10 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
         if (an != null && an.getOntology1() != null) {
 
             sb.append("----------------------------------------------------------\n");
-            sb.append("Ontology Examined: " + an.getOntology1()+"\n");
+            sb.append("Ontology Examined: " + an.getOntology1() + "\n");
             sb.append("----------------------------------------------------------\n");
 
-            sb.append("Total Individuals: " + countIndividuals+"\n");
+            sb.append("Total Individuals: " + countIndividuals + "\n");
             sb.append("----------------------------------------------------------\n");
 
 
@@ -195,14 +191,14 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
                 String key = entry.getKey();
                 HashMap<String, Integer> value = entry.getValue();
 
-                sb.append("Matches to: " + key+"\n");
+                sb.append("Matches to: " + key + "\n");
                 sb.append("----------------------------------------------------------\n");
 
                 for (Map.Entry<String, Integer> entry2 : value.entrySet()) {
                     String key2 = entry2.getKey();
                     Integer value2 = entry2.getValue();
 
-                    sb.append("SubTotal: " + key2 + " --> " + value2+"\n");
+                    sb.append("SubTotal: " + key2 + " --> " + value2 + "\n");
                     sb.append("----------------------------------------------------------\n");
 
                 }
@@ -211,20 +207,18 @@ public class HarvestFromSKOSFile extends BaseService implements HarvestService {
             }
 
 
-
-
         } else {
             sb.append("No matchs founded!\n");
         }
 
 
-        File f = new File(directory + File.separator+(fileName.replace(".rdf","").replace(".xrdf",""))+".txt");
+        File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".txt");
         System.out.println(fileName);
         System.out.println(directory);
         System.out.println(f.getAbsolutePath());
 
         try {
-            FileUtils.writeStringToFile(f,sb.toString(),"UTF-8");
+            FileUtils.writeStringToFile(f, sb.toString(), "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
         }

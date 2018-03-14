@@ -1,4 +1,4 @@
-package fr.lirmm.agroportal.ontologymappingharvester;
+package fr.lirmm.agroportal.ontologymappingharvester.entities;
 
 public class AnnotationAssertationEntity {
 

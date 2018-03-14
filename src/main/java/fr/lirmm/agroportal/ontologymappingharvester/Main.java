@@ -1,18 +1,21 @@
 package fr.lirmm.agroportal.ontologymappingharvester;
 
 
+import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestOBOFormatService;
+import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestOWLFormatService;
+
 public class Main {
 
     public static void main(String[] args){
 
 
-
-        HarvestFromSKOSFile hfsf = new HarvestFromSKOSFile();
-        if(hfsf.loadOntology()){
-            hfsf.findMatches();
-            hfsf.saveFile();
-            hfsf.printResults();
-        }
+//
+//        HarvestSKOSFormatService hfsf = new HarvestSKOSFormatService();
+//        if(hfsf.loadOntology()){
+//            hfsf.findMatches();
+//            hfsf.saveFile();
+//            hfsf.printResults();
+//        }
 
 
 //        HarvestFromOBOFile hfof = new HarvestFromOBOFile();
@@ -20,10 +23,26 @@ public class Main {
 //        hfof.findMatches();
 //        hfof.printResults();
 
-//        HarvestFromOWLFile hfowlf = new HarvestFromOWLFile();
-//        hfowlf.loadOntology();
-//        hfowlf.findMatches();
-//        hfowlf.printResults();
+//        HarvestOBOFormatService hfowlf = new HarvestOBOFormatService();
+//        if(hfowlf.loadOntology()) {
+//            hfowlf.findMatches();
+//            hfowlf.saveFile();
+//
+//        }
+
+        HarvestOWLFormatService hfowlf = new HarvestOWLFormatService();
+        if(hfowlf.loadOntology()) {
+            hfowlf.findMatches();
+            try {
+                hfowlf.shouldUseReasoner();
+                hfowlf.shouldCreateAndReadAnnotations();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //hfowlf.saveFile();
+
+        }
 
 
     }

@@ -1,7 +1,9 @@
-package fr.lirmm.agroportal.ontologymappingharvester;
+package fr.lirmm.agroportal.ontologymappingharvester.services;
 
+import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyID;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import java.io.File;
@@ -26,6 +28,7 @@ public class BaseService {
     File fileIN;
     File fileOUT;
     StringBuffer sb;
+    OWLOntologyID ontologyID;
 
 
     public BaseService(){

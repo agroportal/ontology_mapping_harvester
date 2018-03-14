@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class HarvestOBOFormatService extends BaseService implements HarvestService {
+public class HarvestAllFormatsService extends BaseService implements HarvestService {
 
 
     File fileA;
@@ -32,7 +32,7 @@ public class HarvestOBOFormatService extends BaseService implements HarvestServi
     private boolean isIRI;
 
 
-    public HarvestOBOFormatService(){
+    public HarvestAllFormatsService(){
         super();
         OWL_MATCH = new String[]{"oboInOwl#hasDbXref","http://www.geneontology.org/formats/oboInOwl#hasDbXref","http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
         isIRI = false;

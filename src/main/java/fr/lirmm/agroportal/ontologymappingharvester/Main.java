@@ -1,7 +1,6 @@
 package fr.lirmm.agroportal.ontologymappingharvester;
 
 
-import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestOBOFormatService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestOWLFormatService;
 
 public class Main {
@@ -23,7 +22,7 @@ public class Main {
 //        hfof.findMatches();
 //        hfof.printResults();
 
-//        HarvestOBOFormatService hfowlf = new HarvestOBOFormatService();
+//        HarvestAllFormatsService hfowlf = new HarvestAllFormatsService();
 //        if(hfowlf.loadOntology()) {
 //            hfowlf.findMatches();
 //            hfowlf.saveFile();

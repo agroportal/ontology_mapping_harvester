@@ -63,7 +63,7 @@ public class Util {
         an.setAssertion(property);
 
         if(isIRI){
-            System.out.println("#################################################################### "+propertyValue.substring(0,propertyValue.lastIndexOf("_")));
+            //System.out.println("#################################################################### "+propertyValue.substring(0,propertyValue.lastIndexOf("_")));
             an.setOntology2(propertyValue.substring(0,propertyValue.lastIndexOf("_")));
         }else {
             if (propertyValue.indexOf(":") > 1) {

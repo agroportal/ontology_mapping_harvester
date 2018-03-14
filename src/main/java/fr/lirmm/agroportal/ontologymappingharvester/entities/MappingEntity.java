@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class MappingEntity implements Serializable {
 
@@ -30,7 +31,7 @@ public class MappingEntity implements Serializable {
     private String comment;
     @Expose
     @SerializedName("classes")
-    private MapClassEntity classes;
+    private HashMap<String,String> classes;
 
     public int getId() {
         return id;
@@ -88,11 +89,11 @@ public class MappingEntity implements Serializable {
         this.comment = comment;
     }
 
-    public MapClassEntity getClasses() {
+    public HashMap<String, String> getClasses() {
         return classes;
     }
 
-    public void setClasses(MapClassEntity classes) {
+    public void setClasses(HashMap<String, String> classes) {
         this.classes = classes;
     }
 }

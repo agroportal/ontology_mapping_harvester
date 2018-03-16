@@ -66,7 +66,7 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
             //System.out.println("ONTOLOGY FORMAT:" + format.getKey());
 
 
-            System.out.println("ONTOLOGY:" + oA.toString());
+            printAndAppend("ONTOLOGY:" + oA.toString());
 
             ontologyID = oA.getOntologyID();
 
@@ -82,7 +82,7 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
 //                System.out.println("Sem ID");
 //            }
         }else{
-            System.out.println("No file selected !!!");
+            printAndAppend("No file selected !!!");
         }
         return true;
 
@@ -94,22 +94,21 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         boolean countIndividualsFlag = true;
         String auxProperty="";
 
-        sb.append("----------------------------------------------------------\n");
+        printAndAppend("----------------------------------------------------------");
 
-        sb.append("Classes\n");
+        printAndAppend("Classes");
         for (OWLClass c : oA.getClassesInSignature()) {
-            sb.append(c.toString()+"\n");
+            sb.append(c.toString());
             countClasses++;
         }
-        sb.append("Total Classes: " + countClasses+"\n");
-        sb.append("----------------------------------------------------------\n");
+        printAndAppend("Total Classes: " + countClasses);
+        printAndAppend("----------------------------------------------------------");
 
-        sb.append("Filter - Annotations\n");
+        printAndAppend("Filter - Annotations");
 
         for (int x = 0; x < OWL_MATCH.length; x++) {
 
-            sb.append("======================= Searching for: " + OWL_MATCH[x] + "=======================\n");
-            System.out.println("======================= Searching for: " + OWL_MATCH[x] + "=======================");
+            printAndAppend("======================= Searching for: " + OWL_MATCH[x] + "=======================");
 
             for (OWLClass cls : oA.getClassesInSignature()) {
                 // Get the annotations on the class that use the label property
@@ -137,15 +136,15 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
 
                         if(aux.indexOf(OWL_MATCH[x]) > -1) {
 
-                            System.out.println("Ontology: "+ oA.getOntologyID());
-                            System.out.println("Subject: " + annotationAssertionAxiom.getSubject());
-                            System.out.println("Property: " + annotationAssertionAxiom.getProperty());
+                            printAndAppend("Ontology: "+ oA.getOntologyID());
+                            printAndAppend("Subject: " + annotationAssertionAxiom.getSubject());
+                            printAndAppend("Property: " + annotationAssertionAxiom.getProperty());
 
                             if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
                                 //System.out.println("Entrou no if do annotation get value");
                                 OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
                                 //if (val.hasLang("en")) {
-                                System.out.println("PropertyValue: " + val.getLiteral());
+                                printAndAppend("PropertyValue: " + val.getLiteral());
                                 auxProperty = val.getLiteral();
                                 //}
                             }
@@ -213,36 +212,32 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
     public void saveFile() {
 
 
-        String path = fileIN.getAbsolutePath();
 
-        Path p = Paths.get(path);
-        String fileName = p.getFileName().toString();
-        String directory = p.getParent().toString();
 
 
         if (an != null && an.getOntology1() != null) {
 
-            sb.append("----------------------------------------------------------\n");
-            sb.append("Ontology Examined: " + an.getOntology1()+"\n");
-            sb.append("----------------------------------------------------------\n");
+            printAndAppend("----------------------------------------------------------");
+            printAndAppend("Ontology Examined: " + an.getOntology1());
+            printAndAppend("----------------------------------------------------------");
 
-            sb.append("Total Individuals: " + countIndividuals+"\n");
-            sb.append("----------------------------------------------------------\n");
+            printAndAppend("Total Individuals: " + countIndividuals);
+                    printAndAppend("----------------------------------------------------------");
 
 
             for (Map.Entry<String, HashMap<String, Integer>> entry : maps.entrySet()) {
                 String key = entry.getKey();
                 HashMap<String, Integer> value = entry.getValue();
 
-                sb.append("Matches to: " + key+"\n");
-                sb.append("----------------------------------------------------------\n");
+                printAndAppend("Matches to: " + key);
+                printAndAppend("----------------------------------------------------------");
 
                 for (Map.Entry<String, Integer> entry2 : value.entrySet()) {
                     String key2 = entry2.getKey();
                     Integer value2 = entry2.getValue();
 
-                    sb.append("SubTotal: " + key2 + " --> " + value2+"\n");
-                    sb.append("----------------------------------------------------------\n");
+                    printAndAppend("SubTotal: " + key2 + " --> " + value2);
+                    printAndAppend("----------------------------------------------------------");
 
                 }
 
@@ -253,22 +248,16 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
 
 
         } else {
-            sb.append("No matchs founded!\n");
+            printAndAppend("No matchs founded!");
         }
 
 
-        File f = new File(directory + File.separator+(fileName.replace(".rdf","").replace(".xrdf",""))+".txt");
-        System.out.println(fileName);
-        System.out.println(directory);
-        System.out.println(f.getAbsolutePath());
-
-        try {
-            FileUtils.writeStringToFile(f,sb.toString(),"UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        writeFile();
 
     }
+
+
+
 
 
     public void shouldUseReasoner() throws Exception {
@@ -317,7 +306,7 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         // We can determine if the ontology is actually consistent (in this
         // case, it should be).
         boolean consistent = reasoner.isConsistent();
-        System.out.println("Consistent: " + consistent);
+        printAndAppend("Consistent: " + consistent);
         // We can easily get a list of unsatisfiable classes. (A class is
         // unsatisfiable if it can't possibly have any instances). Note that the
         // getUnsatisfiableClasses method is really just a convenience method
@@ -329,12 +318,12 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         // and we can used a convenience method on the node to get these
         Set<OWLClass> unsatisfiable = bottomNode.getEntitiesMinusBottom();
         if (!unsatisfiable.isEmpty()) {
-            System.out.println("The following classes are unsatisfiable: ");
+            printAndAppend("The following classes are unsatisfiable: ");
             for (OWLClass cls : unsatisfiable) {
-                System.out.println(" " + cls);
+                printAndAppend(" " + cls);
             }
         } else {
-            System.out.println("There are no unsatisfiable classes");
+            printAndAppend("There are no unsatisfiable classes");
         }
         // Now we want to query the reasoner for all descendants of Marsupial.
         // Vegetarians are defined in the ontology to be animals that don't eat
@@ -362,7 +351,7 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         // result
         Set<OWLClass> clses = subClses.getFlattened();
         for (OWLClass cls : clses) {
-            System.out.println(" " + cls);
+            printAndAppend(" " + cls);
         }
         // We can easily
         // retrieve the instances of a class. In this example we'll obtain the
@@ -373,7 +362,7 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         // set.
         Set<OWLNamedIndividual> individuals = individualsNodeSet.getFlattened();
         for (OWLNamedIndividual ind : individuals) {
-            System.out.println(" " + ind);
+            printAndAppend(" " + ind);
         }
         // Again, it's worth noting that not all of the individuals that are
         // returned were explicitly stated to be marsupials. Finally, we can ask
@@ -384,11 +373,11 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         for (OWLNamedIndividual i : oA.getIndividualsInSignature()) {
             for (OWLObjectProperty p : oA.getObjectPropertiesInSignature()) {
                 NodeSet<OWLNamedIndividual> individualValues = reasoner.getObjectPropertyValues(i, p);
-                System.out.println("Vazio: "+individualValues.isEmpty());
+                printAndAppend("Vazio: "+individualValues.isEmpty());
                 Set<OWLNamedIndividual> values = individualValues.getFlattened();
-                System.out.println("The property values for "+p+" for individual "+i+" are: ");
+                printAndAppend("The property values for "+p+" for individual "+i+" are: ");
                 for (OWLNamedIndividual ind : values) {
-                    System.out.println(" " + ind);
+                    printAndAppend(" " + ind);
                 }
             }
         }
@@ -451,9 +440,9 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
         for (OWLClass cls : oA.getClassesInSignature()) {
             // Get the annotations on the class that use the label property
 
-            System.out.println("------------------------------------------------------------------------");
-            System.out.println("Classes: "+cls.toString());
-            System.out.println("------------------------------------------");
+            printAndAppend("------------------------------------------------------------------------");
+            printAndAppend("Classes: "+cls.toString());
+            printAndAppend("------------------------------------------");
 
             for (OWLOntology o : oA.getImportsClosure()) {
 
@@ -464,11 +453,11 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
                 for (OWLAnnotationAssertionAxiom annotationAssertionAxiom : o.getAnnotationAssertionAxioms(cls.getIRI())) {
                     //System.out.println("Entrou no if do assetation");
 
-                    System.out.println("=======================");
-                    System.out.println("AnnotationAssertationAxiom: "+annotationAssertionAxiom);
-                    System.out.println("Subject: "+annotationAssertionAxiom.getSubject());
-                    System.out.println("Property: "+annotationAssertionAxiom.getProperty());
-                    //System.out.println("PropertyValue: "+annotationAssertionAxiom.getValue().getClass());
+                    printAndAppend("=======================");
+                    printAndAppend("AnnotationAssertationAxiom: "+annotationAssertionAxiom);
+                    printAndAppend("Subject: "+annotationAssertionAxiom.getSubject());
+                    printAndAppend("Property: "+annotationAssertionAxiom.getProperty());
+                    printAndAppend("PropertyValue: "+annotationAssertionAxiom.getValue().getClass());
 
                     System.out.println("Assertion with out anotation: "+annotationAssertionAxiom.getAnnotationPropertiesInSignature());
 
@@ -477,11 +466,11 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
                         //System.out.println("Entrou no if do annotation get value");
                         OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
                         //if (val.hasLang("en")) {
-                        System.out.println("PropertyValueLiteral: " +  val.getLiteral());
+                        printAndAppend("PropertyValueLiteral: " +  val.getLiteral());
                         //}
                     }else if (annotationAssertionAxiom.getValue() instanceof IRI) {
 
-                        System.out.println("PropertyValueIRI: " +  annotationAssertionAxiom.getValue());
+                        printAndAppend("PropertyValueIRI: " +  annotationAssertionAxiom.getValue());
                         //}
                     }
 
@@ -490,7 +479,10 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
 
                 }
             }
-            System.out.println("----------------------------------------------------------------------");
+            printAndAppend("----------------------------------------------------------------------");
         }
     }
+
+
+
 }

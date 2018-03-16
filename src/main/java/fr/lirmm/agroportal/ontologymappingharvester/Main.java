@@ -1,6 +1,7 @@
 package fr.lirmm.agroportal.ontologymappingharvester;
 
 
+import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestOWLFormatService;
 
 public class Main {
@@ -29,18 +30,24 @@ public class Main {
 //
 //        }
 
-        HarvestOWLFormatService hfowlf = new HarvestOWLFormatService();
-        if(hfowlf.loadOntology()) {
-            hfowlf.findMatches();
-            try {
-                hfowlf.shouldUseReasoner();
-                hfowlf.shouldCreateAndReadAnnotations();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//        HarvestOWLFormatService hfowlf = new HarvestOWLFormatService();
+//        if(hfowlf.loadOntology()) {
+//            hfowlf.findMatches();
+//            try {
+//                hfowlf.shouldUseReasoner();
+//                hfowlf.shouldCreateAndReadAnnotations();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            hfowlf.saveFile();
+//
+//        }
 
-            //hfowlf.saveFile();
-
+        HarvestAllFormatsService harvestAllFormatsService = new HarvestAllFormatsService();
+        if(harvestAllFormatsService.loadOntology()){
+            harvestAllFormatsService.findMatches();
+            harvestAllFormatsService.saveFile();
         }
 
 

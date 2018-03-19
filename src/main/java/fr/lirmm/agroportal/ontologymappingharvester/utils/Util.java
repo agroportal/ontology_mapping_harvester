@@ -3,6 +3,9 @@ package fr.lirmm.agroportal.ontologymappingharvester.utils;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import org.semanticweb.owlapi.model.OWLAxiom;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class Util {
 
     public static AnnotationAssertationEntity getAnnotationAssertationEntity(OWLAxiom ax, int id) {
@@ -64,18 +67,18 @@ public class Util {
     }
 
 
-    public static AnnotationAssertationEntity getAnnotationAssertationEntity(String ontologyName, String subject, String property, String propertyValue, boolean isIRI, int id ){
+    public static AnnotationAssertationEntity getAnnotationAssertationEntity(String currentOntologyName,String ontologyName, String subject, String property, String propertyValue, boolean isIRI, int id ){
 
         AnnotationAssertationEntity an = new AnnotationAssertationEntity();
         an.setId(id);
-        String name="";
+        String name=currentOntologyName;
         String aux ="";
 
         if(ontologyName.toLowerCase().indexOf("anonymous")>-1){
             try {
                 name = ontologyName.substring(ontologyName.lastIndexOf("/"), ontologyName.lastIndexOf("_"));
             }catch(Exception e){
-                name = "Current Ontology";
+                name = currentOntologyName;
             }
         }
         an.setOntology1(name);
@@ -116,6 +119,10 @@ public class Util {
 
         return an;
 
+    }
+
+    public static String getDateTime(){
+        return  new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
     }
 
 }

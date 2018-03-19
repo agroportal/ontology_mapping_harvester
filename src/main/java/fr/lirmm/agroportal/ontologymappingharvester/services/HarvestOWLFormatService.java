@@ -18,10 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class HarvestOWLFormatService extends BaseService implements HarvestService {
 
@@ -150,7 +147,7 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
                             }
 
 
-                            an = Util.getAnnotationAssertationEntity(oA.getOntologyID().toString(),annotationAssertionAxiom.getSubject().toString(),annotationAssertionAxiom.getProperty().toString(),auxProperty,isIRI,countMatch++);
+                            an = Util.getAnnotationAssertationEntity(currentOntologyName,oA.getOntologyID().toString(),annotationAssertionAxiom.getSubject().toString(),annotationAssertionAxiom.getProperty().toString(),auxProperty,isIRI,countMatch++);
                             sb.append(an.toString()+"\n");
                             MapIRI = an.getOntology2();
                             MapIRI = an.getOntology2();
@@ -200,13 +197,6 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
     }
 
 
-    @Override
-    public void printResults() {
-
-        System.out.println(sb);
-
-
-    }
 
     @Override
     public void saveFile() {
@@ -256,8 +246,15 @@ public class HarvestOWLFormatService extends BaseService implements HarvestServi
 
     }
 
+    @Override
+    public void parse(String command, ArrayList<String> fileName) {
 
+    }
 
+    @Override
+    public void buildJson() {
+
+    }
 
 
     public void shouldUseReasoner() throws Exception {

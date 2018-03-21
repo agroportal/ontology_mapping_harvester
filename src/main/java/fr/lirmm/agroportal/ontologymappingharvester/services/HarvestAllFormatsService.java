@@ -137,8 +137,17 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                                 counter = mappings.get(MapIRI);
                                 counter++;
                                 mappings.put(MapIRI, counter);
+                                totalMappings.put(MapIRI, counter);
                             } else {
                                 mappings.put(MapIRI, 1);
+                                totalMappings.put(MapIRI, 1);
+                            }
+                            if (totalMappings.containsKey(MapIRI)) {
+                                counter = totalMappings.get(MapIRI);
+                                counter++;
+                                totalMappings.put(MapIRI, counter);
+                            } else {
+                                totalMappings.put(MapIRI, 1);
                             }
 
                             //S//System.out.println("AnnotationAssertationAxiom: " + annotationAssertionAxiom);ystem.out.println("=======================");.
@@ -192,6 +201,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         } else {
                             mappings.put(MapIRI, 1);
                         }
+                        if (totalMappings.containsKey(MapIRI)) {
+                            counter = totalMappings.get(MapIRI);
+                            counter++;
+                            totalMappings.put(MapIRI, counter);
+                        } else {
+                            totalMappings.put(MapIRI, 1);
+                        }
                     }
                 }
 
@@ -242,7 +258,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         if (an != null && an.getOntology1() != null) {
 
             printAndAppend("----------------------------------------------------------");
-            printAndAppend("Ontology Examined: " + an.getOntology1());
+            printAndAppend("Ontology Examined: " + currentOntologyName);
             printAndAppend("----------------------------------------------------------");
 
             printAndAppend("Total Individuals: " + countIndividuals);
@@ -265,6 +281,18 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                 }
 
+
+            }
+
+            printAndAppend("Total Matches for all Assertions on " + currentOntologyName);
+            printAndAppend("----------------------------------------------------------");
+
+            for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
+                String key2 = entry2.getKey();
+                Integer value2 = entry2.getValue();
+
+                printAndAppend("Sub: " + key2 + " --> " + value2);
+                printAndAppend("----------------------------------------------------------");
 
             }
 
@@ -333,6 +361,30 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     }
 
+    public void generateStatistics(){
+
+        String aux="";
+
+        addStat("rootnode;"+currentOntologyName+";"+countIndividuals+";"+currentOntologyName);
+
+        for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
+            String key2 = entry2.getKey();
+            Integer value2 = entry2.getValue();
+
+            if(key2.indexOf("http")==0){
+                key2 = key2.substring(key2.lastIndexOf(File.separator)+1,key2.length()).toUpperCase();
+            }
+
+
+            addStat("node;"+key2+";"+value2+";"+key2);
+            addStat("edge;"+currentOntologyName+";"+key2+";"+value2+";"+value2+" matches from "+currentOntologyName+" to "+key2);
+        }
+        writeStatFile();
+
+
+    }
+
+
     @Override
     public void parse(String command, ArrayList<String> files) {
         this.command = command;
@@ -344,6 +396,18 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             if(command.indexOf("j")>-1){
                 buildJson();
             }
+            if(command.indexOf("s")>-1){
+                generateStatistics();
+            }
+
+            mappings = new HashMap<>();
+            maps = new HashMap<>();
+            totalMappings = new HashMap<>();
+            deduplicationHash = new HashMap<>();
+            sb = new StringBuffer("");
+            sts = new StringBuffer("");
+            totalMappings.clear();
+
 
         }
     }

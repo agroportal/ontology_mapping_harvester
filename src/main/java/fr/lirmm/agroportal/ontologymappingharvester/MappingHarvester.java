@@ -1,5 +1,6 @@
 package fr.lirmm.agroportal.ontologymappingharvester;
 
+import fr.lirmm.agroportal.ontologymappingharvester.services.GenerateJSService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ public class MappingHarvester {
 
     public static void main (String[] args){
 
-        HarvestAllFormatsService service;
+
         String command="";
         ArrayList<String> files = new ArrayList<>();
         if(args.length==0 || args[0].equalsIgnoreCase("-help")){
@@ -36,8 +37,16 @@ public class MappingHarvester {
                 }
             }
 
-            service = new HarvestAllFormatsService();
-            service.parse(command,files);
+
+            if(command.indexOf("g")>-1) {
+
+                GenerateJSService generateJSService = new GenerateJSService();
+                generateJSService.generateJs(args[1]);
+
+            }else {
+                HarvestAllFormatsService service = new HarvestAllFormatsService();
+                service.parse(command, files);
+            }
 
 
         }
@@ -60,8 +69,10 @@ public class MappingHarvester {
         System.out.println("-s Gerate Statistics");
         System.out.println("-p print LOG on screen");
         System.out.println("-a Append LOG and/or Statistics to a single file");
+        System.out.println("-g Generate javascript for Graph representation of matches");
         System.out.println("Example of usage:");
-        System.out.println("/.MappingHarvest -jlsap onto1.ref onto2.ref onto3.ref");
+        System.out.println("/.MappingHarvest -jlsap path1/onto1.ref path2/onto2.ref pathn/onto3.ref");
+        System.out.println("/.MappingHarvest -g path_to_sts_files");
         System.out.println("The output files will have the same names as the input files and the");
         System.out.println("follow sufixes:");
         System.out.println(".json - JSON file for upload on AGROPORTAL");

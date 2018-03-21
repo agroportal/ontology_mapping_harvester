@@ -38,11 +38,14 @@ public class BaseService {
     HashMap<String,AnnotationAssertationEntity> deduplicationHash;
     HashMap<String,HashMap<String,Integer>> maps;
     HashMap<String,Integer> mappings;
+    HashMap<String,Integer> totalMappings;
+
     int counter;
     String MapIRI;
     File fileIN;
     File fileOUT;
     StringBuffer sb;
+    StringBuffer sts;
     OWLOntologyID ontologyID;
     String command;
     ArrayList<String> files;
@@ -62,10 +65,12 @@ public class BaseService {
         an = null;
         mappings = new HashMap<>();
         maps = new HashMap<>();
+        totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
         counter = 0;
         MapIRI="";
         sb = new StringBuffer("");
+        sts = new StringBuffer("");
         command="";
         files = new ArrayList<>();
         currentOntologyName="";
@@ -169,6 +174,31 @@ public class BaseService {
 
     }
 
+    public void writeStatFile(){
+
+
+        if(command.indexOf("s")>-1) {
+
+            String path = fileIN.getAbsolutePath();
+
+            Path p = Paths.get(path);
+            String fileName = p.getFileName().toString();
+            String directory = p.getParent().toString();
+
+            File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".sts");
+            printAndAppend("Writing Statistics file: " + f.getAbsolutePath());
+
+            try {
+                FileUtils.writeStringToFile(f, sts.toString(), "UTF-8");
+            } catch (IOException e) {
+                printAndAppend("Error trying to write file: " + f.getAbsolutePath());
+                printAndAppend(e.getMessage());
+            }
+        }
+
+    }
+
+
 
     public void printAndAppend(String text){
 
@@ -180,6 +210,10 @@ public class BaseService {
             sb.append(getDateTime()+"  "+text+"\n");
         }
 
+    }
+
+    public void addStat(String text){
+            sts.append(text+"\n");
     }
 
 

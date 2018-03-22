@@ -12,6 +12,8 @@ public interface HarvestService {
 
     public void parse(String command, ArrayList<String> fileName);
 
+    public void parse(String command, String dir);
+
     public void buildJson();
 
 }

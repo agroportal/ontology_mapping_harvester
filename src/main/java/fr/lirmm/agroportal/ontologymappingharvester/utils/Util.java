@@ -89,8 +89,17 @@ public class Util {
         if(isIRI){
             //System.out.println("#################################################################### "+propertyValue.substring(0,propertyValue.lastIndexOf("_")));
 
-            // enter here if it is an IRI
-            an.setOntology2(propertyValue.substring(0,propertyValue.lastIndexOf("_")));
+            if(propertyValue.lastIndexOf("_")==-1){
+             // in case of a reference to wikipidia
+             if(propertyValue.toLowerCase().indexOf("wikipedia")>-1){
+                 an.setOntology2("WIKIPEDIA");
+             }
+            }else{
+                // enter here if it is an IRI
+                an.setOntology2(propertyValue.substring(0,propertyValue.lastIndexOf("_")));
+            }
+
+
         }else {
 
             // Enter here if it is not an IRI

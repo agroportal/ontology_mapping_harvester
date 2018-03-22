@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.MappingEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.OntologyEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -36,7 +38,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     public HarvestAllFormatsService(){
         super();
         MATCH = new String[]{"http://www.w3.org/2002/07/owl#sameAs","http://www.geneontology.org/formats/oboInOwl#hasDbXref","http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
-        isIRI = false;
+        isIRI = false;        this.files = files;
+
     }
 
 
@@ -55,6 +58,33 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             printAndAppend(e.getMessage());
         }
 
+
+        printAndAppend("ONTOLOGY:" + oA.toString());
+
+        ontologyID = oA.getOntologyID();
+
+    }
+
+    public void downloadOntology(String acronym, String address, String dir){
+
+        System.out.println("Acro   : "+acronym);
+        System.out.println("Address: "+address);
+        System.out.println("Dir    : "+dir);
+
+        currentOntologyName = acronym;
+
+        fileIN = new File(dir + File.separator+ acronym.toUpperCase()+".xrdf");
+
+        System.out.println("FileIn    : "+fileIN);
+        // Agroportal DEMO KEY
+        IRI iri = IRI.create(address+"?apikey=528c4e4a-5c3e-4798-a2e2-11d96761b8ce&download-format=rdf");
+
+        try {
+            oA = man.loadOntology(iri);
+        } catch (OWLOntologyCreationException e) {
+            printAndAppend("Error trying to download ontology from file");
+            printAndAppend(e.getMessage());
+        }
 
         printAndAppend("ONTOLOGY:" + oA.toString());
 
@@ -356,9 +386,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         }
 
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        writeJsonFile(gson.toJson(mappingEntities));
-        printAndAppend("Finished generation of JSON file");
+        if(mappingEntities.size()>0) {
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            writeJsonFile(gson.toJson(mappingEntities));
+            printAndAppend("Finished generation of JSON file");
+        }else{
+            printAndAppend("No matches - JSON file generation skiped!");
+        }
 
     }
 
@@ -380,7 +414,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             addStat("node;"+key2+";"+value2+";"+key2);
             addStat("edge;"+currentOntologyName+";"+key2+";"+value2+";"+value2+" matches from "+currentOntologyName+" to "+key2);
         }
-        writeStatFile();
+        if(sts.toString().length()>0){
+            printAndAppend("Statistic file was generated");
+            writeStatFile();
+        }else{
+            printAndAppend("No matches, Statistic file generation skiped!");
+        }
 
 
     }
@@ -435,5 +474,38 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    @Override
+    public void parse(String command, String dir) {
+        this.command = command;
+
+        AgroportalRestService agroportalRestService = new AgroportalRestService();
+
+        List<OntologyEntity> ontologies =  agroportalRestService.getOntologyAnnotation();
+
+        for (OntologyEntity ontologyEntity: ontologies) {
+
+
+
+            downloadOntology(ontologyEntity.getAcronym(),ontologyEntity.getLinks().getDownload(),dir);
+            findMatches();
+            saveFile();
+            if(command.indexOf("j")>-1){
+                buildJson();
+            }
+            if(command.indexOf("s")>-1){
+                generateStatistics();
+            }
+
+            mappings = new HashMap<>();
+            maps = new HashMap<>();
+            totalMappings = new HashMap<>();
+            deduplicationHash = new HashMap<>();
+            sb = new StringBuffer("");
+            sts = new StringBuffer("");
+            totalMappings.clear();
+
+
+        }
+    }
 
 }

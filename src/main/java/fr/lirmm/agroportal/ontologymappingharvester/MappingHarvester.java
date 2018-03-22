@@ -44,8 +44,15 @@ public class MappingHarvester {
                 generateJSService.generateJs(args[1]);
 
             }else {
+
                 HarvestAllFormatsService service = new HarvestAllFormatsService();
-                service.parse(command, files);
+
+                if(command.indexOf("d")>-1){
+
+                    service.parse(command, args[1]);
+                }else {
+                    service.parse(command, files);
+                }
             }
 
 
@@ -70,10 +77,12 @@ public class MappingHarvester {
         System.out.println("-p print LOG on screen");
         System.out.println("-b for bulk files from a folder (must provide folder name)");
         System.out.println("-g Generate javascript for Graph representation of matches");
+        System.out.println("-d Download ontologies from Agroportal (require destination folder)");
         System.out.println("Examples of usage:");
         System.out.println("/.MappingHarvest -jlsap path1/onto1.ref path2/onto2.ref pathn/onto3.ref");
         System.out.println("/.MappingHarvest -g path_to_sts_files");
-        System.out.println("/.MappingHarvest -b path_to_ontology_files");
+        System.out.println("/.MappingHarvest -bjlsp path_to_ontology_files");
+        System.out.println("/.MappingHarvest -djslp path_to_output_files");
         System.out.println("The output files will have the same names as the input files and the");
         System.out.println("follow sufixes:");
         System.out.println(".json - JSON file for upload on AGROPORTAL");

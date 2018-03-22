@@ -2,7 +2,7 @@
   <configuration default="false" name="MappingHarvester Command Line" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
       <pattern>
-        <option name="PATTERN" value="fr.lirmm.agroportal.ontologymappingharvester.*" />
+        <option name="PATTERN" value="fr.lirmm.agroportal.ontologymappingharvester.utils.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

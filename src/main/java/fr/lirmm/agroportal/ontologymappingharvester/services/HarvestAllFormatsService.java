@@ -44,6 +44,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         try {
 
+            System.out.println("FileName: "+fileName);
             currentOntologyName = fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".")).toUpperCase();
 
             fileIN = new File(fileName);
@@ -385,11 +386,32 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    private ArrayList<String> getFilesFromFolder(String dirName){
+
+        File dir = new File(dirName);
+        String[] extensions = new String[] { "xrdf","owl","rdf" };
+        List<File> files = (List<File>) FileUtils.listFiles(dir, extensions, true);
+        ArrayList<String> lista = new ArrayList<>();
+        for (File file:files) {
+            System.out.println("File: "+file);
+            lista.add(file.toString());
+        }
+
+        return lista;
+    }
+
+
     @Override
     public void parse(String command, ArrayList<String> files) {
         this.command = command;
         this.files = files;
-        for (String file:files) {
+
+        if(command.indexOf("b")>-1){
+            this.files = getFilesFromFolder(files.get(0));
+        }
+
+
+        for (String file:this.files) {
             loadOntology(file);
             findMatches();
             saveFile();

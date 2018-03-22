@@ -29,16 +29,12 @@ public class GenerateJSService {
 
         File dir = new File(dirName);
         String[] extensions = new String[] { "sts" };
-        try {
-            System.out.println("Getting all .txt and .jsp files in " + dir.getCanonicalPath()
-                    + " including those in subdirectories");
+
             List<File> files = (List<File>) FileUtils.listFiles(dir, extensions, true);
             for (File file : files) {
                processFile(file);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         generateOutPut();
         saveFile(dirName);
 

@@ -31,7 +31,7 @@ public class AgroportalRestService {
             e.printStackTrace();
         }
 
-        System.out.println("Size: "+ontologies.size());
+        //System.out.println("Size: "+ontologies.size());
 
         return ontologies;
 

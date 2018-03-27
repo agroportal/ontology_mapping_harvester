@@ -1,6 +1,12 @@
 package fr.lirmm.agroportal.ontologymappingharvester.services;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.ExtRefList;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.LoadProperties;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
@@ -13,7 +19,9 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,6 +48,8 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
 
+    HashMap<String, ExternalReference> externalReferenceHashMap;
+
     int counter;
     String MapIRI;
     File fileIN;
@@ -50,6 +60,7 @@ public class BaseService {
     String command;
     ArrayList<String> files;
     String currentOntologyName;
+    StringBuffer unmap;
 
 
     public BaseService(){
@@ -71,9 +82,11 @@ public class BaseService {
         MapIRI="";
         sb = new StringBuffer("");
         sts = new StringBuffer("");
+        unmap = new StringBuffer("");
         command="";
         files = new ArrayList<>();
         currentOntologyName="";
+        externalReferenceHashMap = new HashMap<>();
 
     }
 
@@ -207,7 +220,7 @@ public class BaseService {
             System.out.println(text);
         }
         if(command.indexOf("l")>-1){
-            sb.append(getDateTime()+"  "+text+"\n");
+            sb.append(Util.getDateTime()+"  "+text+"\n");
         }
 
     }
@@ -442,5 +455,33 @@ public class BaseService {
     }
 
 
+    public void loadExternalReferences(){
+
+
+    String dir = LoadProperties.loadExternalReferencePath();
+
+        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_references.json"))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+
+            Gson gson = new GsonBuilder().create();
+            ExtRefList references = gson.fromJson(everything, ExtRefList.class);
+
+            for(ExternalReference reference: references.getExternalReferences()){
+                externalReferenceHashMap.put(reference.getSearchString().toLowerCase(),reference);
+            }
+            System.out.println("External references size: "+externalReferenceHashMap.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }

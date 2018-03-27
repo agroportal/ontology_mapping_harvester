@@ -77,7 +77,7 @@ public class GenerateJSService {
                         }
                     } else {
                         node.put(values[1], line);
-                        System.out.println("Common Node: " + values[1] + " " + line);
+                        System.out.println("Common Node: -->" + values[1] + "<-- " + line);
                     }
                 }
                 if(values[0].equalsIgnoreCase("edge")){
@@ -138,8 +138,9 @@ public class GenerateJSService {
         for (Map.Entry<String, String> entry : node.entrySet()) {
             String key = entry.getKey();
             values = entry.getValue().split(";");
+            System.out.println("VALUE--->"+entry.getValue());
             mapCounter.put(key,counter);
-            //System.out.println("MapCounter: "+key+" "+counter);
+            System.out.println("MapCounter: "+key+" "+counter);
             js.append("{id: "+counter+",  value: "+values[2]+",  label: '"+values[3]+"' }");
             if(counter < mapSize){
                 js.append(",");

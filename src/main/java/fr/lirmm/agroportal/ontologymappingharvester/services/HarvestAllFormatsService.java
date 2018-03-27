@@ -3,34 +3,21 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
-import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.reasoner.Node;
-import org.semanticweb.owlapi.reasoner.NodeSet;
-import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
-import org.semanticweb.owlapi.util.DefaultPrefixManager;
-
-import javax.annotation.Nonnull;
-import javax.swing.*;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HarvestAllFormatsService extends BaseService implements HarvestService {
 
 
-    File fileA;
-    OWLDataFactory df;
     private String[] MATCH;
     private boolean isIRI;
 
@@ -47,7 +34,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         try {
 
-            System.out.println("FileName: "+fileName);
+            //System.out.println("FileName: "+fileName);
             currentOntologyName = fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".")).toUpperCase();
 
             fileIN = new File(fileName);
@@ -67,15 +54,15 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     public void downloadOntology(String acronym, String address, String dir){
 
-        System.out.println("Acro   : "+acronym);
-        System.out.println("Address: "+address);
-        System.out.println("Dir    : "+dir);
+        //System.out.println("Acro   : "+acronym);
+        //System.out.println("Address: "+address);
+        //System.out.println("Dir    : "+dir);
 
         currentOntologyName = acronym;
 
         fileIN = new File(dir + File.separator+ acronym.toUpperCase()+".xrdf");
 
-        System.out.println("FileIn    : "+fileIN);
+        //System.out.println("FileIn    : "+fileIN);
         // Agroportal DEMO KEY
         IRI iri = IRI.create(address+"?apikey=528c4e4a-5c3e-4798-a2e2-11d96761b8ce&download-format=rdf");
 
@@ -84,6 +71,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         } catch (OWLOntologyCreationException e) {
             printAndAppend("Error trying to download ontology from file");
             printAndAppend(e.getMessage());
+            saveFile();
+        }catch(UnloadableImportException e1){
+            printAndAppend("Error trying to import ontology");
+            printAndAppend(e1.getMessage());
+            saveFile();
         }
 
         printAndAppend("ONTOLOGY:" + oA.toString());
@@ -160,7 +152,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                             }
 
 
-                            an = Util.getAnnotationAssertationEntity(currentOntologyName,oA.getOntologyID().toString(),annotationAssertionAxiom.getSubject().toString(),annotationAssertionAxiom.getProperty().toString(),auxProperty,isIRI,++countMatch);
+                            an = getAnnotationAssertationEntity(currentOntologyName,oA.getOntologyID().toString(),annotationAssertionAxiom.getSubject().toString(),annotationAssertionAxiom.getProperty().toString(),auxProperty,isIRI,++countMatch);
                             addToDeduplicationHash(an);
                             printAndAppend(an.toString());
                             MapIRI = an.getOntology2();
@@ -221,7 +213,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     if (aux.indexOf(MATCH[x]) > -1) {
 
                         //printAndAppend("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-->"+ax);
-                        an = Util.getAnnotationAssertationEntity(ax, ++countMatch);
+                        an = getAnnotationAssertationEntity(ax, ++countMatch);
                         addToDeduplicationHash(an);
                         printAndAppend(an.toString());
                         MapIRI = an.getOntology2();
@@ -407,7 +399,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             Integer value2 = entry2.getValue();
 
             if(key2.indexOf("http")==0){
-                key2 = key2.substring(key2.lastIndexOf(File.separator)+1,key2.length()).toUpperCase();
+                //key2 = key2.substring(key2.lastIndexOf(File.separator)+1,key2.length()).toUpperCase();
+                key2 = mapExternalLink(key2);
             }
 
 
@@ -432,7 +425,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         List<File> files = (List<File>) FileUtils.listFiles(dir, extensions, true);
         ArrayList<String> lista = new ArrayList<>();
         for (File file:files) {
-            System.out.println("File: "+file);
+            //System.out.println("File: "+file);
             lista.add(file.toString());
         }
 
@@ -440,8 +433,149 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    public AnnotationAssertationEntity getAnnotationAssertationEntity(OWLAxiom ax, int id) {
+
+        String aux = ax.toString().replace("\n","").trim();
+        String aux2 = "";
+        String ret="";
+
+        // System.out.println(aux);
+        int indexOf1 = 0;
+        int indexOf2 = 0;
+        AnnotationAssertationEntity an = new AnnotationAssertationEntity();
+        an.setId(id);
+
+        if(aux.length()>6) {
+
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+            an.setAssertion(aux.substring(indexOf1, indexOf2+1).replace("<","").replace(">",""));
+            aux = aux.substring(indexOf2+1);
+
+            //System.out.println(aux);
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+            an.setOntologyConcept1(aux.substring(indexOf1, indexOf2+1).replace("<","").replace(">",""));
+            an.setOntology1(an.getOntologyConcept1().substring(0,an.getOntologyConcept1().lastIndexOf("/")));
+
+            aux = aux.substring(indexOf2+1).replace(" ","").replace("\"","");
+
+            //System.out.println(aux);
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+            if(indexOf1>-1 && indexOf2>1) {
+                an.setOntologyConcept2(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
+                an.setOntology2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/")));
+            }else{
+
+
+                ret = mapExternalLink(aux);
+                an.setOntology2(ret);
+                if(ret.equals("UNMAPPED_REFERENCE")){
+                    if (aux.indexOf(":") > 1 && aux.indexOf("http")!=0 && aux.indexOf("ftp")!=0 && aux.indexOf("smtp")!=0 ) {
+                        an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+                    } else if (aux.indexOf("_") > 1) {
+                        an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+                    } else if (aux.indexOf("-") > 1) {
+                        an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                    }
+                }
+                an.setOntologyConcept2(aux);
+            }
+
+        }
+
+        return an;
+    }
+
+
+    public AnnotationAssertationEntity getAnnotationAssertationEntity(String currentOntologyName,String ontologyName, String subject, String property, String propertyValue, boolean isIRI, int id ){
+
+        AnnotationAssertationEntity an = new AnnotationAssertationEntity();
+        an.setId(id);
+
+        String name=currentOntologyName;
+        String aux ="";
+        String ret="";
+
+        an.setOntology1(name);
+        an.setOntologyConcept1(subject.replace("\n","").trim());
+        an.setOntologyConcept2(propertyValue.replace("\n","").trim());
+        an.setAssertion(property.replace("<","").replace(">","").replace("\n","").trim());
+
+        if(isIRI){
+
+            // Enter here if it is not an IRI
+            aux = propertyValue.toLowerCase().replace("\n","").trim();
+            ret = mapExternalLink(aux);
+            an.setOntology2(ret);
+            if(ret.equals("UNMAPPED_REFERENCE")){
+                if (aux.indexOf(":") > 1 && aux.indexOf("http")!=0 && aux.indexOf("ftp")!=0 && aux.indexOf("smtp")!=0 ) {
+                    an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+                } else if (aux.indexOf("_") > 1) {
+                    an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+                } else if (aux.indexOf("-") > 1) {
+                    an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                }
+            }
+
+        }else {
+
+            // Enter here if it is not an IRI
+            aux = propertyValue.toLowerCase().replace("\n","").trim();
+
+                ret = mapExternalLink(aux);
+                an.setOntology2(ret);
+                if(ret.equals("UNMAPPED_REFERENCE")){
+                    if (aux.indexOf(":") > 1 && aux.indexOf("http")!=0 && aux.indexOf("ftp")!=0 && aux.indexOf("smtp")!=0 ) {
+                        an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+                    } else if (aux.indexOf("_") > 1) {
+                        an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+                    } else if (aux.indexOf("-") > 1) {
+                        an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                    }
+                }
+
+
+        }
+
+
+        return an;
+
+    }
+
+
+    public String mapExternalLink(String searchString){
+
+        ExternalReference value;
+        String key;
+        String result="";
+        for (Map.Entry<String, ExternalReference> entry : externalReferenceHashMap.entrySet()) {
+            key = entry.getKey();
+            value = entry.getValue();
+            if(searchString.indexOf(key)>-1){
+                result = value.getLink();
+                break;
+            }
+        }
+        if(result.length()>0){
+            return result.toLowerCase();
+        }else{
+            printAndAppend("ERROR: External reference not mapped -->"+searchString);
+
+            System.out.println("{\"search_string\":\""+searchString.replace("http://www.","").replace("https://www.","").replace("http://","").replace("https://","")+"\",\"link\":\""+searchString+"\",\"iri\":\"\"},");
+
+            return "UNMAPPED_REFERENCE";
+        }
+
+    }
+
+
     @Override
     public void parse(String command, ArrayList<String> files) {
+
+        printAndAppend("External references size: "+externalReferenceHashMap.size());
+
         this.command = command;
         this.files = files;
 
@@ -451,6 +585,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
         for (String file:this.files) {
+            man = OWLManager.createOWLOntologyManager();
+            OWLOntology oA = null;
             loadOntology(file);
             findMatches();
             saveFile();
@@ -476,6 +612,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     @Override
     public void parse(String command, String dir) {
+
+        //System.out.println("External references size: "+externalReferenceHashMap.size());
+
+
         this.command = command;
 
         AgroportalRestService agroportalRestService = new AgroportalRestService();
@@ -484,6 +624,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         for (OntologyEntity ontologyEntity: ontologies) {
 
+            man = OWLManager.createOWLOntologyManager();
+            OWLOntology oA = null;
 
 
             downloadOntology(ontologyEntity.getAcronym(),ontologyEntity.getLinks().getDownload(),dir);

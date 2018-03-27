@@ -46,6 +46,7 @@ public class MappingHarvester {
             }else {
 
                 HarvestAllFormatsService service = new HarvestAllFormatsService();
+                service.loadExternalReferences();
 
                 if(command.indexOf("d")>-1){
 

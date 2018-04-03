@@ -26,7 +26,7 @@ public class AnnotationAssertationEntity {
     }
 
     public void setAssertion(String assertion) {
-        this.assertion = assertion;
+        this.assertion = assertion.toLowerCase();
     }
 
     public String getOntology1() {
@@ -34,7 +34,7 @@ public class AnnotationAssertationEntity {
     }
 
     public void setOntology1(String ontology1) {
-        this.ontology1 = ontology1;
+        this.ontology1 = ontology1.toLowerCase();
     }
 
     public String getOntology2() {
@@ -42,7 +42,7 @@ public class AnnotationAssertationEntity {
     }
 
     public void setOntology2(String ontology2) {
-        this.ontology2 = ontology2;
+        this.ontology2 = ontology2.toLowerCase();
     }
 
     public String getOntologyConcept1() {
@@ -50,7 +50,7 @@ public class AnnotationAssertationEntity {
     }
 
     public void setOntologyConcept1(String ontologyConcept1) {
-        this.ontologyConcept1 = ontologyConcept1;
+        this.ontologyConcept1 = ontologyConcept1.toLowerCase();
     }
 
     public String getOntologyConcept2() {
@@ -58,7 +58,7 @@ public class AnnotationAssertationEntity {
     }
 
     public void setOntologyConcept2(String ontologyConcept2) {
-        this.ontologyConcept2 = ontologyConcept2;
+        this.ontologyConcept2 = ontologyConcept2.toLowerCase();
     }
 
     @Override

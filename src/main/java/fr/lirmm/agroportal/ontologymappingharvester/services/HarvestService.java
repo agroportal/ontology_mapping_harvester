@@ -14,6 +14,8 @@ public interface HarvestService {
 
     public void parse(String command, String dir);
 
+    public void parse(String command, String dir, String ontology);
+
     public void buildJson();
 
 }

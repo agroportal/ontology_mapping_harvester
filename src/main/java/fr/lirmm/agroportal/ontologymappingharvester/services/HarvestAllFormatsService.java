@@ -796,7 +796,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             sb = new StringBuffer("");
             sts = new StringBuffer("");
             totalMappings.clear();
-            countOntologies=0;
+
 
 
 
@@ -862,7 +862,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             sb = new StringBuffer("");
             sts = new StringBuffer("");
             totalMappings.clear();
-            countOntologies=0;
+
 
 
 

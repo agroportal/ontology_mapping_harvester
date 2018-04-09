@@ -29,7 +29,7 @@ public class MappingHarvester {
 
             command = args[0].replace("-","");
             if(args.length==1){
-                if(command.indexOf("-")==-1 || command.length()==1){
+                if(command.indexOf("-")==-1 || command.length()==0){
                     System.out.println();
                     System.out.println("Attention: No parameters provided! Nothing to do!");
                     printHelp();

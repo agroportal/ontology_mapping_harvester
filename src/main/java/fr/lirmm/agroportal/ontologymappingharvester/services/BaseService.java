@@ -5,9 +5,10 @@ import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ExtRefList;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
-import fr.lirmm.agroportal.ontologymappingharvester.utils.LoadProperties;
-import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.Node;
@@ -25,10 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static fr.lirmm.agroportal.ontologymappingharvester.utils.Util.getDateTime;
 
 public class BaseService {
 
@@ -41,14 +39,18 @@ public class BaseService {
     int countMatch;
     int countTotalMatch;
     int totalAnnotationAssertationEntities;
+    int countOntologies;
     String aux;
     AnnotationAssertationEntity an;
     HashMap<String,AnnotationAssertationEntity> deduplicationHash;
     HashMap<String,HashMap<String,Integer>> maps;
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
-
     HashMap<String, ExternalReference> externalReferenceHashMap;
+    Logger stdoutLogger;
+    Logger errorLogger;
+    Logger statisticsLogger;
+    Logger externalLogger;
 
     int counter;
     String MapIRI;
@@ -72,6 +74,7 @@ public class BaseService {
         countIndividuals=0;
         countMatch=0;
         countTotalMatch=0;
+        countOntologies=0;
         aux="";
         an = null;
         mappings = new HashMap<>();
@@ -87,7 +90,6 @@ public class BaseService {
         files = new ArrayList<>();
         currentOntologyName="";
         externalReferenceHashMap = new HashMap<>();
-
     }
 
 
@@ -117,7 +119,7 @@ public class BaseService {
             //System.out.println("ONTOLOGY FORMAT:" + format.getKey());
 
 
-            printAndAppend("ONTOLOGY:" + oA.toString());
+            stdoutLogger.info("ONTOLOGY:" + oA.toString());
 
             ontologyID = oA.getOntologyID();
 
@@ -139,29 +141,6 @@ public class BaseService {
 
     }
 
-    public void writeFile(){
-
-
-        if(command.indexOf("l")>-1) {
-
-            String path = fileIN.getAbsolutePath();
-
-            Path p = Paths.get(path);
-            String fileName = p.getFileName().toString();
-            String directory = p.getParent().toString();
-
-            File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".log");
-            printAndAppend("Writing LOG file: " + f.getAbsolutePath());
-
-            try {
-                FileUtils.writeStringToFile(f, sb.toString(), "UTF-8");
-            } catch (IOException e) {
-                printAndAppend("Error trying to write file: " + f.getAbsolutePath());
-                printAndAppend(e.getMessage());
-            }
-        }
-
-    }
 
     public void writeJsonFile(String jsonString){
 
@@ -175,13 +154,12 @@ public class BaseService {
             String directory = p.getParent().toString();
 
             File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".json");
-            printAndAppend("Writing JSON file: " + f.getAbsolutePath());
+            stdoutLogger.info("Writing JSON file: " + f.getAbsolutePath());
 
             try {
                 FileUtils.writeStringToFile(f, jsonString, "UTF-8");
             } catch (IOException e) {
-                printAndAppend("Error trying to write file: " + f.getAbsolutePath());
-                printAndAppend(e.getMessage());
+                errorLogger.error("Error trying to write JSON file: " + e.getMessage());
             }
         }
 
@@ -199,31 +177,17 @@ public class BaseService {
             String directory = p.getParent().toString();
 
             File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".sts");
-            printAndAppend("Writing Statistics file: " + f.getAbsolutePath());
+            stdoutLogger.info("Writing Statistics file: " + f.getAbsolutePath());
 
             try {
                 FileUtils.writeStringToFile(f, sts.toString(), "UTF-8");
             } catch (IOException e) {
-                printAndAppend("Error trying to write file: " + f.getAbsolutePath());
-                printAndAppend(e.getMessage());
+                errorLogger.error("Error trying to write STATISTICS file: " + e.getMessage());
             }
         }
 
     }
 
-
-
-    public void printAndAppend(String text){
-
-
-        if(command.indexOf("p")>-1){
-            System.out.println(text);
-        }
-        if(command.indexOf("l")>-1){
-            sb.append(Util.getDateTime()+"  "+text+"\n");
-        }
-
-    }
 
     public void addStat(String text){
             sts.append(text+"\n");
@@ -284,7 +248,7 @@ public class BaseService {
         // We can determine if the ontology is actually consistent (in this
         // case, it should be).
         boolean consistent = reasoner.isConsistent();
-        printAndAppend("Consistent: " + consistent);
+        stdoutLogger.info("Consistent: " + consistent);
         // We can easily get a list of unsatisfiable classes. (A class is
         // unsatisfiable if it can't possibly have any instances). Note that the
         // getUnsatisfiableClasses method is really just a convenience method
@@ -296,12 +260,12 @@ public class BaseService {
         // and we can used a convenience method on the node to get these
         Set<OWLClass> unsatisfiable = bottomNode.getEntitiesMinusBottom();
         if (!unsatisfiable.isEmpty()) {
-            printAndAppend("The following classes are unsatisfiable: ");
+            stdoutLogger.info("The following classes are unsatisfiable: ");
             for (OWLClass cls : unsatisfiable) {
-                printAndAppend(" " + cls);
+                stdoutLogger.info(" " + cls);
             }
         } else {
-            printAndAppend("There are no unsatisfiable classes");
+            stdoutLogger.info("There are no unsatisfiable classes");
         }
         // Now we want to query the reasoner for all descendants of Marsupial.
         // Vegetarians are defined in the ontology to be animals that don't eat
@@ -329,7 +293,7 @@ public class BaseService {
         // result
         Set<OWLClass> clses = subClses.getFlattened();
         for (OWLClass cls : clses) {
-            printAndAppend(" " + cls);
+            stdoutLogger.info(" " + cls);
         }
         // We can easily
         // retrieve the instances of a class. In this example we'll obtain the
@@ -340,7 +304,7 @@ public class BaseService {
         // set.
         Set<OWLNamedIndividual> individuals = individualsNodeSet.getFlattened();
         for (OWLNamedIndividual ind : individuals) {
-            printAndAppend(" " + ind);
+            stdoutLogger.info(" " + ind);
         }
         // Again, it's worth noting that not all of the individuals that are
         // returned were explicitly stated to be marsupials. Finally, we can ask
@@ -351,11 +315,11 @@ public class BaseService {
         for (OWLNamedIndividual i : oA.getIndividualsInSignature()) {
             for (OWLObjectProperty p : oA.getObjectPropertiesInSignature()) {
                 NodeSet<OWLNamedIndividual> individualValues = reasoner.getObjectPropertyValues(i, p);
-                printAndAppend("Vazio: "+individualValues.isEmpty());
+                stdoutLogger.info("Vazio: "+individualValues.isEmpty());
                 Set<OWLNamedIndividual> values = individualValues.getFlattened();
-                printAndAppend("The property values for "+p+" for individual "+i+" are: ");
+                stdoutLogger.info("The property values for "+p+" for individual "+i+" are: ");
                 for (OWLNamedIndividual ind : values) {
-                    printAndAppend(" " + ind);
+                    stdoutLogger.info(" " + ind);
                 }
             }
         }
@@ -418,9 +382,9 @@ public class BaseService {
         for (OWLClass cls : oA.getClassesInSignature()) {
             // Get the annotations on the class that use the label property
 
-            printAndAppend("------------------------------------------------------------------------");
-            printAndAppend("Classes: "+cls.toString());
-            printAndAppend("------------------------------------------");
+            stdoutLogger.info("------------------------------------------------------------------------");
+            stdoutLogger.info("Classes: "+cls.toString());
+            stdoutLogger.info("------------------------------------------");
 
             for (OWLOntology o : oA.getImportsClosure()) {
 
@@ -431,26 +395,26 @@ public class BaseService {
                 for (OWLAnnotationAssertionAxiom annotationAssertionAxiom : o.getAnnotationAssertionAxioms(cls.getIRI())) {
                     //System.out.println("Entrou no if do assetation");
 
-                    printAndAppend("=======================");
-                    printAndAppend("AnnotationAssertationAxiom: "+annotationAssertionAxiom);
-                    printAndAppend("Subject: "+annotationAssertionAxiom.getSubject());
-                    printAndAppend("Property: "+annotationAssertionAxiom.getProperty());
+                    stdoutLogger.info("=======================");
+                    stdoutLogger.info("AnnotationAssertationAxiom: "+annotationAssertionAxiom);
+                    stdoutLogger.info("Subject: "+annotationAssertionAxiom.getSubject());
+                    stdoutLogger.info("Property: "+annotationAssertionAxiom.getProperty());
 
-                    printAndAppend("Assertion with out anotation: "+annotationAssertionAxiom.getAnnotationPropertiesInSignature());
+                    stdoutLogger.info("Assertion with out anotation: "+annotationAssertionAxiom.getAnnotationPropertiesInSignature());
 
 
                     if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
                         //System.out.println("Entrou no if do annotation get value");
                         OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
                         //if (val.hasLang("en")) {
-                        printAndAppend("PropertyValue: " +
+                        stdoutLogger.info("PropertyValue: " +
                                 val.getLiteral());
                         //}
                     }
 
                 }
             }
-            printAndAppend("----------------------------------------------------------------------");
+            stdoutLogger.info("----------------------------------------------------------------------");
         }
     }
 
@@ -458,7 +422,7 @@ public class BaseService {
     public void loadExternalReferences(){
 
 
-    String dir = LoadProperties.loadExternalReferencePath();
+    String dir = ManageProperties.loadPropertyValue("externalproperties");
 
         try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_references.json"))) {
             StringBuilder sb = new StringBuilder();
@@ -476,11 +440,72 @@ public class BaseService {
             for(ExternalReference reference: references.getExternalReferences()){
                 externalReferenceHashMap.put(reference.getSearchString().toLowerCase(),reference);
             }
-            System.out.println("External references size: "+externalReferenceHashMap.size());
+
 
         } catch (IOException e) {
-            e.printStackTrace();
+            errorLogger.error("Error trying to load external references JSON file located in: "+dir+" message:"+e.getMessage());
         }
+
+    }
+
+
+    public void setupLogProperties(String command, String currentOntologyName, String repositoryPath){
+
+        Properties logProperties =  new Properties();
+
+        String path = ManageProperties.loadPropertyValue("externalproperties");
+
+        logProperties.setProperty("log4j.rootLogger","TRACE");
+        logProperties.setProperty("log4j.logger.error","TRACE,error");
+        logProperties.setProperty("log4j.logger.statistics","TRACE,statistics");
+        logProperties.setProperty("log4j.logger.stdout","TRACE, file, console");
+        logProperties.setProperty("log4j.logger.external","TRACE, external_reference");
+
+        logProperties.setProperty("log4j.appender.file", "org.apache.log4j.varia.NullAppender");
+        logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
+        logProperties.setProperty("log4j.appender.statistics", "org.apache.log4j.varia.NullAppender");
+
+        logProperties.setProperty("log4j.appender.error.File", path+"/harvest_tool_error.log");
+        logProperties.setProperty("log4j.appender.error", "org.apache.log4j.RollingFileAppender");
+        logProperties.setProperty("log4j.appender.error.MaxFileSize", "10MB");
+        logProperties.setProperty("log4j.appender.error.Threshold", "ERROR");
+        logProperties.setProperty("log4j.appender.error.layout",  "org.apache.log4j.PatternLayout");
+        logProperties.setProperty("log4j.appender.error.layout.ConversionPattern","%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t (%F) - %m%n");
+
+        logProperties.setProperty("log4j.appender.external_reference.File", path+"/external_references.log");
+        logProperties.setProperty("log4j.appender.external_reference", "org.apache.log4j.FileAppender");
+        logProperties.setProperty("log4j.appender.external_reference.layout",  "org.apache.log4j.PatternLayout");
+        logProperties.setProperty("log4j.appender.external_reference.layout.ConversionPattern","%m%n");
+
+
+        if(command.indexOf("p")>-1) {
+            logProperties.setProperty("log4j.appender.console", "org.apache.log4j.ConsoleAppender");
+            logProperties.setProperty("log4j.appender.console.layout", "org.apache.log4j.PatternLayout");
+            logProperties.setProperty("log4j.appender.console.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
+        }
+
+
+        if(command.indexOf("l")>-1){
+            logProperties.setProperty("log4j.appender.file.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".log");
+            logProperties.setProperty("log4j.appender.file", "org.apache.log4j.FileAppender");
+            logProperties.setProperty("log4j.appender.file.layout",  "org.apache.log4j.PatternLayout");
+            logProperties.setProperty("log4j.appender.file.layout.ConversionPattern","%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] - %m%n");
+        }
+
+        if(command.indexOf("s")>-1){
+            logProperties.setProperty("log4j.appender.statistics.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".sts");
+            logProperties.setProperty("log4j.appender.statistics", "org.apache.log4j.FileAppender");
+            logProperties.setProperty("log4j.appender.statistics.layout",  "org.apache.log4j.PatternLayout");
+            logProperties.setProperty("log4j.appender.statistics.layout.ConversionPattern","%m%n");
+        }
+
+
+        PropertyConfigurator.configure(logProperties);
+
+        stdoutLogger = Logger.getLogger("stdout");
+        errorLogger = Logger.getLogger("error");
+        statisticsLogger = Logger.getLogger("statistics");
+        externalLogger = Logger.getLogger("external");
 
     }
 

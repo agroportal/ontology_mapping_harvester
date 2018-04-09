@@ -7,13 +7,13 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
-import fr.lirmm.agroportal.ontologymappingharvester.utils.LoadProperties;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HarvestAllFormatsService extends BaseService implements HarvestService {
@@ -42,12 +42,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             oA = man.loadOntologyFromOntologyDocument(fileIN);
         } catch (OWLOntologyCreationException e) {
-            printAndAppend("Error trying to load ontology from file");
-            printAndAppend(e.getMessage());
+            errorLogger.error("Error trying to load ontology from file: "+e.getMessage());
         }
 
 
-        printAndAppend("ONTOLOGY:" + oA.toString());
+        stdoutLogger.info("ONTOLOGY (to.string()): " + oA.toString());
 
         ontologyID = oA.getOntologyID();
 
@@ -59,14 +58,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         //System.out.println("Address: "+address);
         //System.out.println("Dir    : "+dir);
 
-        currentOntologyName = acronym;
-
         fileIN = new File(dir + File.separator+ acronym.toUpperCase()+".xrdf");
 
         //System.out.println("FileIn    : "+fileIN);
         // Agroportal DEMO KEY
 
-        String apiKey = LoadProperties.loadPropertyValue("apikey");
+        String apiKey = ManageProperties.loadPropertyValue("apikey");
 
         IRI iri = IRI.create(address+"?apikey="+apiKey+"&download_format=rdf");
 
@@ -74,12 +71,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             oA = man.loadOntology(iri);
 
         }catch(UnloadableImportException e1){
-            printAndAppend("Error trying to import ontology");
-            printAndAppend(e1.getMessage());
+            errorLogger.error("Error trying to import ontology: "+ e1.getMessage());
             saveFile();
         }
 
-        printAndAppend("ONTOLOGY:" + oA.toString());
+        stdoutLogger.info("ONTOLOGY (to.string()): " + oA.toString());
 
         ontologyID = oA.getOntologyID();
 
@@ -91,21 +87,17 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         boolean countIndividualsFlag = true;
         String auxProperty="";
 
-        printAndAppend("----------------------------------------------------------");
 
-        printAndAppend("Classes");
         for (OWLClass c : oA.getClassesInSignature()) {
-            printAndAppend(c.toString());
             countClasses++;
         }
-        printAndAppend("Total Classes: " + countClasses);
-        printAndAppend("----------------------------------------------------------");
+        stdoutLogger.info("Total of Classes: " + countClasses);
 
-        printAndAppend("Filter - Annotations");
+        stdoutLogger.info("Begin search for matchs on class anntations...");
 
         for (int x = 0; x < MATCH.length; x++) {
 
-            printAndAppend("======================= Searching for: " + MATCH[x] + "=======================");
+            stdoutLogger.info("======================= Searching matchs for: " + MATCH[x] + "=======================");
 
             for (OWLClass cls : oA.getClassesInSignature()) {
                 // Get the annotations on the class that use the label property
@@ -133,20 +125,20 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                         if(aux.indexOf(MATCH[x]) > -1) {
 
-                            printAndAppend("Ontology: "+ oA.getOntologyID());
-                            printAndAppend("Subject: " + annotationAssertionAxiom.getSubject());
-                            printAndAppend("Property: " + annotationAssertionAxiom.getProperty());
+                            stdoutLogger.info("Ontology: "+ oA.getOntologyID());
+                            stdoutLogger.info("Subject: " + annotationAssertionAxiom.getSubject());
+                            stdoutLogger.info("Property: " + annotationAssertionAxiom.getProperty());
 
                             if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
                                 //System.out.println("Entrou no if do annotation get value");
                                 OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
                                 //if (val.hasLang("en")) {
-                                printAndAppend("PropertyValueLiteral: " + val.getLiteral());
+                                stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
                                 auxProperty = val.getLiteral();
                                 isIRI = false;
                                 //}
                             } else if (annotationAssertionAxiom.getValue() instanceof IRI) {
-                                printAndAppend("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
+                                stdoutLogger.info("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
                                 auxProperty = annotationAssertionAxiom.getValue().toString();
                                 isIRI = true;
                                 //}
@@ -155,7 +147,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                             an = getAnnotationAssertationEntity(currentOntologyName,oA.getOntologyID().toString(),annotationAssertionAxiom.getSubject().toString(),annotationAssertionAxiom.getProperty().toString(),auxProperty,isIRI,++countMatch);
                             addToDeduplicationHash(an);
-                            printAndAppend("Fase One:  "+ an.toString());
+
                             MapIRI = an.getOntology2();
                             if (mappings.containsKey(MapIRI)) {
                                 counter = mappings.get(MapIRI);
@@ -219,7 +211,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             // INDIVIDUALS
 
-            printAndAppend("************************ INDIVIDUALS **************************************************");
+            stdoutLogger.info("End search of matchs in classes.");
+            stdoutLogger.info("Begin search for individuals...");
 
             boolean assertationLookup = true;
 
@@ -255,7 +248,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 //                                if(an.getOntology2()==null){
 //                                    printAndAppend("***XXX***");
 //                                }
-                                printAndAppend("Fase Two:  "+ an.toString());
+
                                 MapIRI = an.getOntology2();
                                 if (mappings.containsKey(MapIRI)) {
                                     counter = mappings.get(MapIRI);
@@ -304,7 +297,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                             an = getAnnotationAssertationEntity(ax.toString(),ind.getIRI(),MATCH[x], ++countMatch);
                             addToDeduplicationHash(an);
-                            printAndAppend("Fase Tree: "+ an.toString());
+
                             MapIRI = an.getOntology2();
                             if (mappings.containsKey(MapIRI)) {
                                 counter = mappings.get(MapIRI);
@@ -350,7 +343,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             }
 
-            printAndAppend("************************END INDIVIDUALS **************************************************");
+            stdoutLogger.info("End search of matchs in individuals.");
 
             // FINISH INDIVIDUAIS
 
@@ -378,59 +371,58 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         if (an != null && an.getOntology1() != null) {
 
-            printAndAppend("----------------------------------------------------------");
-            printAndAppend("Ontology Examined: " + currentOntologyName);
-            printAndAppend("----------------------------------------------------------");
+            stdoutLogger.info("----------------------------------------------------------");
+            stdoutLogger.info("Ontology Examined: " + currentOntologyName);
+            stdoutLogger.info("----------------------------------------------------------");
+            stdoutLogger.info("Total Classes    : " + countClasses);
+            stdoutLogger.info("Total Individuals: " + countIndividuals);
+            stdoutLogger.info("----------------------------------------------------------");
 
-            printAndAppend("Total Individuals: " + countIndividuals);
-            printAndAppend("----------------------------------------------------------");
-
-            System.out.println("---------------------------------------------Current Ontology   : "+currentOntologyName);
-
+            stdoutLogger.info("Matchs per Type for " + currentOntologyName);
+            stdoutLogger.info("----------------------------------------------------------");
 
             for (Map.Entry<String, HashMap<String, Integer>> entry : maps.entrySet()) {
                 String key = entry.getKey();
                 HashMap<String, Integer> value = entry.getValue();
 
-                printAndAppend("Matches to: " + key);
-                printAndAppend("----------------------------------------------------------");
+                stdoutLogger.info("Matches to: " + key);
+                stdoutLogger.info("----------------------------------------------------------");
 
                 for (Map.Entry<String, Integer> entry2 : value.entrySet()) {
                     String key2 = entry2.getKey();
                     Integer value2 = entry2.getValue();
 
-                    printAndAppend("SubTotal: " + key2 + " --> " + value2);
-                    printAndAppend("----------------------------------------------------------");
+                    stdoutLogger.info("Sub Total: " + key2 + " --> " + value2);
+                    stdoutLogger.info("----------------------------------------------------------");
 
                 }
 
 
             }
 
-            printAndAppend("Total Matches for all Assertions on " + currentOntologyName);
-            printAndAppend("----------------------------------------------------------");
+            stdoutLogger.info("Total Matches for " + currentOntologyName);
+            stdoutLogger.info("----------------------------------------------------------");
 
             for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
                 String key2 = entry2.getKey();
                 Integer value2 = entry2.getValue();
 
-                printAndAppend("Sub: " + key2 + " --> " + value2);
-                printAndAppend("----------------------------------------------------------");
+                stdoutLogger.info("Total: " + key2 + " --> " + value2);
+                stdoutLogger.info("----------------------------------------------------------");
 
             }
 
-            printAndAppend("Total Matches       : "+totalAnnotationAssertationEntities);
-            printAndAppend("Total Unique Matches: "+deduplicationHash.size());
+            stdoutLogger.info("Total Matches       : "+totalAnnotationAssertationEntities);
+            stdoutLogger.info("Total Unique Matches: "+deduplicationHash.size());
 
 
 
         } else {
-            printAndAppend("No matchs founded!");
+            stdoutLogger.warn("No matchs founded!");
         }
 
 
 
-        writeFile();
 
     }
 
@@ -442,7 +434,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         ArrayList<MappingEntity> mappingEntities = new ArrayList<>();
 
-        printAndAppend("Begin generation of JSON file");
+        stdoutLogger.info("Begin generation of JSON file");
 
         int total = deduplicationHash.size();
         int count = 1;
@@ -455,7 +447,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             current = (count*100/total);
             if(current%10==0){
                 if(current != last) {
-                    printAndAppend("-->" + (count * 100 / total) + "% done");
+                    stdoutLogger.info("-->" + (count * 100 / total) + "% done");
                     last = current;
                 }
             }
@@ -481,9 +473,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         if(mappingEntities.size()>0) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             writeJsonFile(gson.toJson(mappingEntities));
-            printAndAppend("Finished generation of JSON file");
+            stdoutLogger.info("Finished generation of JSON file");
         }else{
-            printAndAppend("No matches - JSON file generation skiped!");
+            stdoutLogger.warn("No matches - JSON file generation skiped!");
         }
 
     }
@@ -508,10 +500,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             addStat("edge;"+currentOntologyName+";"+key2+";"+value2+";"+value2+" matches from "+currentOntologyName+" to "+key2);
         }
         if(sts.toString().length()>0){
-            printAndAppend("Statistic file was generated");
+            stdoutLogger.info("Statistic file was generated");
             writeStatFile();
         }else{
-            printAndAppend("No matches, Statistic file generation skiped!");
+            stdoutLogger.warn("No matches, Statistic file generation skiped!");
         }
 
 
@@ -738,9 +730,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             value = entry.getValue();
             if(searchString.indexOf(key)>-1){
                 result = value.getLink();
-                if(result==null){
-                    System.out.println("null-->"+key);
-                }
+//                if(result==null){
+//                    System.out.println("null-->"+key);
+//                }
 
                 break;
             }
@@ -750,10 +742,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         }else{
             //System.out.println("SearchString: "+searchString);
             if(searchString.indexOf("http")>-1){
-                printAndAppend("ERROR: External reference not mapped -->"+searchString);
-                printAndAppend("ERROR: To add this reference to the external_references.json file add the line below:");
-                printAndAppend("{\"search_string\":\""+searchString.replace("http://www.","").replace("https://www.","").replace("http://","").replace("https://","")+"\",\"link\":\""+searchString+"\",\"iri\":\"\"},");
-                System.out.println("{\"search_string\":\""+searchString.replace("http://www.","").replace("https://www.","").replace("http://","").replace("https://","")+"\",\"link\":\""+searchString+"\",\"iri\":\"\"},");
+                errorLogger.error("ERROR: External reference not mapped -->"+searchString);
+                errorLogger.info("{\"search_string\":\""+searchString.replace("http://www.","").replace("https://www.","").replace("http://","").replace("https://","")+"\",\"link\":\""+searchString+"\",\"iri\":\"\"},");
+                externalLogger.info("{\"search_string\":\""+searchString.replace("http://www.","").replace("https://www.","").replace("http://","").replace("https://","")+"\",\"link\":\""+searchString+"\",\"iri\":\"\"},");
             }
 
             return "UNMAPPED_REFERENCE";
@@ -762,23 +753,33 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    /**
+     * Download list of files
+     * @param command
+     * @param files
+     */
     @Override
     public void parse(String command, ArrayList<String> files) {
 
-        printAndAppend("External references size: "+externalReferenceHashMap.size());
+
 
         this.command = command;
+
         this.files = files;
 
         if(command.indexOf("b")>-1){
             this.files = getFilesFromFolder(files.get(0));
         }
 
+        System.out.println("Total number of files of ontologies founded: "+files.size());
 
-        for (String file:this.files) {
+        for (String fileName:this.files) {
             man = OWLManager.createOWLOntologyManager();
             OWLOntology oA = null;
-            loadOntology(file);
+            currentOntologyName = fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".")).toUpperCase();
+            setupLogProperties(this.command,currentOntologyName, fileName.substring(0,fileName.lastIndexOf(File.separator)));
+            System.out.println(Util.getDateTime()+" Processing: "+(++countOntologies)+") "+currentOntologyName);
+            loadOntology(fileName);
             findMatches();
             saveFile();
             if(command.indexOf("j")>-1){
@@ -795,12 +796,20 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             sb = new StringBuffer("");
             sts = new StringBuffer("");
             totalMappings.clear();
+            countOntologies=0;
+
 
 
         }
+        System.out.println(Util.getDateTime()+" Finished processing.");
     }
 
 
+    /**
+     * Dowload ontologies from REST API
+     * @param command
+     * @param dir
+     */
     @Override
     public void parse(String command, String dir) {
 
@@ -813,12 +822,24 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         List<OntologyEntity> ontologies =  agroportalRestService.getOntologyAnnotation(command);
 
+        if(ontologies==null || ontologies.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Portal - Please verify API Key");
+            System.exit(0);
+        }
+
+        System.out.println("Total of Ontologies founded: "+ontologies.size());
+
         for (OntologyEntity ontologyEntity: ontologies) {
 
             man = OWLManager.createOWLOntologyManager();
             OWLOntology oA = null;
 
             try {
+                currentOntologyName = ontologyEntity.getAcronym();
+                System.out.println(Util.getDateTime()+" Processing: "+(++countOntologies)+") "+currentOntologyName);
+                setupLogProperties(this.command,currentOntologyName, dir+File.separator);
                 downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                 findMatches();
                 saveFile();
@@ -829,8 +850,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     generateStatistics();
                 }
             }catch(OWLOntologyCreationException e){
-                printAndAppend("Error trying to download ontology from file");
-                printAndAppend(e.getMessage());
+                errorLogger.error("Error trying to download ontology from file"+e.getMessage());
                 saveFile();
             }
 
@@ -842,11 +862,21 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             sb = new StringBuffer("");
             sts = new StringBuffer("");
             totalMappings.clear();
+            countOntologies=0;
+
 
 
         }
+        System.out.println(Util.getDateTime()+" Finished processings.");
     }
 
+
+    /**
+     * Download individual ontology from REST API
+     * @param command
+     * @param dir
+     * @param ontology
+     */
     @Override
     public void parse(String command, String dir, String ontology) {
 
@@ -859,6 +889,15 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         List<OntologyEntity> ontologies =  agroportalRestService.getOntologyAnnotation(command);
 
+        if(ontologies==null || ontologies.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Portal - Please verify API Key");
+            System.exit(0);
+        }
+
+        System.out.println("Total of Ontologies founded: "+ontologies.size());
+
         for (OntologyEntity ontologyEntity: ontologies) {
 
             man = OWLManager.createOWLOntologyManager();
@@ -866,7 +905,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             if(ontologyEntity.getAcronym().equalsIgnoreCase(ontology)) {
 
+
+
                 try {
+                    currentOntologyName = ontologyEntity.getAcronym();
+                    System.out.println(Util.getDateTime()+" Processing: "+currentOntologyName);
+                    setupLogProperties(this.command,currentOntologyName, dir+File.separator);
                     downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                     findMatches();
 
@@ -887,11 +931,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         generateStatistics();
                     }
                 }catch (OWLOntologyCreationException e){
-                    printAndAppend("Error trying to download ontology from file");
-                    printAndAppend(e.getMessage());
+                    errorLogger.error("Error trying to download ontology from file"+e.getMessage());
                     saveFile();
                 }
 
+            }else{
+                errorLogger.error("Error: ontology not founded: "+ontology);
             }
 
             mappings = new HashMap<>();
@@ -903,7 +948,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             totalMappings.clear();
 
 
+
+
         }
+        System.out.println(Util.getDateTime()+" Finished processing. ");
     }
 
 

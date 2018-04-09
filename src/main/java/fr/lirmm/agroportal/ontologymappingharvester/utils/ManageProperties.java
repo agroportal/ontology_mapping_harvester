@@ -1,11 +1,9 @@
 package fr.lirmm.agroportal.ontologymappingharvester.utils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
-public class LoadProperties {
+public class ManageProperties {
 
     public static void main(String[] args) {
 
@@ -21,7 +19,7 @@ public class LoadProperties {
             prop.load(input);
 
             // get the property value and print it out
-            System.out.println(prop.getProperty("externalproperties"));
+            //System.out.println(prop.getProperty("externalproperties"));
 
 
         } catch (IOException ex) {
@@ -38,37 +36,6 @@ public class LoadProperties {
 
     }
 
-    public static String loadExternalReferencePath(){
-
-
-        Properties prop = new Properties();
-        InputStream input = null;
-
-        try {
-
-            input = new FileInputStream("config.properties");
-
-            // load a properties file
-            prop.load(input);
-
-            // get the property value and print it out
-            System.out.println(prop.getProperty("externalproperties"));
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return prop.getProperty("externalproperties");
-    }
 
     public static String loadPropertyValue(String propertyName){
 
@@ -98,5 +65,26 @@ public class LoadProperties {
         return prop.getProperty(propertyName);
     }
 
+    public static void setProperty(String key, String value){
 
+        Properties props = new Properties();
+        try {
+            FileInputStream in = new FileInputStream("config.properties");
+            props.load(in);
+            in.close();
+
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }finally {
+            try {
+                FileOutputStream out = new FileOutputStream("config.properties");
+                props.setProperty(key, value);
+                props.store(out, null);
+                out.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
 }

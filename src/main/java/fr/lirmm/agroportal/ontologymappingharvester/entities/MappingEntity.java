@@ -22,7 +22,7 @@ public class MappingEntity implements Serializable {
     private String sourceContactInfo;
     @Expose
     @SerializedName("relation")
-    private String relation;
+    private String[] relation;
     @Expose
     @SerializedName("source")
     private String source;
@@ -60,11 +60,11 @@ public class MappingEntity implements Serializable {
         this.sourceContactInfo = sourceContactInfo;
     }
 
-    public String getRelation() {
+    public String[] getRelation() {
         return relation;
     }
 
-    public void setRelation(String relation) {
+    public void setRelation(String[] relation) {
         this.relation = relation;
     }
 

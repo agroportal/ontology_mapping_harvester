@@ -1,4 +1,4 @@
-package fr.lirmm.agroportal.ontologymappingharvester.entities;
+package fr.lirmm.agroportal.ontologymappingharvester.entities.ontology;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

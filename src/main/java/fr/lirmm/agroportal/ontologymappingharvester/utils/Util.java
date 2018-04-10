@@ -11,5 +11,8 @@ public class Util {
         return  new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
     }
 
+    public static String getFormatedDateTime(String pattern){
+        return  new SimpleDateFormat(pattern).format(Calendar.getInstance().getTime());
+    }
 
 }

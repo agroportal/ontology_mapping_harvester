@@ -90,6 +90,7 @@ public class MappingHarvester {
                 HarvestAllFormatsService service = new HarvestAllFormatsService();
                 service.setupLogProperties("","","");
                 service.loadExternalReferences();
+                service.loadAndProcessOntologiesMetadata();
 
                 if(command.indexOf("d")>-1){
 

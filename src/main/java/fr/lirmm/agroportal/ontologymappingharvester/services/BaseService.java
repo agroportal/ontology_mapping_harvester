@@ -3,8 +3,11 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExtRefList;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Ontology;
+import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -47,10 +50,13 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
     HashMap<String, ExternalReference> externalReferenceHashMap;
+    HashMap<String,String> ontologyNameHashMap;
     Logger stdoutLogger;
     Logger errorLogger;
     Logger statisticsLogger;
     Logger externalLogger;
+    List<OntologyEntity> ontologies;
+    AgroportalRestService agroportalRestService;
 
     int counter;
     String MapIRI;
@@ -63,6 +69,8 @@ public class BaseService {
     ArrayList<String> files;
     String currentOntologyName;
     StringBuffer unmap;
+
+    String ontologyContactEmail;
 
 
     /**
@@ -84,6 +92,7 @@ public class BaseService {
         maps = new HashMap<>();
         totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
+        ontologyNameHashMap = new HashMap<>();
         counter = 0;
         MapIRI="";
         sb = new StringBuffer("");
@@ -93,6 +102,8 @@ public class BaseService {
         files = new ArrayList<>();
         currentOntologyName="";
         externalReferenceHashMap = new HashMap<>();
+        ontologyContactEmail = "";
+        agroportalRestService = new AgroportalRestService();
     }
 
 
@@ -526,6 +537,22 @@ public class BaseService {
         statisticsLogger = Logger.getLogger("statistics");
         externalLogger = Logger.getLogger("external");
 
+    }
+
+
+    public void loadAndProcessOntologiesMetadata(){
+        ontologies =  agroportalRestService.getOntologyAnnotation(command);
+
+        if(ontologies==null || ontologies.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Portal - Please verify API Key");
+            System.exit(0);
+        }
+
+        for(OntologyEntity oe: ontologies){
+            ontologyNameHashMap.put(oe.getId(),oe.getAcronym());
+        }
     }
 
 }

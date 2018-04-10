@@ -3,9 +3,12 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.Collection;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.MappingEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.OntologyEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Contact;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
@@ -464,6 +467,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         int current = 0;
         int last = 0;
 
+
         for (AnnotationAssertationEntity an : deduplicationHash.values()) {
 
             count++;
@@ -477,15 +481,18 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             me = new MappingEntity();
             me.setId(an.getId());
             me.setCreator("http://data.agroportal.lirmm.fr/users/elcioabrahao");
-            me.setSourceContactInfo("elcio.abrahao@lirmm.fr");
+            me.setSourceContactInfo(ontologyContactEmail);
             me.setSource(an.getOntology1());
-            me.setSourceName(an.getOntology1());
-            me.setComment("Generated with the Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - FR");
+            me.setSourceName(currentOntologyName);
+            me.setComment("Generated with the Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - "+Util.getFormatedDateTime("dd/MM/yyyy HH:mm")+" - FR");
+            String[] mappings = new String[1];
+            mappings[0] = an.getAssertion();
+            me.setRelation(mappings);
 
             HashMap<String, String> classes = new HashMap<>();
 
             classes.put(an.getOntologyConcept1(), currentOntologyName);
-            classes.put(an.getAssertion(), an.getOntologyConcept2());
+            classes.put(an.getOntologyConcept2(),getReference(currentOntologyName,an));
 
             me.setClasses(classes);
 
@@ -502,6 +509,27 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         }
 
     }
+
+    public String getReference(String ontologyName, AnnotationAssertationEntity an){
+
+            String ret="";
+
+            ClassQuery classQuery = agroportalRestService.getOntologyByConcept("agroportaladdress", an.getOntologyConcept2());
+            if(classQuery.getCollection().size()>0){
+                for(Collection c: classQuery.getCollection()){
+                    if(!c.getObsolete()){
+                        ret = ontologyNameHashMap.get(c.getLinks().getOntology());
+                        //System.out.println("Reference: "+ret);
+                    }
+                }
+
+            }
+
+
+        return ret;
+    }
+
+
 
     /**
      * Generate Statistics nodes for graph representation
@@ -828,6 +856,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         this.files = files;
 
+
         if(command.indexOf("b")>-1){
             this.files = getFilesFromFolder(files.get(0));
         }
@@ -840,6 +869,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             currentOntologyName = fileName.substring(fileName.lastIndexOf(File.separator)+1,fileName.lastIndexOf(".")).toUpperCase();
             setupLogProperties(this.command,currentOntologyName, fileName.substring(0,fileName.lastIndexOf(File.separator)));
             System.out.println(Util.getDateTime()+" Processing: "+(++countOntologies)+") "+currentOntologyName);
+            for(Contact contact: agroportalRestService.getLatestSubmission(command,currentOntologyName).getContact()){
+                ontologyContactEmail += contact.getEmail()+",";
+            }
+            ontologyContactEmail=ontologyContactEmail.substring(0,ontologyContactEmail.length()-1);
             loadOntology(fileName);
             findMatches();
             saveFile();
@@ -879,17 +912,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         this.command = command;
 
-        AgroportalRestService agroportalRestService = new AgroportalRestService();
-
-        List<OntologyEntity> ontologies =  agroportalRestService.getOntologyAnnotation(command);
-
-        if(ontologies==null || ontologies.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
-            stdoutLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key");
-            System.out.println("Error: could not load ontologies metadata from Portal - Please verify API Key");
-            System.exit(0);
-        }
-
         System.out.println("Total of Ontologies founded: "+ontologies.size());
 
         for (OntologyEntity ontologyEntity: ontologies) {
@@ -900,6 +922,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             try {
                 currentOntologyName = ontologyEntity.getAcronym();
                 System.out.println(Util.getDateTime()+" Processing: "+(++countOntologies)+") "+currentOntologyName);
+                for(Contact contact: agroportalRestService.getLatestSubmission(command,currentOntologyName).getContact()){
+                    ontologyContactEmail += contact.getEmail()+",";
+                }
+                ontologyContactEmail=ontologyContactEmail.substring(0,ontologyContactEmail.length()-1);
                 setupLogProperties(this.command,currentOntologyName, dir+File.separator);
                 downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                 findMatches();
@@ -946,17 +972,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         this.command = command;
 
-        AgroportalRestService agroportalRestService = new AgroportalRestService();
-
-        List<OntologyEntity> ontologies =  agroportalRestService.getOntologyAnnotation(command);
-
-        if(ontologies==null || ontologies.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
-            stdoutLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key");
-            System.out.println("Error: could not load ontologies metadata from Portal - Please verify API Key");
-            System.exit(0);
-        }
-
         System.out.println("Total of Ontologies founded: "+ontologies.size());
 
         for (OntologyEntity ontologyEntity: ontologies) {
@@ -971,6 +986,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 try {
                     currentOntologyName = ontologyEntity.getAcronym();
                     System.out.println(Util.getDateTime()+" Processing: "+currentOntologyName);
+                    for(Contact contact: agroportalRestService.getLatestSubmission(command,currentOntologyName).getContact()){
+                        ontologyContactEmail += contact.getEmail()+",";
+                    }
+                    ontologyContactEmail=ontologyContactEmail.substring(0,ontologyContactEmail.length()-1);
                     setupLogProperties(this.command,currentOntologyName, dir+File.separator);
                     downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                     findMatches();

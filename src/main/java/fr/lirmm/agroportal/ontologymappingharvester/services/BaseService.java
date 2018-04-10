@@ -65,6 +65,9 @@ public class BaseService {
     StringBuffer unmap;
 
 
+    /**
+     * Constructor: initialize vars
+     */
     public BaseService(){
 
         man = OWLManager.createOWLOntologyManager();
@@ -93,6 +96,10 @@ public class BaseService {
     }
 
 
+    /**
+     * Load ontology from file
+     * @return
+     */
     public boolean loadOntology() {
 
 
@@ -142,6 +149,10 @@ public class BaseService {
     }
 
 
+    /**
+     * Write JSON files for Mappings
+     * @param jsonString
+     */
     public void writeJsonFile(String jsonString){
 
 
@@ -418,7 +429,9 @@ public class BaseService {
         }
     }
 
-
+    /**
+     * Load external references JSON file
+     */
     public void loadExternalReferences(){
 
 
@@ -449,6 +462,12 @@ public class BaseService {
     }
 
 
+    /**
+     * Initialize LOGGERS and APPENDERS
+     * @param command
+     * @param currentOntologyName
+     * @param repositoryPath
+     */
     public void setupLogProperties(String command, String currentOntologyName, String repositoryPath){
 
         Properties logProperties =  new Properties();

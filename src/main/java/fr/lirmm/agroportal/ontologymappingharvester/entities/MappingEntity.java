@@ -6,6 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * Entity to represent ontology JSON MAPPING
+ */
 public class MappingEntity implements Serializable {
 
 

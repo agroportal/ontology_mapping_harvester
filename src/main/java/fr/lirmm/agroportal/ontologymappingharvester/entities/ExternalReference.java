@@ -3,6 +3,9 @@ package fr.lirmm.agroportal.ontologymappingharvester.entities;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Entity used to represent external mapping
+ */
 public class ExternalReference {
 
     @SerializedName("search_string")

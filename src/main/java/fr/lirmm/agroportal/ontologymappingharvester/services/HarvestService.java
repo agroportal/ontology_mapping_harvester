@@ -2,6 +2,11 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import java.util.ArrayList;
 
+/**
+ * Interface for Services
+ */
+
+//TODO: must refactor this
 public interface HarvestService {
 
     public boolean loadOntology();

@@ -10,6 +10,9 @@ public class AnnotationAssertationEntity {
     private String ontologyConcept2;
 
 
+    /**
+     * Main object responsable for the mapping representation
+     */
     public AnnotationAssertationEntity() {
     }
 

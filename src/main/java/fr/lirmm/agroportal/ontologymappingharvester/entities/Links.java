@@ -3,6 +3,10 @@ package fr.lirmm.agroportal.ontologymappingharvester.entities;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+
+/**
+ * Entity to represent ontology metadata
+ */
 public class Links {
 
     @SerializedName("submissions")

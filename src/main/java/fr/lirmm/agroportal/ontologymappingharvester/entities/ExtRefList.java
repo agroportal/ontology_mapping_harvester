@@ -6,6 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity collection to represent external references
+ */
 public class ExtRefList {
 
     @SerializedName("ExternalReference")

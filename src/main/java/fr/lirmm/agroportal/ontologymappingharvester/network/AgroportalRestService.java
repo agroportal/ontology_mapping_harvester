@@ -13,6 +13,11 @@ import java.util.logging.Logger;
 public class AgroportalRestService {
 
 
+    /**
+     * REST Service to acess PORTALS
+     * @param command
+     * @return
+     */
     public List<OntologyEntity> getOntologyAnnotation(String command){
 
         String link=ManageProperties.loadPropertyValue("agroportaladdress");

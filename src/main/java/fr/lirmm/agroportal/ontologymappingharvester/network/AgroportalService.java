@@ -8,9 +8,11 @@ import retrofit2.http.Query;
 
 import java.util.List;
 
+/**
+ * Define the signature for the REST access
+ */
 public interface AgroportalService {
 
-    // agroportal DEMO KEY
     @GET("/ontologies")
     Call<List<OntologyEntity>> getAnnotation( @Query("apikey") String apiKey);
 

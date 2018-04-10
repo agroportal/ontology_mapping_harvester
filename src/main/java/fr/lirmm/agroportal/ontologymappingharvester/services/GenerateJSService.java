@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Generate the GRAPH representation JS script
+ */
 public class GenerateJSService {
 
 

@@ -23,6 +23,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     private boolean isIRI;
 
 
+    /**
+     * Constructor to initialize search mappings to search for.
+     */
     public HarvestAllFormatsService(){
         super();
         MATCH = new String[]{"http://www.w3.org/2002/07/owl#sameAs","http://www.w3.org/2000/01/rdf-schema#seeAlso","http://www.geneontology.org/formats/oboInOwl#hasDbXref","http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
@@ -30,7 +33,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     }
 
-
+    /**
+     * Load ontology from local folder
+     * @param fileName
+     */
     public void loadOntology(String fileName){
 
         try {
@@ -52,6 +58,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     }
 
+    /**
+     * Download ontology from Portal
+     * @param acronym
+     * @param address
+     * @param dir
+     * @throws OWLOntologyCreationException
+     */
     public void downloadOntology(String acronym, String address, String dir) throws OWLOntologyCreationException{
 
         //System.out.println("Acro   : "+acronym);
@@ -81,6 +94,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     }
 
+
+    /**
+     * Parse ontology searching for matches
+     */
     @Override
     public void findMatches() {
 
@@ -365,6 +382,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    /**
+     * Generate LOG file information
+     */
     @Override
     public void saveFile() {
 
@@ -427,6 +447,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    /**
+     * Generate JSON files to export mappings
+     */
     @Override
     public void buildJson() {
 
@@ -480,6 +503,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     }
 
+    /**
+     * Generate Statistics nodes for graph representation
+     */
     public void generateStatistics(){
 
         String aux="";
@@ -510,6 +536,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    /**
+     * Read ontology files from folder informed on runtime command line
+     * @param dirName
+     * @return
+     */
     private ArrayList<String> getFilesFromFolder(String dirName){
 
         File dir = new File(dirName);
@@ -525,6 +556,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    /**
+     * Create AnnotationAssertationEntity for classes Variation I
+     * @param anot
+     * @param iri
+     * @param assertion
+     * @param id
+     * @return
+     */
     public AnnotationAssertationEntity getAnnotationAssertationEntity(OWLAnnotation anot, IRI iri,String assertion , int id) {
 
         String aux = anot.toString().replace("\n","").trim();
@@ -573,6 +612,17 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    /**
+     * Create AnnotationAssertationEntity for Classes Variation II
+     * @param currentOntologyName
+     * @param ontologyName
+     * @param subject
+     * @param property
+     * @param propertyValue
+     * @param isIRI
+     * @param id
+     * @return
+     */
     public AnnotationAssertationEntity getAnnotationAssertationEntity(String currentOntologyName,String ontologyName, String subject, String property, String propertyValue, boolean isIRI, int id ){
 
         AnnotationAssertationEntity an = new AnnotationAssertationEntity();
@@ -629,7 +679,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
-
+    /**
+     * Create AnnotationSsertationEntity from class individuals
+     * @param anot
+     * @param iri
+     * @param assertion
+     * @param id
+     * @return
+     */
     public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot, IRI iri,String assertion , int id) {
 
         String aux = anot.toString().replace("\n","").trim();
@@ -719,7 +776,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
-
+    /**
+     * Map external references for LINKS that are not IRI
+     * @param searchString
+     * @return
+     */
     public String mapExternalLink(String searchString){
 
         ExternalReference value;

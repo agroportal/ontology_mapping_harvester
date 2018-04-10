@@ -8,6 +8,10 @@ import java.util.ArrayList;
 
 public class MappingHarvester {
 
+    /**
+     * Main method call to run the script
+     * @param args
+     */
     public static void main (String[] args){
 
 

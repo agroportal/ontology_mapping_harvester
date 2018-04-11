@@ -512,23 +512,58 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     public String getReference(String ontologyName, AnnotationAssertationEntity an){
 
-            String ret="";
-
-            ClassQuery classQuery = agroportalRestService.getOntologyByConcept("agroportaladdress", an.getOntologyConcept2());
-            if(classQuery.getCollection().size()>0){
-                for(Collection c: classQuery.getCollection()){
-                    if(!c.getObsolete()){
-                        ret = ontologyNameHashMap.get(c.getLinks().getOntology());
-                        //System.out.println("Reference: "+ret);
-                    }
-                }
-
+        String ret="";
+        if(command.indexOf("n")>-1){
+            ret = isAtBioportal(an);
+            if(ret.equalsIgnoreCase("")){
+                ret= "agroportal:" + isAtAgroportal(an);
             }
+        }else {
+            ret = isAtAgroportal(an);
+            if(ret.equalsIgnoreCase("")){
+                ret= "ncbo:" + isAtBioportal(an);
+            }
+        }
+
+        if(ret.equalsIgnoreCase("")){
+            ret = "ext:"+an.getOntology2();
+        }
 
 
         return ret;
     }
 
+    private String isAtAgroportal(AnnotationAssertationEntity an){
+        String ret = "";
+        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("agroportaladdress","apikey",  an.getOntologyConcept2());
+        if(classQuery.getCollection().size()>0){
+            for(Collection c: classQuery.getCollection()){
+                if(!c.getObsolete()){
+                    ret = ontologyNameHashMapAgro.get(c.getLinks().getOntology());
+                    //System.out.println("Reference: "+ret);
+                }
+            }
+
+        }
+        return ret;
+    }
+
+    private String isAtBioportal(AnnotationAssertationEntity an){
+        String ret = "";
+        if(ret.equalsIgnoreCase("")){
+            ClassQuery classQuery = agroportalRestService.getOntologyByConcept("bioportaladdress","apikeybio", an.getOntologyConcept2());
+            if(classQuery.getCollection().size()>0){
+                for(Collection c: classQuery.getCollection()){
+                    if(!c.getObsolete()){
+                        ret = ontologyNameHashMapBio.get(c.getLinks().getOntology());
+                        //System.out.println("Reference: "+ret);
+                    }
+                }
+
+            }
+        }
+        return ret;
+    }
 
 
     /**

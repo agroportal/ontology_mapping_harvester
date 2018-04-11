@@ -15,16 +15,18 @@ public class AgroportalRestService {
 
 
     /**
-     * REST Service to acess PORTALS for ontologies
-     * @param command
+     * REST Service to acess PORTALS for ontologies metadata
+     * @param command - String with command line parameters
      * @return
      */
     public List<OntologyEntity> getOntologyAnnotation(String command){
 
         String link=ManageProperties.loadPropertyValue("agroportaladdress");
+        String apiKey = ManageProperties.loadPropertyValue("apikey");
         //System.out.println("LINK: "+link);
         if(command.indexOf("n")>-1){
             link=ManageProperties.loadPropertyValue("bioportaladdress");
+            apiKey = ManageProperties.loadPropertyValue("apikeybio");
         }
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -35,7 +37,7 @@ public class AgroportalRestService {
 
         AgroportalService service = retrofit.create(AgroportalService.class);
 
-        String apiKey = ManageProperties.loadPropertyValue("apikey");
+
         //System.out.println("APIKEY: "+apiKey);
         Call<List<OntologyEntity>> ontologyEntitiesCall = service.getAnnotation(apiKey);
 
@@ -55,7 +57,12 @@ public class AgroportalRestService {
 
     }
 
-
+    /**
+     * REST call to get the latest submission info of an ontology
+     * @param command - String with command line parameters
+     * @param acronym - as identified on the respective portal
+     * @return
+     */
     public Submission getLatestSubmission(String command, String acronym){
 
         String link=ManageProperties.loadPropertyValue("agroportaladdress");
@@ -92,9 +99,17 @@ public class AgroportalRestService {
 
     }
 
-    public ClassQuery getOntologyByConcept(String property, String concept){
+
+    /**
+     * REST call to find if an ontology is hosted on an especific portal
+     * @param property - Name of the properti of the poral link on config.properties
+     * @param concept - IRI to verify
+     * @return
+     */
+    public ClassQuery getOntologyByConcept(String property, String apikeyProperty, String concept){
 
         String link=ManageProperties.loadPropertyValue(property);
+        String apiKey = ManageProperties.loadPropertyValue(apikeyProperty);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(link)
@@ -104,7 +119,7 @@ public class AgroportalRestService {
 
         AgroportalService service = retrofit.create(AgroportalService.class);
 
-        String apiKey = ManageProperties.loadPropertyValue("apikey");
+
 
         Call<ClassQuery> classQueryCall = service.getOntologyByConcept(concept, apiKey);
 

@@ -50,7 +50,8 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
     HashMap<String, ExternalReference> externalReferenceHashMap;
-    HashMap<String,String> ontologyNameHashMap;
+    HashMap<String,String> ontologyNameHashMapAgro;
+    HashMap<String,String> ontologyNameHashMapBio;
     Logger stdoutLogger;
     Logger errorLogger;
     Logger statisticsLogger;
@@ -92,7 +93,8 @@ public class BaseService {
         maps = new HashMap<>();
         totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
-        ontologyNameHashMap = new HashMap<>();
+        ontologyNameHashMapAgro = new HashMap<>();
+        ontologyNameHashMapBio = new HashMap<>();
         counter = 0;
         MapIRI="";
         sb = new StringBuffer("");
@@ -541,18 +543,43 @@ public class BaseService {
 
 
     public void loadAndProcessOntologiesMetadata(){
-        ontologies =  agroportalRestService.getOntologyAnnotation(command);
 
-        if(ontologies==null || ontologies.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
-            stdoutLogger.error("Error: could not load ontologies metadata from Portal - Please verify API Key");
-            System.out.println("Error: could not load ontologies metadata from Portal - Please verify API Key");
+
+
+        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("");
+
+        if(ontologiesAgro==null || ontologiesAgro.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
             System.exit(0);
         }
 
-        for(OntologyEntity oe: ontologies){
-            ontologyNameHashMap.put(oe.getId(),oe.getAcronym());
+        for(OntologyEntity oe: ontologiesAgro){
+            ontologyNameHashMapAgro.put(oe.getId(),oe.getAcronym());
         }
+
+
+        List<OntologyEntity> ontologiesBio =  agroportalRestService.getOntologyAnnotation("n");
+
+        if(ontologiesBio==null || ontologiesBio.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
+            System.exit(0);
+        }
+
+        for(OntologyEntity oe: ontologiesBio){
+            ontologyNameHashMapBio.put(oe.getId(),oe.getAcronym());
+        }
+
+
+        if(command.indexOf("n")>-1){
+            ontologies = ontologiesBio;
+        }else{
+            ontologies = ontologiesAgro;
+        }
+
     }
 
 }

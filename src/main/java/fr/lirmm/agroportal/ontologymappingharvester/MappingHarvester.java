@@ -61,11 +61,17 @@ public class MappingHarvester {
 
                 System.out.println("New folder for external_references.json file is "+args[1]);
 
-            }else if(command.indexOf("k")>-1){
+            }else if(command.indexOf("ka")>-1){
 
                 ManageProperties.setProperty("apikey",args[1]);
 
                 System.out.println("New api key for Agroportal associated to this script is "+args[1]);
+
+            }else if(command.indexOf("kb")>-1){
+
+                ManageProperties.setProperty("apikeybio",args[1]);
+
+                System.out.println("New api key for Bioportal associated to this script is "+args[1]);
 
             }else if(command.indexOf("f")>-1){
 
@@ -127,7 +133,8 @@ public class MappingHarvester {
         System.out.println("-n dowload ontologies from BIOPORTAL");
         System.out.println("-u Download an unique ontology (require destination folder and acronym)");
         System.out.println("-r Setup location folder for external_reference.json file");
-        System.out.println("-k Setup api key to acess Agroportal/NCBIO from this script");
+        System.out.println("-ka Setup api key to acess Agroportal from this script");
+        System.out.println("-kb Setup api key to acess Bioportal from this script");
         System.out.println("-f Setup output folder");
         System.out.println("-aa Setup AGROPORTAL API ADDRESS");
         System.out.println("-ab Setup BIOPORTAL API ADDRESS");
@@ -139,7 +146,7 @@ public class MappingHarvester {
         System.out.println("/.MappingHarvest -dnjslp");
         System.out.println("/.MappingHarvest -ujslp ACRONYM");
         System.out.println("/.MappingHarvest -r path_to_external_reference_file");
-        System.out.println("/.MappingHarvest -k api_key");
+        System.out.println("/.MappingHarvest -ka api_key");
         System.out.println("/.MappingHarvest -f path_to_output_folder");
         System.out.println("/.MappingHarvest -aa http://data.agroportal.lirmm.fr");
         System.out.println("/.MappingHarvest -ab http://data.bioontology.org");

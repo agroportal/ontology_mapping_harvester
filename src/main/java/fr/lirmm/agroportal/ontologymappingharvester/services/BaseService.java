@@ -3,10 +3,10 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Ontology;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
@@ -166,18 +166,22 @@ public class BaseService {
      * Write JSON files for Mappings
      * @param jsonString
      */
-    public void writeJsonFile(String jsonString){
+    public void writeJsonFile(String jsonString, boolean definitive){
 
 
         if(command.indexOf("j")>-1) {
 
             String path = fileIN.getAbsolutePath();
-
+            String extension=".json.tmp";
             Path p = Paths.get(path);
             String fileName = p.getFileName().toString();
             String directory = p.getParent().toString();
 
-            File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".json");
+            if(definitive){
+                extension=".json";
+            }
+
+            File f = new File(directory + File.separator + currentOntologyName + extension);
             stdoutLogger.info("Writing JSON file: " + f.getAbsolutePath());
 
             try {
@@ -581,5 +585,35 @@ public class BaseService {
         }
 
     }
+
+
+    public MappingEntity[] loadTempJSONFile(File file){
+
+        ArrayList<MappingEntity> mappingEntities = new ArrayList<>();
+        MappingEntity[] mappingE = null;
+
+
+        try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+            Gson gson = new GsonBuilder().create();
+            mappingE = gson.fromJson(everything, MappingEntity[].class);
+
+            System.out.println("Tamanho: "+mappingE.length);
+
+
+        } catch (IOException e) {
+            errorLogger.error("Error trying to load external references JSON file located in: "+file.toString()+" - "+e.getMessage());
+        }
+
+        return mappingE;
+    }
+
 
 }

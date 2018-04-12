@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester;
 
 import fr.lirmm.agroportal.ontologymappingharvester.services.GenerateJSService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
+import fr.lirmm.agroportal.ontologymappingharvester.services.ValidateIRIService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 
 import java.util.ArrayList;
@@ -16,9 +17,9 @@ public class MappingHarvester {
 
 
         System.out.println();
-        System.out.println("-----------------------------------------------------------------------");
-        System.out.println("Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - FR");
-        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("-------------------------------------------------------------------------------------");
+        System.out.println("Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - Montpellier - FR");
+        System.out.println("-------------------------------------------------------------------------------------");
         System.out.println();
 
         String command="";
@@ -54,6 +55,13 @@ public class MappingHarvester {
 
                 GenerateJSService generateJSService = new GenerateJSService();
                 generateJSService.generateJs(args[1]);
+
+            }if(command.indexOf("v")>-1){
+
+                ValidateIRIService validateIRIService = new ValidateIRIService();
+                validateIRIService.setupLogProperties("","","");
+                validateIRIService.loadAndProcessOntologiesMetadata();
+                validateIRIService.validateIRIs(command,files);
 
             }else if(command.indexOf("r")>-1){
 
@@ -132,6 +140,7 @@ public class MappingHarvester {
         System.out.println("-d Download ontologies from Agroportal (require destination folder)");
         System.out.println("-n dowload ontologies from BIOPORTAL");
         System.out.println("-u Download an unique ontology (require destination folder and acronym)");
+        System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");
         System.out.println("-r Setup location folder for external_reference.json file");
         System.out.println("-ka Setup api key to acess Agroportal from this script");
         System.out.println("-kb Setup api key to acess Bioportal from this script");
@@ -145,6 +154,7 @@ public class MappingHarvester {
         System.out.println("/.MappingHarvest -djslp path_to_output_files");
         System.out.println("/.MappingHarvest -dnjslp");
         System.out.println("/.MappingHarvest -ujslp ACRONYM");
+        System.out.println("/.MappingHarvest -vj (list of files) if not informed process all files on folder");
         System.out.println("/.MappingHarvest -r path_to_external_reference_file");
         System.out.println("/.MappingHarvest -ka api_key");
         System.out.println("/.MappingHarvest -f path_to_output_folder");
@@ -155,7 +165,7 @@ public class MappingHarvester {
         System.out.println(".json - JSON file for upload back on the portals");
         System.out.println(".log  - LOG file of mapping process");
         System.out.println(".sts  - text file with mapping statistics");
-        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("-------------------------------------------------------------------------------------");
         System.out.println("");
     }
 

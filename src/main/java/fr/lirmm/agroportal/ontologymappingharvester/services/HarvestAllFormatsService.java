@@ -6,10 +6,9 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertati
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.Collection;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.MappingEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Contact;
-import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
@@ -460,14 +459,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         ArrayList<MappingEntity> mappingEntities = new ArrayList<>();
 
-        stdoutLogger.info("Begin generation of JSON file");
+        stdoutLogger.info("Begin generation of temporary JSON file");
 
         int total = deduplicationHash.size();
         int count = 1;
         int current = 0;
         int last = 0;
 
-
+        stdoutLogger.info("-->0% done");
         for (AnnotationAssertationEntity an : deduplicationHash.values()) {
 
             count++;
@@ -492,7 +491,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             HashMap<String, String> classes = new HashMap<>();
 
             classes.put(an.getOntologyConcept1(), currentOntologyName);
-            classes.put(an.getOntologyConcept2(),getReference(currentOntologyName,an));
+            classes.put(an.getOntologyConcept2(),(command.indexOf("n")>-1?"ncbo:"+an.getOntology2():"agroportal:"+an.getOntology2()));
 
             me.setClasses(classes);
 
@@ -502,69 +501,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         if(mappingEntities.size()>0) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-            writeJsonFile(gson.toJson(mappingEntities));
-            stdoutLogger.info("Finished generation of JSON file");
+            writeJsonFile(gson.toJson(mappingEntities),false);
+            stdoutLogger.info("Finished generation of temporary JSON file");
         }else{
             stdoutLogger.warn("No matches - JSON file generation skiped!");
         }
 
     }
-
-    public String getReference(String ontologyName, AnnotationAssertationEntity an){
-
-        String ret="";
-        if(command.indexOf("n")>-1){
-            ret = isAtBioportal(an);
-            if(ret.equalsIgnoreCase("")){
-                ret= "agroportal:" + isAtAgroportal(an);
-            }
-        }else {
-            ret = isAtAgroportal(an);
-            if(ret.equalsIgnoreCase("")){
-                ret= "ncbo:" + isAtBioportal(an);
-            }
-        }
-
-        if(ret.equalsIgnoreCase("")){
-            ret = "ext:"+an.getOntology2();
-        }
-
-
-        return ret;
-    }
-
-    private String isAtAgroportal(AnnotationAssertationEntity an){
-        String ret = "";
-        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("agroportaladdress","apikey",  an.getOntologyConcept2());
-        if(classQuery.getCollection().size()>0){
-            for(Collection c: classQuery.getCollection()){
-                if(!c.getObsolete()){
-                    ret = ontologyNameHashMapAgro.get(c.getLinks().getOntology());
-                    //System.out.println("Reference: "+ret);
-                }
-            }
-
-        }
-        return ret;
-    }
-
-    private String isAtBioportal(AnnotationAssertationEntity an){
-        String ret = "";
-        if(ret.equalsIgnoreCase("")){
-            ClassQuery classQuery = agroportalRestService.getOntologyByConcept("bioportaladdress","apikeybio", an.getOntologyConcept2());
-            if(classQuery.getCollection().size()>0){
-                for(Collection c: classQuery.getCollection()){
-                    if(!c.getObsolete()){
-                        ret = ontologyNameHashMapBio.get(c.getLinks().getOntology());
-                        //System.out.println("Reference: "+ret);
-                    }
-                }
-
-            }
-        }
-        return ret;
-    }
-
 
     /**
      * Generate Statistics nodes for graph representation

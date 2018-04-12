@@ -5,6 +5,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEn
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import org.apache.log4j.Logger;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -12,6 +13,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.util.List;
 
 public class AgroportalRestService {
+
+
+    Logger logger;
+
+    public AgroportalRestService(){
+        logger = Logger.getLogger(AgroportalRestService.class.getName());
+    }
 
 
     /**
@@ -47,8 +55,8 @@ public class AgroportalRestService {
             ontologies = ontologyEntitiesCall.execute().body();
 
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage());
-            e.printStackTrace();
+            System.out.println("Erro: "+e.getMessage()+"getOntologyAnnotation() - see havest_tool_error.log for detais.");
+            logger.error("Error: "+ e.getStackTrace());
         }
 
         //System.out.println("Size: "+ontologies.size());
@@ -89,8 +97,8 @@ public class AgroportalRestService {
             submission = latestSubmissionCall.execute().body();
 
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage());
-            e.printStackTrace();
+            System.out.println("Erro: "+e.getMessage()+"getLatestSubmission() - see havest_tool_error.log for detais.");
+            logger.error("Error: "+ e.getStackTrace());
         }
 
         //System.out.println("Size: "+ontologies.size());
@@ -128,8 +136,8 @@ public class AgroportalRestService {
         try {
             classQuery = classQueryCall.execute().body();
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage());
-            e.printStackTrace();
+            System.out.println("Erro: "+e.getMessage()+"getOntologyByConcept() - see havest_tool_error.log for detais.");
+            logger.error("Error: "+ e.getStackTrace());
         }
 
 

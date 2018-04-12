@@ -1,9 +1,10 @@
-package fr.lirmm.agroportal.ontologymappingharvester.entities;
+package fr.lirmm.agroportal.ontologymappingharvester.entities.mappings;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -98,5 +99,19 @@ public class MappingEntity implements Serializable {
 
     public void setClasses(HashMap<String, String> classes) {
         this.classes = classes;
+    }
+
+    @Override
+    public String toString() {
+        return "MappingEntity{" +
+                "id=" + id +
+                ", creator='" + creator + '\'' +
+                ", sourceContactInfo='" + sourceContactInfo + '\'' +
+                ", relation=" + Arrays.toString(relation) +
+                ", source='" + source + '\'' +
+                ", sourceName='" + sourceName + '\'' +
+                ", comment='" + comment + '\'' +
+                ", classes=" + classes +
+                '}';
     }
 }

@@ -60,7 +60,7 @@ public class MappingHarvester {
 
                 ValidateIRIService validateIRIService = new ValidateIRIService();
                 validateIRIService.setupLogProperties("","","");
-                validateIRIService.loadAndProcessOntologiesMetadata();
+                validateIRIService.loadAndProcessOntologiesMetadata(command);
                 validateIRIService.validateIRIs(command,files);
 
             }else if(command.indexOf("r")>-1){
@@ -104,7 +104,7 @@ public class MappingHarvester {
                 HarvestAllFormatsService service = new HarvestAllFormatsService();
                 service.setupLogProperties("","","");
                 service.loadExternalReferences();
-                service.loadAndProcessOntologiesMetadata();
+                service.loadAndProcessOntologiesMetadata(command);
 
                 if(command.indexOf("d")>-1){
 

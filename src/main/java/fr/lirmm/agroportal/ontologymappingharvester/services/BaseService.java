@@ -56,6 +56,7 @@ public class BaseService {
     Logger errorLogger;
     Logger statisticsLogger;
     Logger externalLogger;
+    Logger totalizationLogger;
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
 
@@ -70,6 +71,7 @@ public class BaseService {
     ArrayList<String> files;
     String currentOntologyName;
     StringBuffer unmap;
+    String currentOntologyId;
 
     String ontologyContactEmail;
 
@@ -106,6 +108,7 @@ public class BaseService {
         externalReferenceHashMap = new HashMap<>();
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
+        currentOntologyId="";
     }
 
 
@@ -174,18 +177,24 @@ public class BaseService {
             String path = fileIN.getAbsolutePath();
             String extension=".json.tmp";
             Path p = Paths.get(path);
-            String fileName = p.getFileName().toString();
+            String fileName = p.getFileName().toString().substring(0,p.getFileName().toString().indexOf("."));
             String directory = p.getParent().toString();
+
+            File fileToDelete = new File(directory + File.separator + fileName + extension);
 
             if(definitive){
                 extension=".json";
             }
 
-            File f = new File(directory + File.separator + currentOntologyName + extension);
+            File f = new File(directory + File.separator + fileName + extension);
+            //System.out.println("file   ->"+f);
             stdoutLogger.info("Writing JSON file: " + f.getAbsolutePath());
 
             try {
                 FileUtils.writeStringToFile(f, jsonString, "UTF-8");
+                if(definitive){
+                    fileToDelete.delete();
+                }
             } catch (IOException e) {
                 errorLogger.error("Error trying to write JSON file: " + e.getMessage());
             }
@@ -496,6 +505,7 @@ public class BaseService {
         logProperties.setProperty("log4j.logger.statistics","TRACE,statistics");
         logProperties.setProperty("log4j.logger.stdout","TRACE, file, console");
         logProperties.setProperty("log4j.logger.external","TRACE, external_reference");
+        logProperties.setProperty("log4j.logger.totals","TRACE, tots");
 
         logProperties.setProperty("log4j.appender.file", "org.apache.log4j.varia.NullAppender");
         logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
@@ -513,10 +523,15 @@ public class BaseService {
         logProperties.setProperty("log4j.appender.external_reference.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.external_reference.layout.ConversionPattern","%m%n");
 
+        logProperties.setProperty("log4j.appender.tots.File", path+"/matchs_totalization.xls");
+        logProperties.setProperty("log4j.appender.tots", "org.apache.log4j.FileAppender");
+        logProperties.setProperty("log4j.appender.tots.layout",  "org.apache.log4j.PatternLayout");
+        logProperties.setProperty("log4j.appender.tots.layout.ConversionPattern","%m%n");
+
 
         if(command.indexOf("p")>-1) {
             logProperties.setProperty("log4j.appender.console", "org.apache.log4j.ConsoleAppender");
-            logProperties.setProperty("log4j.appender.console.layout", "org.apache.log4j.PatternLayout");
+            logProperties.setProperty("log4j.appender.console.layout",  "org.apache.log4j.PatternLayout");
             logProperties.setProperty("log4j.appender.console.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
         }
 
@@ -542,15 +557,15 @@ public class BaseService {
         errorLogger = Logger.getLogger("error");
         statisticsLogger = Logger.getLogger("statistics");
         externalLogger = Logger.getLogger("external");
+        totalizationLogger = Logger.getLogger("totals");
 
     }
 
 
-    public void loadAndProcessOntologiesMetadata(){
+    public void loadAndProcessOntologiesMetadata(String command){
 
 
-
-        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("");
+        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
 
         if(ontologiesAgro==null || ontologiesAgro.size()==0){
             errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );

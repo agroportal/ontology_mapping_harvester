@@ -40,6 +40,9 @@ public class ValidateIRIService extends BaseService {
     public void validateIRIs(String command, List<String> fileNames){
 
         this.command = command;
+        System.out.println("Ontologies on Agroportal: "+ontologyNameHashMapAgro.size());
+        System.out.println("Ontologies on Bioportal : "+ontologyNameHashMapBio.size());
+        System.out.println("----------------------------------");
 
         File file = null;
         List<File> files = new ArrayList<File>();
@@ -78,6 +81,7 @@ public class ValidateIRIService extends BaseService {
 
         for(MappingEntity me: mappingEntity){
             classesSource = me.getClasses();
+            classesTarget = new HashMap<>();
 
             for (Map.Entry<String, String> entry : classesSource.entrySet()) {
                 key = entry.getKey();
@@ -108,12 +112,14 @@ public class ValidateIRIService extends BaseService {
             }
 
             me.setClasses(classesTarget);
+
         }
 
         System.out.println("");
 
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
         System.out.println("Tamanho-->"+mappingEntity.length);
+
         writeJsonFile(gson.toJson(mappingEntity),true);
         stdoutLogger.info("Finished generation of definitive JSON file");
 
@@ -125,19 +131,24 @@ public class ValidateIRIService extends BaseService {
         if(command.indexOf("n")>-1){
             ret = isAtBioportal(concept);
             if(ret.equalsIgnoreCase("")){
-                ret= "agroportal:" + isAtAgroportal(concept);
+                ret = isAtAgroportal(concept);
+                if(!ret.equalsIgnoreCase("")){
+                    ret= "agroportal:" + ret;
+                }else{
+                    ret = "ext:"+ontology;
+                }
             }
         }else {
             ret = isAtAgroportal(concept);
             if(ret.equalsIgnoreCase("")){
-                ret= "ncbo:" + isAtBioportal(concept);
+                ret = isAtBioportal(concept);
+                if(!ret.equalsIgnoreCase("")){
+                    ret= "ncbo:" + ret;
+                }else{
+                    ret = "ext:"+ontology;
+                }
             }
         }
-
-        if(ret.equalsIgnoreCase("")){
-            ret = "ext:"+ontology;
-        }
-
 
         return ret;
     }
@@ -145,7 +156,7 @@ public class ValidateIRIService extends BaseService {
     private String isAtAgroportal(String concept){
         String ret = "";
         ClassQuery classQuery = agroportalRestService.getOntologyByConcept("agroportaladdress","apikey",  concept);
-        if(classQuery.getCollection().size()>0){
+        if(classQuery != null && classQuery.getCollection().size()>0){
             for(Collection c: classQuery.getCollection()){
                 if(!c.getObsolete()){
                     ret = ontologyNameHashMapAgro.get(c.getLinks().getOntology());
@@ -159,9 +170,9 @@ public class ValidateIRIService extends BaseService {
 
     private String isAtBioportal(String concept){
         String ret = "";
+        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("bioportaladdress","apikeybio", concept);
         if(ret.equalsIgnoreCase("")){
-            ClassQuery classQuery = agroportalRestService.getOntologyByConcept("bioportaladdress","apikeybio", concept);
-            if(classQuery.getCollection().size()>0){
+            if(classQuery != null && classQuery.getCollection().size()>0){
                 for(Collection c: classQuery.getCollection()){
                     if(!c.getObsolete()){
                         ret = ontologyNameHashMapBio.get(c.getLinks().getOntology());

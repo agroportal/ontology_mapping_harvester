@@ -1,5 +1,6 @@
 package fr.lirmm.agroportal.ontologymappingharvester.services;
 
+import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -178,7 +179,7 @@ public class GenerateJSService {
 
     private void saveFile(String dirName){
 
-        File f = new File(dirName + File.separator + "matches.js");
+        File f = new File(ManageProperties.loadPropertyValue("externalproperties") + File.separator + "matches.js");
         try {
             FileUtils.writeStringToFile(f, js.toString(), "UTF-8");
         } catch (IOException e) {

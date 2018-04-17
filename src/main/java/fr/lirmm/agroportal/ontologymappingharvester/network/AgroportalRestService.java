@@ -31,7 +31,7 @@ public class AgroportalRestService {
 
         String link=ManageProperties.loadPropertyValue("agroportaladdress");
         String apiKey = ManageProperties.loadPropertyValue("apikey");
-        //System.out.println("LINK: "+link);
+        //System.out.println("Command--> "+command+"<--");
         if(command.indexOf("n")>-1){
             link=ManageProperties.loadPropertyValue("bioportaladdress");
             apiKey = ManageProperties.loadPropertyValue("apikeybio");
@@ -55,7 +55,7 @@ public class AgroportalRestService {
             ontologies = ontologyEntitiesCall.execute().body();
 
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage()+"getOntologyAnnotation() - see havest_tool_error.log for detais.");
+            System.out.println("Erro: "+e.getMessage()+"getOntologyAnnotation() - see havest_tool_error.log for details.");
             logger.error("Error: "+ e.getStackTrace());
         }
 
@@ -136,7 +136,7 @@ public class AgroportalRestService {
         try {
             classQuery = classQueryCall.execute().body();
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage()+"getOntologyByConcept() - see havest_tool_error.log for detais.");
+            System.out.println("Error: "+e.getMessage()+" getOntologyByConcept() - see havest_tool_error.log for detais.");
             logger.error("Error: "+ e.getStackTrace());
         }
 

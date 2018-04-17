@@ -75,7 +75,7 @@ public class ManageProperties {
 
 
         }catch(IOException e){
-            e.printStackTrace();
+            // do nothing
         }finally {
             try {
                 FileOutputStream out = new FileOutputStream("config.properties");

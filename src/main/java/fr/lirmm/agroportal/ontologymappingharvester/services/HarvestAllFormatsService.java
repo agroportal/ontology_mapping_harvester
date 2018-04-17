@@ -410,6 +410,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             stdoutLogger.info("Matchs per Type for " + currentOntologyName);
             stdoutLogger.info("----------------------------------------------------------");
 
+
             for (Map.Entry<String, HashMap<String, Integer>> entry : maps.entrySet()) {
                 String key = entry.getKey();
                 HashMap<String, Integer> value = entry.getValue();
@@ -423,7 +424,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                     stdoutLogger.info("Sub Total: " + key2 + " --> " + value2);
                     stdoutLogger.info("----------------------------------------------------------");
-                    totalizationLogger.info(Util.getDateTime()+";"+currentOntologyName+";"+currentOntologyId+";"+key2+";"+value2+";");
+                    totalizationLogger.info(Util.getDateTime()+";"+currentOntologyName+";"+currentOntologyId+";"+key+";"+key2+";"+value2+";");
 
                 }
 
@@ -895,7 +896,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         if(command.indexOf("b")>-1){
             this.files = getFilesFromFolder(files.get(0));
         }
-
+        totalizationLogger.info(Util.getDateTime()+"------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        totalizationLogger.info("DATE;SOURCE;SOURCE_ID;RELATION;TARGET;MATCHS_COUNT;");
         System.out.println("Total number of files of ontologies founded: "+files.size());
 
         for (String fileName:this.files) {
@@ -951,6 +953,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
         this.command = command;
+        totalizationLogger.info(Util.getDateTime()+"------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        totalizationLogger.info("DATE;SOURCE;SOURCE_ID;RELATION;TARGET;MATCHS_COUNT;");
 
         System.out.println("Total of Ontologies founded: "+ontologies.size());
 
@@ -1015,7 +1019,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         this.command = command;
         boolean founded = false;
-
+        totalizationLogger.info(Util.getDateTime()+"------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        totalizationLogger.info("DATE;SOURCE;SOURCE_ID;RELATION;TARGET;MATCHS_COUNT;");
         System.out.println("Total of Ontologies founded: "+ontologies.size());
 
         for (OntologyEntity ontologyEntity: ontologies) {

@@ -532,7 +532,7 @@ public class BaseService {
         if(command.indexOf("p")>-1) {
             logProperties.setProperty("log4j.appender.console", "org.apache.log4j.ConsoleAppender");
             logProperties.setProperty("log4j.appender.console.layout",  "org.apache.log4j.PatternLayout");
-            logProperties.setProperty("log4j.appender.console.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
+            logProperties.setProperty("log4j.appender.console.layout.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
         }
 
 

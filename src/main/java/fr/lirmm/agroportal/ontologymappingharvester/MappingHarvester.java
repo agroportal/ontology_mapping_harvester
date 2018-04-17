@@ -85,7 +85,7 @@ public class MappingHarvester {
 
                 ManageProperties.setProperty("outputfolder",args[1]);
 
-                System.out.println("New api key for Agroportal associated to this script is "+args[1]);
+                System.out.println("New output folder associated to this script is "+args[1]);
 
             }else if(command.indexOf("aa")>-1){
 

@@ -536,6 +536,7 @@ public class BaseService {
         }
 
 
+
         if(command.indexOf("l")>-1){
             logProperties.setProperty("log4j.appender.file.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".log");
             logProperties.setProperty("log4j.appender.file", "org.apache.log4j.FileAppender");

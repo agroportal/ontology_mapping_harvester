@@ -535,7 +535,7 @@ public class BaseService {
             logProperties.setProperty("log4j.appender.console.layout.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
         }
 
-//teste
+//teste again
         if(command.indexOf("l")>-1){
             logProperties.setProperty("log4j.appender.file.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".log");
             logProperties.setProperty("log4j.appender.file", "org.apache.log4j.FileAppender");

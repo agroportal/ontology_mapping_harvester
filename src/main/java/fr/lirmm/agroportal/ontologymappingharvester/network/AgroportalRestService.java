@@ -74,9 +74,11 @@ public class AgroportalRestService {
     public Submission getLatestSubmission(String command, String acronym){
 
         String link=ManageProperties.loadPropertyValue("agroportaladdress");
+        String apiKey = ManageProperties.loadPropertyValue("apikey");
         //System.out.println("LINK: "+link);
         if(command.indexOf("n")>-1){
             link=ManageProperties.loadPropertyValue("bioportaladdress");
+            apiKey = ManageProperties.loadPropertyValue("apikeybio");
         }
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -87,7 +89,7 @@ public class AgroportalRestService {
 
         AgroportalService service = retrofit.create(AgroportalService.class);
 
-        String apiKey = ManageProperties.loadPropertyValue("apikey");
+
         //System.out.println("APIKEY: "+apiKey);
         Call<Submission> latestSubmissionCall = service.getLatestSubmission(acronym,apiKey );
 

@@ -101,10 +101,18 @@ public class MappingHarvester {
 
             }else {
 
+
+
                 HarvestAllFormatsService service = new HarvestAllFormatsService();
                 service.setupLogProperties("","","");
                 service.loadExternalReferences();
                 service.loadAndProcessOntologiesMetadata(command);
+
+                if(command.indexOf("c")>-1){
+                    service.deleteExecutionHistory();
+                    System.out.println("Execution history deleted. New execution history as initiated.");
+                }
+
 
                 if(command.indexOf("d")>-1){
 
@@ -147,6 +155,7 @@ public class MappingHarvester {
         System.out.println("-f Setup output folder");
         System.out.println("-aa Setup AGROPORTAL API ADDRESS");
         System.out.println("-ab Setup BIOPORTAL API ADDRESS");
+        System.out.println("-c Clean execution history for the current script execution");
         System.out.println("Examples of usage:");
         System.out.println("/.MappingHarvest -jlsp path1/onto1.ref path2/onto2.ref pathn/onto3.ref");
         System.out.println("/.MappingHarvest -bjlsp path_to_folder_of_xrdf_files");

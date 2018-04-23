@@ -23,10 +23,8 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -630,5 +628,58 @@ public class BaseService {
         return mappingE;
     }
 
+
+    public void appendExecutionHistory(String ontology){
+
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        try
+        {
+            String filename= "execution_history.log";
+            FileWriter fw = new FileWriter(folder+File.separator+filename,true); //the true will append the new data
+            fw.write(ontology+"\n");//appends the string to the file
+            fw.close();
+        }
+        catch(IOException ioe)
+        {
+            errorLogger.error("Error trying to write on execution history: " + ioe.getMessage());
+        }
+
+    }
+
+    public String readExecutionHistory(){
+
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String filename= "execution_history.log";
+        String history="";
+
+        try(BufferedReader br = new BufferedReader(new FileReader(folder+File.separator+filename))) {
+
+            String line = br.readLine();
+
+            while (line != null) {
+                history += line+";";
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+        } catch (FileNotFoundException e) {
+            errorLogger.error("Execution history file not founded. Creating empity file.");
+            appendExecutionHistory("");
+        } catch (IOException e) {
+            errorLogger.error("Error trying to read execution history file -->"+folder+File.separator+filename+" message: "+e.getMessage());
+        }
+        return history;
+    }
+
+
+    public void deleteExecutionHistory(){
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String filename= "execution_history.log";
+        try {
+            Files.deleteIfExists(Paths.get(folder + File.separator + filename));
+        } catch (IOException e) {
+            errorLogger.error("Error trying to delete execution history: " + e.getMessage());
+        }
+        appendExecutionHistory("");
+    }
 
 }

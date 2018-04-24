@@ -30,7 +30,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      */
     public HarvestAllFormatsService() {
         super();
-        MATCH = new String[]{"http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
+        MATCH = new String[]{"owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
         isIRI = false;
         this.files = files;
 
@@ -147,115 +147,62 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                         aux = annotationAssertionAxiom.toString();
 
-
                         if (aux.indexOf(MATCH[x]) > -1) {
 
-                            if (aux.indexOf("agglossary") > -1) {
-                                System.out.println("*********************** " + aux);
-                            }
-
-
                             stdoutLogger.info("Ontology: " + currentOntologyId);
-                            stdoutLogger.info("Subject: " + annotationAssertionAxiom.getSubject());
+                            stdoutLogger.info("Subject : " + annotationAssertionAxiom.getSubject());
                             stdoutLogger.info("Property: " + annotationAssertionAxiom.getProperty());
+                            stdoutLogger.info("Value   : " + annotationAssertionAxiom.getValue());
+
+                            if(annotationAssertionAxiom.getProperty().toString().equalsIgnoreCase("owl:sameas")){
+
+                                if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
+                                    //System.out.println("Entrou no if do annotation get value");
+                                    OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
+                                    //if (val.hasLang("en")) {
+                                    stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
+                                    auxProperty = val.getLiteral();
+                                    isIRI = false;
+                                    //}
+                                } else if (annotationAssertionAxiom.getValue() instanceof IRI) {
+                                    stdoutLogger.info("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
+                                    auxProperty = annotationAssertionAxiom.getValue().toString();
+                                    isIRI = true;
+                                    //}
+                                }
+
+                                an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), annotationAssertionAxiom.getProperty().toString(), auxProperty, isIRI, ++countMatch);
+
+                                addToHashMap(an);
 
 
-                            for (OWLAnnotation aaa : annotationAssertionAxiom.getAnnotations()) {
-//                                System.out.println("aaaProperty "+aaa.getProperty());
-//                                System.out.println("match[x]    "+MATCH[x]);
-//                                System.out.println("aaaValue    "+aaa.getValue());
+                            } else {
 
-                                if (aaa.getProperty().toString().indexOf(MATCH[x]) > -1) {
-                                    if (aaa.getValue() instanceof OWLLiteral) {
-                                        //System.out.println("Entrou no if do annotation get value");
-                                        OWLLiteral val = (OWLLiteral) aaa.getValue();
-                                        //if (val.hasLang("en")) {
-                                        stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
-                                        auxProperty = val.getLiteral();
-                                        isIRI = false;
-                                        //}
-                                    } else if (aaa.getValue() instanceof IRI) {
-                                        stdoutLogger.info("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
-                                        auxProperty = aaa.getValue().toString();
-                                        isIRI = true;
-                                        //}
+
+                                for (OWLAnnotation aaa : annotationAssertionAxiom.getAnnotations()) {
+
+                                    if (aaa.getProperty().toString().indexOf(MATCH[x]) > -1) {
+                                        if (aaa.getValue() instanceof OWLLiteral) {
+                                            //System.out.println("Entrou no if do annotation get value");
+                                            OWLLiteral val = (OWLLiteral) aaa.getValue();
+                                            //if (val.hasLang("en")) {
+                                            stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
+                                            auxProperty = val.getLiteral();
+                                            isIRI = false;
+                                            //}
+                                        } else if (aaa.getValue() instanceof IRI) {
+                                            stdoutLogger.info("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
+                                            auxProperty = aaa.getValue().toString();
+                                            isIRI = true;
+                                            //}
+                                        }
+
+                                        an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), aaa.getProperty().toString(), auxProperty, isIRI, ++countMatch);
+
+                                        addToHashMap(an);
                                     }
+
                                 }
-
-
-//                            if(aux.indexOf("agglossary")>-1){
-//                                System.out.println("currentOntologyName                    "+currentOntologyName);
-//                                System.out.println("currentOntologyId                      "+currentOntologyId);
-//                                System.out.println("annotationAssertionAxiom.getSubject()  "+annotationAssertionAxiom.getSubject().toString());
-//                                System.out.println("annotationAssertionAxiom.getProperty() "+annotationAssertionAxiom.getProperty().toString());
-//                                System.out.println("auxProperty                            "+auxProperty);
-//                                System.out.println("isIRI                                  "+isIRI);
-//
-//
-//
-//
-//
-//                                //System.out.println("()()())()()-->"+annotationAssertionAxiom.getAnnotations());
-//
-//
-//                            }
-//
-//                            System.out.println("()()())()()-->"+annotationAssertionAxiom.getAnnotations());
-
-
-                                an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), aaa.getProperty().toString(), auxProperty, isIRI, ++countMatch);
-
-
-                                if (aux.indexOf("agglossary") > -1) {
-                                    System.out.println(an.toString());
-                                }
-
-                                addToDeduplicationHash(an);
-
-                                MapIRI = an.getOntology2();
-                                if (mappings.containsKey(MapIRI)) {
-                                    counter = mappings.get(MapIRI);
-                                    counter++;
-                                    mappings.put(MapIRI, counter);
-                                    totalMappings.put(MapIRI, counter);
-                                } else {
-                                    mappings.put(MapIRI, 1);
-                                    totalMappings.put(MapIRI, 1);
-                                }
-                                if (totalMappings.containsKey(MapIRI)) {
-                                    counter = totalMappings.get(MapIRI);
-                                    counter++;
-                                    totalMappings.put(MapIRI, counter);
-//                                if(MapIRI==null || MapIRI.equalsIgnoreCase("null")){
-//                                    System.out.println("Fase One");
-//                                    System.out.println("Current    : "+currentOntologyName);
-//                                    System.out.println("Aux        : "+aux);
-//                                    System.out.println("Assertation: "+an.getAssertion());
-//                                    System.out.println("Ontology1  : "+an.getOntology1());
-//                                    System.out.println("Ontology2  : "+an.getOntology2());
-//                                    System.out.println("Concept1   : "+an.getOntologyConcept1());
-//                                    System.out.println("Concept2   : "+an.getOntologyConcept1());
-//                                }
-                                } else {
-                                    totalMappings.put(MapIRI, 1);
-//                                if(MapIRI==null || MapIRI.equalsIgnoreCase("null")){
-//                                    System.out.println("Fase One");
-//                                    System.out.println("Current    : "+currentOntologyName);
-//                                    System.out.println("Aux        : "+aux);
-//                                    System.out.println("Assertation: "+an.getAssertion());
-//                                    System.out.println("Ontology1  : "+an.getOntology1());
-//                                    System.out.println("Ontology2  : "+an.getOntology2());
-//                                    System.out.println("Concept1   : "+an.getOntologyConcept1());
-//                                    System.out.println("Concept2   : "+an.getOntologyConcept1());
-//                                }
-                                }
-
-                                //S//System.out.println("AnnotationAssertationAxiom: " + annotationAssertionAxiom);ystem.out.println("=======================");.
-
-
-                                //System.out.println("Assertion with out anotation: " + annotationAssertionAxiom.getAnnotationPropertiesInSignature());
-
-
                             }
                         }
 
@@ -311,46 +258,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                             an = getAnnotationAssertationEntity(owlAnnotation, ind.getIRI(), MATCH[x], ++countMatch);
                             //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX <---");
 
-                            addToDeduplicationHash(an);
-//                                if(an.getOntology2()==null){
-//                                    printAndAppend("***XXX***");
-//                                }
-
-                            MapIRI = an.getOntology2();
-                            if (mappings.containsKey(MapIRI)) {
-                                counter = mappings.get(MapIRI);
-                                counter++;
-                                mappings.put(MapIRI, counter);
-                            } else {
-                                mappings.put(MapIRI, 1);
-                            }
-                            if (totalMappings.containsKey(MapIRI)) {
-                                counter = totalMappings.get(MapIRI);
-                                counter++;
-                                totalMappings.put(MapIRI, counter);
-//                                    if(MapIRI==null || MapIRI.equalsIgnoreCase("null")){
-//                                        System.out.println("Fase Two");
-//                                        System.out.println("Current    : "+currentOntologyName);
-//                                        System.out.println("Aux        : "+aux);
-//                                        System.out.println("Assertation: "+an.getAssertion());
-//                                        System.out.println("Ontology1  : "+an.getOntology1());
-//                                        System.out.println("Ontology2  : "+an.getOntology2());
-//                                        System.out.println("Concept1   : "+an.getOntologyConcept1());
-//                                        System.out.println("Concept2   : "+an.getOntologyConcept1());
-//                                    }
-                            } else {
-                                totalMappings.put(MapIRI, 1);
-//                                    if(MapIRI==null || MapIRI.equalsIgnoreCase("null")){
-//                                        System.out.println("Fase Two");
-//                                        System.out.println("Current    : "+currentOntologyName);
-//                                        System.out.println("Aux        : "+aux);
-//                                        System.out.println("Assertation: "+an.getAssertion());
-//                                        System.out.println("Ontology1  : "+an.getOntology1());
-//                                        System.out.println("Ontology2  : "+an.getOntology2());
-//                                        System.out.println("Concept1   : "+an.getOntologyConcept1());
-//                                        System.out.println("Concept2   : "+an.getOntologyConcept1());
-//                                    }
-                            }
+                            addToHashMap(an);
 
                         }
                     }
@@ -364,23 +272,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                             //System.out.println("===IND2: "+ind.toString());
                             an = getAnnotationAssertationEntity(ax.toString(), ind.getIRI(), MATCH[x], ++countMatch);
-                            addToDeduplicationHash(an);
-
-                            MapIRI = an.getOntology2();
-                            if (mappings.containsKey(MapIRI)) {
-                                counter = mappings.get(MapIRI);
-                                counter++;
-                                mappings.put(MapIRI, counter);
-                            } else {
-                                mappings.put(MapIRI, 1);
-                            }
-                            if (totalMappings.containsKey(MapIRI)) {
-                                counter = totalMappings.get(MapIRI);
-                                counter++;
-                                totalMappings.put(MapIRI, counter);
-                            } else {
-                                totalMappings.put(MapIRI, 1);
-                            }
+                            addToHashMap(an);
 
 
                         }
@@ -425,6 +317,30 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             mappings.clear();
             countIndividualsFlag = false;
 
+        }
+
+
+    }
+
+
+    public void addToHashMap(AnnotationAssertationEntity an) {
+
+        addToDeduplicationHash(an);
+
+        MapIRI = an.getOntology2();
+        if (mappings.containsKey(MapIRI)) {
+            counter = mappings.get(MapIRI);
+            counter++;
+            mappings.put(MapIRI, counter);
+        } else {
+            mappings.put(MapIRI, 1);
+        }
+        if (totalMappings.containsKey(MapIRI)) {
+            counter = totalMappings.get(MapIRI);
+            counter++;
+            totalMappings.put(MapIRI, counter);
+        } else {
+            totalMappings.put(MapIRI, 1);
         }
 
 
@@ -621,23 +537,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     public AnnotationAssertationEntity getAnnotationAssertationEntity(OWLAnnotation anot, IRI iri, String assertion, int id) {
 
 
-//        System.out.println("---Anot     : "+anot);
-//        System.out.println("IRI         : "+iri);
-//        System.out.println("Assertation : "+assertion);
-//        System.out.println("ID          : "+id);
-
-
         String aux = anot.toString().replace("\n", "").trim();
         String aux2 = "";
         String ret = "";
 
 
-        System.out.println("Variation I: " + aux);
-
-
-        errorLogger.error("ERROR: ORIGIN -->" + aux);
-
-        // System.out.println(aux);
         int indexOf1 = 0;
         int indexOf2 = 0;
         AnnotationAssertationEntity an = new AnnotationAssertationEntity();
@@ -673,16 +577,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             an.setOntologyConcept2(aux2);
 
-
-            if (an.getOntology2() == null || an.getOntology2().equalsIgnoreCase("null")) {
-                System.out.println("Current    : " + currentOntologyName);
-                System.out.println("Aux        : " + aux);
-                System.out.println("Assertation: " + an.getAssertion());
-                System.out.println("Ontology1  : " + an.getOntology1());
-                System.out.println("Ontology2  : " + an.getOntology2());
-                System.out.println("Concept1   : " + an.getOntologyConcept1());
-                System.out.println("Concept2   : " + an.getOntologyConcept2());
-            }
 
         } else {
             // in case of a null property value
@@ -729,10 +623,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             // Enter here if it is not an IRI
             aux = propertyValue.toLowerCase().replace("\n", "").trim();
 
-
-            System.out.println("Variation II A: " + aux);
-
-
             ret = mapExternalLink(aux);
             an.setOntology2(ret);
             if (ret.equals("UNMAPPED_REFERENCE")) {
@@ -749,10 +639,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             // Enter here if it is not an IRI
             aux = propertyValue.toLowerCase().replace("\n", "").trim();
-
-
-            System.out.println("Variation II B: " + aux);
-
 
             ret = mapExternalLink(aux);
             an.setOntology2(ret);
@@ -790,7 +676,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         String aux2 = "";
 
 
-        // System.out.println(aux);
         int indexOf1 = 0;
         int indexOf2 = 0;
         AnnotationAssertationEntity an = new AnnotationAssertationEntity();
@@ -813,7 +698,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             while (indexOf2 <= indexOf1) {
                 aux = aux.substring(indexOf2 + 1, aux.length());
-                System.out.println(aux);
                 indexOf1 = aux.indexOf("<");
                 indexOf2 = aux.indexOf(">");
             }
@@ -827,16 +711,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             //System.out.println(aux);
             indexOf1 = aux.indexOf("<");
             indexOf2 = aux.indexOf(">");
-//
-//            if(indexOf2<=indexOf1){
-//                System.out.println("Current    : "+currentOntologyName);
-//                System.out.println("Aux        : "+aux);
-//                System.out.println("Assertation: "+an.getAssertion());
-//                System.out.println("Ontology1  : "+an.getOntology1());
-//                System.out.println("Ontology2  : "+an.getOntology2());
-//                System.out.println("Concept1   : "+an.getOntologyConcept1());
-//                System.out.println("Concept2   : "+an.getOntologyConcept1());
-//            }
 
 
             if (indexOf1 > -1 && indexOf2 > 1) {
@@ -867,9 +741,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         }
 
-        System.out.println("Variation III: " + aux);
-
-
         return an;
     }
 
@@ -891,10 +762,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             value = entry.getValue();
             if (searchString.indexOf(key) > -1) {
                 result = value.getLink();
-//                if(result==null){
-//                    System.out.println("null-->"+key);
-//                }
-
                 break;
             }
         }
@@ -942,7 +809,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     public void parse(String command, ArrayList<String> files) {
 
 
-        String executionHistory = ManageProperties.loadPropertyValue("executionhistory");
+        String executionHistory = readExecutionHistory();
         this.command = command;
         this.files = files;
 
@@ -1026,7 +893,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         // run thru ontologies collection
         for (OntologyEntity ontologyEntity : ontologies) {
 
-            // verify execution history to dice if maus be processes or not
+            // verify execution history to dice if must be processes or not
             if (executionHistory.indexOf(ontologyEntity.getAcronym().toUpperCase()) == -1) {
 
 
@@ -1171,6 +1038,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         externalLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " is summary only ! Processing skiped !");
                     }
 
+                }else {
+                    errorLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
+                    stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
                 }
 
                 mappings = new HashMap<>();
@@ -1182,9 +1052,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 totalMappings.clear();
 
                 appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
-            } else {
-                errorLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
-                stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
             }
 
 

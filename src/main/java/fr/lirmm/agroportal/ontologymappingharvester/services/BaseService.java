@@ -48,6 +48,7 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
     HashMap<String, ExternalReference> externalReferenceHashMap;
+    HashMap<String, String> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
     HashMap<String,String> ontologyNameHashMapBio;
     Logger stdoutLogger;
@@ -104,6 +105,7 @@ public class BaseService {
         files = new ArrayList<>();
         currentOntologyName="";
         externalReferenceHashMap = new HashMap<>();
+        externalTargetReferenceHashMap = new HashMap<>();
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
         currentOntologyId="";
@@ -482,6 +484,30 @@ public class BaseService {
 
         } catch (IOException e) {
             errorLogger.error("Error trying to load external references JSON file located in: "+dir+" message:"+e.getMessage());
+        }
+
+    }
+
+    /**
+     * Load external references JSON file
+     */
+    public void loadExternalTargetReferences(){
+
+
+        String dir = ManageProperties.loadPropertyValue("externalproperties");
+
+        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_target_matches.txt"))) {
+            String line = br.readLine();
+            String[] content = new String[2];
+
+            while (line != null) {
+                content = line.split(";");
+                externalTargetReferenceHashMap.put(content[0],content[1]);
+                line = br.readLine();
+            }
+
+        } catch (IOException e) {
+            errorLogger.error("Error trying to load external target references txt file located in: "+dir+" message:"+e.getMessage());
         }
 
     }

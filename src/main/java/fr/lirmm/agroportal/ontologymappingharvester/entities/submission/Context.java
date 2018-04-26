@@ -1,13 +1,9 @@
-package fr.lirmm.agroportal.ontologymappingharvester.entities;
+package fr.lirmm.agroportal.ontologymappingharvester.entities.submission;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
-/**
- * Entity to represent ontology metadata
- */
-public class Links {
+public class Context {
 
     @SerializedName("submissions")
     @Expose
@@ -60,9 +56,6 @@ public class Links {
     @SerializedName("ui")
     @Expose
     private String ui;
-    @SerializedName("@context")
-    @Expose
-    private Context context;
 
     public String getSubmissions() {
         return submissions;
@@ -198,14 +191,6 @@ public class Links {
 
     public void setUi(String ui) {
         this.ui = ui;
-    }
-
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
     }
 
 }

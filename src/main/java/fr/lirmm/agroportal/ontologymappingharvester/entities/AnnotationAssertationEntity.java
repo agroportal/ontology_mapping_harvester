@@ -8,6 +8,7 @@ public class AnnotationAssertationEntity {
     private String ontology2;
     private String ontologyConcept1;
     private String ontologyConcept2;
+    private String ontologyIdPortal;
 
 
     /**
@@ -64,6 +65,14 @@ public class AnnotationAssertationEntity {
         this.ontologyConcept2 = ontologyConcept2.toLowerCase();
     }
 
+    public String getOntologyIdPortal() {
+        return ontologyIdPortal;
+    }
+
+    public void setOntologyIdPortal(String ontologyIdPortal) {
+        this.ontologyIdPortal = ontologyIdPortal;
+    }
+
     @Override
     public String toString() {
         return "AnnotationAssertationEntity{" +
@@ -73,6 +82,7 @@ public class AnnotationAssertationEntity {
                 ", ontology2='" + ontology2 + '\'' +
                 ", ontologyConcept1='" + ontologyConcept1 + '\'' +
                 ", ontologyConcept2='" + ontologyConcept2 + '\'' +
+                ", ontologyIdPortal='" + ontologyIdPortal + '\'' +
                 '}';
     }
 }

@@ -2,8 +2,8 @@ package fr.lirmm.agroportal.ontologymappingharvester;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExtRefList;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
 
 public class TesteJson {
 

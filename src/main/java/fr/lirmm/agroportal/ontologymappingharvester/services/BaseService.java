@@ -3,8 +3,11 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExtRefList;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -20,10 +23,8 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -47,10 +48,15 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
     HashMap<String, ExternalReference> externalReferenceHashMap;
+    HashMap<String,String> ontologyNameHashMapAgro;
+    HashMap<String,String> ontologyNameHashMapBio;
     Logger stdoutLogger;
     Logger errorLogger;
     Logger statisticsLogger;
     Logger externalLogger;
+    Logger totalizationLogger;
+    List<OntologyEntity> ontologies;
+    AgroportalRestService agroportalRestService;
 
     int counter;
     String MapIRI;
@@ -63,6 +69,9 @@ public class BaseService {
     ArrayList<String> files;
     String currentOntologyName;
     StringBuffer unmap;
+    String currentOntologyId;
+
+    String ontologyContactEmail;
 
 
     /**
@@ -84,6 +93,8 @@ public class BaseService {
         maps = new HashMap<>();
         totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
+        ontologyNameHashMapAgro = new HashMap<>();
+        ontologyNameHashMapBio = new HashMap<>();
         counter = 0;
         MapIRI="";
         sb = new StringBuffer("");
@@ -93,6 +104,9 @@ public class BaseService {
         files = new ArrayList<>();
         currentOntologyName="";
         externalReferenceHashMap = new HashMap<>();
+        ontologyContactEmail = "";
+        agroportalRestService = new AgroportalRestService();
+        currentOntologyId="";
     }
 
 
@@ -153,22 +167,32 @@ public class BaseService {
      * Write JSON files for Mappings
      * @param jsonString
      */
-    public void writeJsonFile(String jsonString){
+    public void writeJsonFile(String jsonString, boolean definitive){
 
 
         if(command.indexOf("j")>-1) {
 
             String path = fileIN.getAbsolutePath();
-
+            String extension=".json.tmp";
             Path p = Paths.get(path);
-            String fileName = p.getFileName().toString();
+            String fileName = p.getFileName().toString().substring(0,p.getFileName().toString().indexOf("."));
             String directory = p.getParent().toString();
 
-            File f = new File(directory + File.separator + (fileName.replace(".rdf", "").replace(".xrdf", "")) + ".json");
+            File fileToDelete = new File(directory + File.separator + fileName + extension);
+
+            if(definitive){
+                extension=".json";
+            }
+
+            File f = new File(directory + File.separator + fileName + extension);
+            //System.out.println("file   ->"+f);
             stdoutLogger.info("Writing JSON file: " + f.getAbsolutePath());
 
             try {
                 FileUtils.writeStringToFile(f, jsonString, "UTF-8");
+                if(definitive){
+                    fileToDelete.delete();
+                }
             } catch (IOException e) {
                 errorLogger.error("Error trying to write JSON file: " + e.getMessage());
             }
@@ -205,8 +229,9 @@ public class BaseService {
     }
 
 
-    public void addToDeduplicationHash(AnnotationAssertationEntity an){
+    public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
         deduplicationHash.put(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
+        stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(an.getId()>totalAnnotationAssertationEntities){
             totalAnnotationAssertationEntities=an.getId();
         }
@@ -479,6 +504,7 @@ public class BaseService {
         logProperties.setProperty("log4j.logger.statistics","TRACE,statistics");
         logProperties.setProperty("log4j.logger.stdout","TRACE, file, console");
         logProperties.setProperty("log4j.logger.external","TRACE, external_reference");
+        logProperties.setProperty("log4j.logger.totals","TRACE, tots");
 
         logProperties.setProperty("log4j.appender.file", "org.apache.log4j.varia.NullAppender");
         logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
@@ -496,14 +522,19 @@ public class BaseService {
         logProperties.setProperty("log4j.appender.external_reference.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.external_reference.layout.ConversionPattern","%m%n");
 
+        logProperties.setProperty("log4j.appender.tots.File", path+"/matchs_totalization.xls");
+        logProperties.setProperty("log4j.appender.tots", "org.apache.log4j.FileAppender");
+        logProperties.setProperty("log4j.appender.tots.layout",  "org.apache.log4j.PatternLayout");
+        logProperties.setProperty("log4j.appender.tots.layout.ConversionPattern","%m%n");
+
 
         if(command.indexOf("p")>-1) {
             logProperties.setProperty("log4j.appender.console", "org.apache.log4j.ConsoleAppender");
-            logProperties.setProperty("log4j.appender.console.layout", "org.apache.log4j.PatternLayout");
-            logProperties.setProperty("log4j.appender.console.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
+            logProperties.setProperty("log4j.appender.console.layout",  "org.apache.log4j.PatternLayout");
+            logProperties.setProperty("log4j.appender.console.layout.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
         }
 
-
+//teste again
         if(command.indexOf("l")>-1){
             logProperties.setProperty("log4j.appender.file.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".log");
             logProperties.setProperty("log4j.appender.file", "org.apache.log4j.FileAppender");
@@ -525,7 +556,131 @@ public class BaseService {
         errorLogger = Logger.getLogger("error");
         statisticsLogger = Logger.getLogger("statistics");
         externalLogger = Logger.getLogger("external");
+        totalizationLogger = Logger.getLogger("totals");
 
+    }
+
+
+    public void loadAndProcessOntologiesMetadata(String command){
+
+
+        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
+
+        if(ontologiesAgro==null || ontologiesAgro.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
+            System.exit(0);
+        }
+
+        for(OntologyEntity oe: ontologiesAgro){
+            ontologyNameHashMapAgro.put(oe.getId(),oe.getAcronym());
+        }
+
+
+        List<OntologyEntity> ontologiesBio =  agroportalRestService.getOntologyAnnotation("n");
+
+        if(ontologiesBio==null || ontologiesBio.size()==0){
+            errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            stdoutLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
+            System.out.println("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
+            System.exit(0);
+        }
+
+        for(OntologyEntity oe: ontologiesBio){
+            ontologyNameHashMapBio.put(oe.getId(),oe.getAcronym());
+        }
+
+
+        if(command.indexOf("n")>-1){
+            ontologies = ontologiesBio;
+        }else{
+            ontologies = ontologiesAgro;
+        }
+
+    }
+
+
+    public MappingEntity[] loadTempJSONFile(File file){
+
+        ArrayList<MappingEntity> mappingEntities = new ArrayList<>();
+        MappingEntity[] mappingE = null;
+
+
+        try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+            Gson gson = new GsonBuilder().create();
+            mappingE = gson.fromJson(everything, MappingEntity[].class);
+
+            System.out.println("Tamanho: "+mappingE.length);
+
+
+        } catch (IOException e) {
+            errorLogger.error("Error trying to load external references JSON file located in: "+file.toString()+" - "+e.getMessage());
+        }
+
+        return mappingE;
+    }
+
+
+    public void appendExecutionHistory(String ontology){
+
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        try
+        {
+            String filename= "execution_history.log";
+            FileWriter fw = new FileWriter(folder+File.separator+filename,true); //the true will append the new data
+            fw.write(ontology+"\n");//appends the string to the file
+            fw.close();
+        }
+        catch(IOException ioe)
+        {
+            errorLogger.error("Error trying to write on execution history: " + ioe.getMessage());
+        }
+
+    }
+
+    public String readExecutionHistory(){
+
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String filename= "execution_history.log";
+        String history="";
+
+        try(BufferedReader br = new BufferedReader(new FileReader(folder+File.separator+filename))) {
+
+            String line = br.readLine();
+
+            while (line != null) {
+                history += line+";";
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+        } catch (FileNotFoundException e) {
+            errorLogger.error("Execution history file not founded. Creating empity file.");
+            appendExecutionHistory("");
+        } catch (IOException e) {
+            errorLogger.error("Error trying to read execution history file -->"+folder+File.separator+filename+" message: "+e.getMessage());
+        }
+        return history;
+    }
+
+
+    public void deleteExecutionHistory(){
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String filename= "execution_history.log";
+        try {
+            Files.deleteIfExists(Paths.get(folder + File.separator + filename));
+        } catch (IOException e) {
+            errorLogger.error("Error trying to delete execution history: " + e.getMessage());
+        }
+        appendExecutionHistory("");
     }
 
 }

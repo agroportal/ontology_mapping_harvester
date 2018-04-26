@@ -1,0 +1,864 @@
+{
+	"ExternalReference": [{
+			"search_string": "dewey.info",
+			"link": "http://dewey.info",
+			"iri": ""
+		},
+		{
+			"search_string": "sws.geonames.org",
+			"link": "http://sws.geonames.org",
+			"iri": ""
+		},
+		{
+			"search_string": "vocabularyserver.com",
+			"link": "http://vocabularyserver.com",
+			"iri": ""
+		},
+		{
+			"search_string": "bioxsd.org",
+			"link": "http://bioxsd.org",
+			"iri": ""
+		}, {
+			"search_string": "wikimedia.org",
+			"link": "http://upload.wikimedia.org",
+			"iri": ""
+		},
+		{
+			"search_string": "programming languages",
+			"link": "programming languages",
+			"iri": ""
+		},
+		{
+			"search_string": "bioc.sourceforge.net/",
+			"link": "http://bioc.sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "biopax.org",
+			"link": "http://www.biopax.org",
+			"iri": ""
+		},
+		{
+			"search_string": "bozeman.mbt.washington.edu",
+			"link": "http://bozeman.mbt.washington.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "braininfo.rprc.washington.edu",
+			"link": "http://braininfo.rprc.washington.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "brat.nlplab.org",
+			"link": "http://brat.nlplab.org",
+			"iri": ""
+		},
+		{
+			"search_string": "broadinstitute.org",
+			"link": "http://www.broadinstitute.org",
+			"iri": ""
+		},
+		{
+			"search_string": "cellml.org",
+			"link": "http://www.cellml.org",
+			"iri": ""
+		},
+		{
+			"search_string": "chemistry.about.com",
+			"link": "http://chemistry.about.com",
+			"iri": ""
+		},
+		{
+			"search_string": "co.mbine.org",
+			"link": "http://co.mbine.org",
+			"iri": ""
+		},
+		{
+			"search_string": "code.google.com",
+			"link": "http://code.google.com",
+			"iri": ""
+		},
+		{
+			"search_string": "compbiotoolbox.fmach.it",
+			"link": "http://compbiotoolbox.fmach.it",
+			"iri": ""
+		},
+		{
+			"search_string": "cs.waikato.ac.nz",
+			"link": "http://www.cs.waikato.ac.nz",
+			"iri": ""
+		},
+		{
+			"search_string": "daylight.com",
+			"link": "http://www.daylight.com",
+			"iri": ""
+		},
+		{
+			"search_string": "ebi.ac.uk",
+			"link": "http://www.ebi.ac.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "wikipedia.org",
+			"link": "wikipedia",
+			"iri": ""
+		},
+		{
+			"search_string": "ensembl.org",
+			"link": "http://www.ensembl.org",
+			"iri": ""
+		},
+		{
+			"search_string": "eol.org/pages",
+			"link": "http://eol.org/pages",
+			"iri": ""
+		},
+		{
+			"search_string": "flybase.org",
+			"link": "http://flybase.org",
+			"iri": ""
+		},
+		{
+			"search_string": "ftp://ftp.ebi.ac.uk",
+			"link": "ftp://ftp.ebi.ac.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "galaxy.readthedocs.org",
+			"link": "http://galaxy.readthedocs.org",
+			"iri": ""
+		},
+		{
+			"search_string": "gcdml.gensc.org",
+			"link": "http://gcdml.gensc.org",
+			"iri": ""
+		},
+		{
+			"search_string": "genome.ucsc.edu",
+			"link": "http://genome.ucsc.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "gtrack.no",
+			"link": "http://www.gtrack.no",
+			"iri": ""
+		},
+		{
+			"search_string": "hdfgroup.org",
+			"link": "https://www.hdfgroup.org",
+			"iri": ""
+		},
+		{
+			"search_string": "htslib.org",
+			"link": "http://www.htslib.org",
+			"iri": ""
+		},
+		{
+			"search_string": "jalview.github.io/biojson",
+			"link": "http://jalview.github.io/biojson",
+			"iri": ""
+		},
+		{
+			"search_string": "jcomeau.freeshell.org",
+			"link": "http://jcomeau.freeshell.org",
+			"iri": ""
+		},
+		{
+			"search_string": "linkedlifedata.com",
+			"link": "http://linkedlifedata.com",
+			"iri": ""
+		},
+		{
+			"search_string": "mblab.wustl.edu",
+			"link": "http://mblab.wustl.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "nactem.ac.uk",
+			"link": "http://www.nactem.ac.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "ncbi.nlm.nih.gov",
+			"link": "https://www.ncbi.nlm.nih.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "ncicb.nci.nih.gov",
+			"link": "http://ncicb.nci.nih.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "nexml.org",
+			"link": "http://www.nexml.org",
+			"iri": ""
+		},
+		{
+			"search_string": "openannotation.org",
+			"link": "http://www.openannotation.org",
+			"iri": ""
+		},
+		{
+			"search_string": "openbel.org",
+			"link": "http://www.openbel.org",
+			"iri": ""
+		},
+		{
+			"search_string": "palaeos.com",
+			"link": "http://palaeos.com",
+			"iri": ""
+		},
+		{
+			"search_string": "phyloxml.org",
+			"link": "http://www.phyloxml.org",
+			"iri": ""
+		},
+		{
+			"search_string": "psidev.info",
+			"link": "http://psidev.info",
+			"iri": ""
+		},
+		{
+			"search_string": "samtools.sourceforge.net",
+			"link": "http://samtools.sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "sanger.ac.uk",
+			"link": "http://www.sanger.ac.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "sbml.org",
+			"link": "http://sbml.org",
+			"iri": ""
+		},
+		{
+			"search_string": "sbtab.net",
+			"link": "http://sbtab.net",
+			"iri": ""
+		},
+		{
+			"search_string": "sci.sdsu.edu",
+			"link": "http://www.sci.sdsu.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "seqanswers.com",
+			"link": "http://seqanswers.com",
+			"iri": ""
+		},
+		{
+			"search_string": "sequenceontology.org",
+			"link": "http://sequenceontology.org",
+			"iri": ""
+		},
+		{
+			"search_string": "snomedbrowser.com",
+			"link": "http://www.snomedbrowser.com",
+			"iri": ""
+		},
+		{
+			"search_string": "snp.gs.washington.edu",
+			"link": "http://snp.gs.washington.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "software engineering",
+			"link": "software engineering",
+			"iri": ""
+		},
+		{
+			"search_string": "srf.sourceforge.net",
+			"link": "http://srf.sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "ssbd.qbic.riken.jp",
+			"link": "http://ssbd.qbic.riken.jp",
+			"iri": ""
+		},
+		{
+			"search_string": "tools.ietf.org",
+			"link": "https://tools.ietf.org",
+			"iri": ""
+		},
+		{
+			"search_string": "vat.gersteinlab.org",
+			"link": "http://vat.gersteinlab.org",
+			"iri": ""
+		},
+		{
+			"search_string": "vcftools.sourceforge.net",
+			"link": "http://vcftools.sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "vt ",
+			"link": "vt",
+			"iri": ""
+		},
+		{
+			"search_string": "w3.org",
+			"link": "https://www.w3.org",
+			"iri": ""
+		},
+		{
+			"search_string": "uri.neuinfo.org",
+			"link": "http://uri.neuinfo.org",
+			"iri": ""
+		},
+		{
+			"search_string": "neurolex.org",
+			"link": "http://neurolex.org",
+			"iri": ""
+		},
+		{
+			"search_string": "geneontology.org",
+			"link": "http://www.geneontology.org",
+			"iri": ""
+		},
+		{
+			"search_string": "eionet.europa.eu/gemet/concept",
+			"link": "GEMET",
+			"iri": ""
+		},
+		{
+			"search_string": "iana.org",
+			"link": "http://www.iana.org",
+			"iri": ""
+		},
+		{
+			"search_string": "2011.bionlp-st.org",
+			"link": "http://2011.bionlp-st.org",
+			"iri": ""
+		},
+		{
+			"search_string": "2013.bionlp-st.org",
+			"link": "http://2013.bionlp-st.org",
+			"iri": ""
+		},
+		{
+			"search_string": "bedtools.readthedocs.org",
+			"link": "http://bedtools.readthedocs.org",
+			"iri": ""
+		},
+		{
+			"search_string": "bio.net",
+			"link": "http://www.bio.net",
+			"iri": ""
+		},
+		{
+			"search_string": "bioc.sourceforge.net",
+			"link": "http://bioc.sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "bioperl.org",
+			"link": "http://www.bioperl.org",
+			"iri": ""
+		},
+		{
+			"search_string": "bioversityinternational.org",
+			"link": "https://www.bioversityinternational.org",
+			"iri": ""
+		},
+		{
+			"search_string": "bx.psu.edu",
+			"link": "http://www.bx.psu.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "clcsupport.com",
+			"link": "http://www.clcsupport.com",
+			"iri": ""
+		},
+		{
+			"search_string": "comp-sys-bio.org",
+			"link": "http://www.comp-sys-bio.org",
+			"iri": ""
+		},
+		{
+			"search_string": "compbio.ox.ac.uk",
+			"link": "http://www.compbio.ox.ac.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "compbio.soe.ucsc.edu",
+			"link": "http://compbio.soe.ucsc.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "copasi.org",
+			"link": "http://www.copasi.org",
+			"iri": ""
+		},
+		{
+			"search_string": "data.uba.de",
+			"link": "http://data.uba.de",
+			"iri": ""
+		},
+		{
+			"search_string": "dbpedia.org",
+			"link": "http://dbpedia.org",
+			"iri": ""
+		},
+		{
+			"search_string": "eurovoc.europa.eu",
+			"link": "http://eurovoc.europa.eu",
+			"iri": ""
+		},
+		{
+			"search_string": "filext.com",
+			"link": "http://filext.com",
+			"iri": ""
+		},
+		{
+			"search_string": "genome-source.cse.ucsc.edu",
+			"link": "http://genome-source.cse.ucsc.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "github.com",
+			"link": "https://github.com",
+			"iri": ""
+		},
+		{
+			"search_string": "hyperbrowser.uio.no",
+			"link": "https://hyperbrowser.uio.no",
+			"iri": ""
+		},
+		{
+			"search_string": "iana.org",
+			"link": "http://www.iana.org",
+			"iri": ""
+		},
+		{
+			"search_string": "2.bp.blogspot.com",
+			"link": "image:http://2.bp.blogspot.com",
+			"iri": ""
+		},
+		{
+			"search_string": "thefreedictionary.com",
+			"link": "http://www.thefreedictionary.com",
+			"iri": ""
+		},
+		{
+			"search_string": "imzml.org",
+			"link": "http://www.imzml.org",
+			"iri": ""
+		},
+		{
+			"search_string": "isa-tools.org",
+			"link": "http://www.isa-tools.org",
+			"iri": ""
+		},
+		{
+			"search_string": "khmer.readthedocs.org",
+			"link": "http://khmer.readthedocs.org",
+			"iri": ""
+		},
+		{
+			"search_string": "mged.org",
+			"link": "http://www.mged.org",
+			"iri": ""
+		},
+		{
+			"search_string": "ncit.nci.nih.gov",
+			"link": "https://ncit.nci.nih.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "pubannotation.org",
+			"link": "http://www.pubannotation.org",
+			"iri": ""
+		},
+		{
+			"search_string": "rdfdata.eionet.europa.eu",
+			"link": "http://rdfdata.eionet.europa.eu",
+			"iri": ""
+		},
+		{
+			"search_string": "rohsdb.cmb.usc.edu",
+			"link": "http://rohsdb.cmb.usc.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "samtools.github.io",
+			"link": "https://samtools.github.io",
+			"iri": ""
+		},
+		{
+			"search_string": "sbgn.org",
+			"link": "http://www.sbgn.org",
+			"iri": ""
+		},
+		{
+			"search_string": "sed-ml.org",
+			"link": "http://sed-ml.org",
+			"iri": ""
+		},
+		{
+			"search_string": "staden.sourceforge.net",
+			"link": "http://staden.sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "eurovoc.europa.eu",
+			"link": "http://eurovoc.europa.eu",
+			"iri": ""
+		},
+		{
+			"search_string": "yso.fi/onto/afo",
+			"link": "http://www.yso.fi/onto/afo",
+			"iri": ""
+		},
+		{
+			"search_string": "yso.fi/onto/yso-kehitys",
+			"link": "http://www.yso.fi/onto/yso-kehitys",
+			"iri": ""
+		},
+		{
+			"search_string": "annovar.openbioinformatics.org",
+			"link": "http://annovar.openbioinformatics.org",
+			"iri": ""
+		},
+		{
+			"search_string": "ecoliwiki.net",
+			"link": "http://ecoliwiki.net",
+			"iri": ""
+		},
+		{
+			"search_string": "gencodegenes.org",
+			"link": "http://www.gencodegenes.org",
+			"iri": ""
+		},
+		{
+			"search_string": "pacificbiosciences.com",
+			"link": "http://www.pacificbiosciences.com",
+			"iri": ""
+		},
+		{
+			"search_string": "purl.bioontology.org",
+			"link": "http://purl.bioontology.org",
+			"iri": ""
+		},
+		{
+			"search_string": "snpeff.sourceforge.net",
+			"link": "http://snpeff.sourceforge.net",
+			"iri": ""
+		},
+
+		{
+			"search_string": "yso.fi/onto/yso",
+			"link": "http://www.yso.fi/onto/yso",
+			"iri": ""
+		},
+		{
+			"search_string": "shigen.nig.ac.jp",
+			"link": "http://www.shigen.nig.ac.jp",
+			"iri": ""
+		},
+		{
+			"search_string": "omap.org",
+			"link": "http://www.omap.org",
+			"iri": ""
+		},
+		{
+			"search_string": "britannica.com",
+			"link": "http://www.britannica.com",
+			"iri": ""
+		},
+		{
+			"search_string": "asf.alaska.edu",
+			"link": "https://www.asf.alaska.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "askabiologist.asu.edu",
+			"link": "https://askabiologist.asu.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "biology-online.org",
+			"link": "http://www.biology-online.org",
+			"iri": ""
+		},
+		{
+			"search_string": "corn.agronomy.wisc.edu",
+			"link": "http://corn.agronomy.wisc.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "doi.org",
+			"link": "https://doi.org/10.1371",
+			"iri": ""
+		},
+		{
+			"search_string": "epa.gov",
+			"link": "https://www.epa.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "fao.org/docrep",
+			"link": "http://www.fao.org/docrep",
+			"iri": ""
+		},
+		{
+			"search_string": "gfdl.noaa.gov",
+			"link": "http://gfdl.noaa.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "glaciers.pdx.edu",
+			"link": "http://glaciers.pdx.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "iucn.org",
+			"link": "http://www.iucn.org",
+			"iri": ""
+		},
+		{
+			"search_string": "jappliedecologyblog.wordpress.com",
+			"link": "https://jappliedecologyblog.wordpress.com",
+			"iri": ""
+		},
+		{
+			"search_string": "merriam-webster.com/dictionary",
+			"link": "https://www.merriam-webster.com/dictionary",
+			"iri": ""
+		},
+		{
+			"search_string": "mrlc.gov",
+			"link": "https://www.mrlc.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "mynasadata.larc.nasa.gov",
+			"link": "https://mynasadata.larc.nasa.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "nature.com/news",
+			"link": "http://www.nature.com/news",
+			"iri": ""
+		},
+		{
+			"search_string": "nsidc.org",
+			"link": "http://nsidc.org",
+			"iri": ""
+		},
+		{
+			"search_string": "oceanservice.noaa.gov",
+			"link": "http://oceanservice.noaa.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "oxfordindex.oup.com",
+			"link": "http://oxfordindex.oup.com",
+			"iri": ""
+		},
+		{
+			"search_string": "phys.org/news",
+			"link": "https://phys.org/news",
+			"iri": ""
+		},
+		{
+			"search_string": "press.igsb.anl.gov",
+			"link": "http://press.igsb.anl.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "pubs.usgs.gov",
+			"link": "https://pubs.usgs.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "researchgate.net",
+			"link": "https://www.researchgate.net",
+			"iri": ""
+		},
+		{
+			"search_string": "sciencealert.com",
+			"link": "http://www.sciencealert.com",
+			"iri": ""
+		},
+		{
+			"search_string": "sciencedaily.com",
+			"link": "https://www.sciencedaily.com",
+			"iri": ""
+		},
+		{
+			"search_string": "stats.oecd.org",
+			"link": "http://stats.oecd.org",
+			"iri": ""
+		},
+		{
+			"search_string": "treeterms.co.uk",
+			"link": "http://www.treeterms.co.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "britannica.com",
+			"link": "http://www.britannica.com",
+			"iri": ""
+		},
+		{
+			"search_string": "fcs.uga.edu",
+			"link": "http://www.fcs.uga.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "medical.merriam-webster.com",
+			"link": "http://medical.merriam-webster.com",
+			"iri": ""
+		},
+		{
+			"search_string": "ontology.buffalo.edu",
+			"link": "http://ontology.buffalo.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "stemcells.nih.gov",
+			"link": "http://stemcells.nih.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "stjude.org",
+			"link": "http://www.stjude.org",
+			"iri": ""
+		},
+		{
+			"search_string": "wordnet.princeton.edu",
+			"link": "http://wordnet.princeton.edu",
+			"iri": ""
+		},
+		{
+			"search_string": "mapping.usgs.gov",
+			"link": "http://mapping.usgs.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "waterencyclopedia.com",
+			"link": "http://www.waterencyclopedia.com",
+			"iri": ""
+		},
+		{
+			"search_string": "antarctica.ac.uk",
+			"link": "http://www.antarctica.ac.uk",
+			"iri": ""
+		},
+		{
+			"search_string": "wasg.iinet.net.au",
+			"link": "http://wasg.iinet.net.au",
+			"iri": ""
+		},
+		{
+			"search_string": "web.archive.org",
+			"link": "https://web.archive.org",
+			"iri": ""
+		},
+		{
+			"search_string": "venturedeepocean.org",
+			"link": "http://www.venturedeepocean.org",
+			"iri": ""
+		},
+		{
+			"search_string": "who.int",
+			"link": "http://www.who.int",
+			"iri": ""
+		},
+		{
+			"search_string": "worldwildlife.org",
+			"link": "https://www.worldwildlife.org",
+			"iri": ""
+		},
+		{
+			"search_string": "earthonlinemedia.com",
+			"link": "http://www.earthonlinemedia.com",
+			"iri": ""
+		},
+		{
+			"search_string": "fs.fed.us",
+			"link": "http://www.fs.fed.us",
+			"iri": ""
+		},
+		{
+			"search_string": "yourdictionary.com",
+			"link": "http://www.yourdictionary.com",
+			"iri": ""
+		},
+		{
+			"search_string": "aims.fao.org/aos/agrovoc/",
+			"link": "http://aims.fao.org/aos/agrovoc",
+			"iri": ""
+		},
+		{
+			"search_string": "orcid.org",
+			"link": "http://orcid.org",
+			"iri": ""
+		},
+		{
+			"search_string": "solarsystem.nasa.gov",
+			"link": "http://solarsystem.nasa.gov",
+			"iri": ""
+		},
+		{
+			"search_string": "nature.com",
+			"link": "http://www.nature.com",
+			"iri": ""
+		},
+		{
+			"search_string": "purl.obolibrary.org/obo/uberon",
+			"link": "http://purl.obolibrary.org/obo/uberon",
+			"iri": ""
+		},
+		{
+			"search_string": "purl.obolibrary.org/obo/obi_1110054",
+			"link": "http://purl.obolibrary.org/obo/obi_1110054",
+			"iri": ""
+		},
+		{
+			"search_string": "dx.plos.org",
+			"link": "http://dx.plos.org",
+			"iri": ""
+		},
+		{
+			"search_string": "sourceforge.net",
+			"link": "https://sourceforge.net",
+			"iri": ""
+		},
+		{
+			"search_string": "purl.obolibrary.org/obo/ncbitaxon",
+			"link": "http://purl.obolibrary.org/obo/ncbitaxon",
+			"iri": ""
+		},
+		{
+			"search_string": "aims.fao.org/aos/agrovoc",
+			"link": "http://aims.fao.org/aos/agrovoc",
+			"iri": ""
+		},
+		{
+			"search_string": "cap.or",
+			"link": "http://www.cap.or",
+			"iri": ""
+		},
+		{
+			"search_string": "copewithcytokines.d",
+			"link": "http://www.copewithcytokines.de",
+			"iri": ""
+		},
+		{
+			"search_string": "immgen.org",
+			"link": "http://www.immgen.org",
+			"iri": ""
+		},
+		{
+			"search_string": "wiktionary.org",
+			"link": "http://en.wiktionary.org",
+			"iri": ""
+		}
+
+	]
+}

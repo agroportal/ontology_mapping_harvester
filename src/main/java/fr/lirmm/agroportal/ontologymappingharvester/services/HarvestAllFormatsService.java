@@ -173,7 +173,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                                 an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), annotationAssertionAxiom.getProperty().toString(), auxProperty, isIRI, ++countMatch);
 
-                                addToHashMap(an);
+                                // Variation one
+                                addToHashMap(an,1);
 
 
                             } else {
@@ -199,7 +200,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                                         an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), aaa.getProperty().toString(), auxProperty, isIRI, ++countMatch);
 
-                                        addToHashMap(an);
+                                        // variation 2
+                                        addToHashMap(an,2);
                                     }
 
                                 }
@@ -258,7 +260,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                             an = getAnnotationAssertationEntity(owlAnnotation, ind.getIRI(), MATCH[x], ++countMatch);
                             //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX <---");
 
-                            addToHashMap(an);
+                            // variation 3
+                            addToHashMap(an,3);
 
                         }
                     }
@@ -272,7 +275,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                             //System.out.println("===IND2: "+ind.toString());
                             an = getAnnotationAssertationEntity(ax.toString(), ind.getIRI(), MATCH[x], ++countMatch);
-                            addToHashMap(an);
+
+                            // variation 4
+                            addToHashMap(an,4);
 
 
                         }
@@ -323,9 +328,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
-    public void addToHashMap(AnnotationAssertationEntity an) {
+    public void addToHashMap(AnnotationAssertationEntity an, int variation) {
 
-        addToDeduplicationHash(an);
+        addToDeduplicationHash(an, variation);
 
         MapIRI = an.getOntology2();
         if (mappings.containsKey(MapIRI)) {

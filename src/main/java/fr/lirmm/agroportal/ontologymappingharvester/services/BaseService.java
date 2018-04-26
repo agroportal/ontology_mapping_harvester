@@ -229,8 +229,9 @@ public class BaseService {
     }
 
 
-    public void addToDeduplicationHash(AnnotationAssertationEntity an){
+    public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
         deduplicationHash.put(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
+        stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(an.getId()>totalAnnotationAssertationEntities){
             totalAnnotationAssertationEntities=an.getId();
         }

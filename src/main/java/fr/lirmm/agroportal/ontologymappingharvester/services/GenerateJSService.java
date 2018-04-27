@@ -140,12 +140,12 @@ public class GenerateJSService {
         int counter=1;
         int mapSize = node.size();
         for (Map.Entry<String, String> entry : node.entrySet()) {
-            String key = entry.getKey();
+            String key = entry.getKey().replaceAll("'","");
             values = entry.getValue().split(";");
             System.out.println("VALUE--->"+entry.getValue());
             mapCounter.put(key,counter);
             System.out.println("MapCounter: "+key+" "+counter);
-            js.append("{id: "+counter+",  value: "+values[2]+",  label: '"+values[3]+"' }");
+            js.append("{id: "+counter+",  value: "+(values[2].replaceAll("'",""))+",  label: '"+(values[3].replaceAll("'",""))+"' }");
             if(counter < mapSize){
                 js.append(",");
             }
@@ -161,11 +161,11 @@ public class GenerateJSService {
         int idTo =0;
 
         for (Map.Entry<String, String> entry : edge.entrySet()) {
-            String key = entry.getKey();
+            String key = entry.getKey().replaceAll("'","");;
             values = entry.getValue().split(";");
-            idFrom = mapCounter.get(values[1]);
-            idTo = mapCounter.get(values[2]);
-            js.append("{from: "+idFrom+", to: "+idTo+", value: "+values[3]+", title: '"+values[4]+"'}");
+            idFrom = mapCounter.get(values[1].replaceAll("'",""));
+            idTo = mapCounter.get(values[2].replaceAll("'",""));
+            js.append("{from: "+idFrom+", to: "+idTo+", value: "+(values[3].replaceAll("'",""))+", title: '"+(values[4].replaceAll("'",""))+"'}");
             if(counter < mapSize){
                 js.append(",");
             }

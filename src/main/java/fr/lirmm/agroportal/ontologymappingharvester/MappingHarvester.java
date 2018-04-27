@@ -56,7 +56,7 @@ public class MappingHarvester {
                 GenerateJSService generateJSService = new GenerateJSService();
                 generateJSService.generateJs(args[1]);
 
-            }if(command.indexOf("v")>-1){
+            }else if(command.indexOf("v")>-1){
 
                 ValidateIRIService validateIRIService = new ValidateIRIService();
                 validateIRIService.setupLogProperties("","","");

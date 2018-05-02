@@ -150,7 +150,7 @@ public class MappingHarvester {
         System.out.println("-n dowload ontologies from BIOPORTAL");
         System.out.println("-u Download an unique ontology (require destination folder and acronym)");
         System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");
-        System.out.println("-r Setup location folder for external_reference.json file");
+        System.out.println("-r Setup location folder for external_reference.txt file");
         System.out.println("-ka Setup api key to acess Agroportal from this script");
         System.out.println("-kb Setup api key to acess Bioportal from this script");
         System.out.println("-f Setup output folder");

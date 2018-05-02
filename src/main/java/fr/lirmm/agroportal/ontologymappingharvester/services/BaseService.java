@@ -233,7 +233,7 @@ public class BaseService {
 
     public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
         deduplicationHash.put(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
-        stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
+        //stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(an.getId()>totalAnnotationAssertationEntities){
             totalAnnotationAssertationEntities=an.getId();
         }
@@ -536,19 +536,19 @@ public class BaseService {
         logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
         logProperties.setProperty("log4j.appender.statistics", "org.apache.log4j.varia.NullAppender");
 
-        logProperties.setProperty("log4j.appender.error.File", path+"/harvest_tool_error.log");
+        logProperties.setProperty("log4j.appender.error.File", path+"/OMHT_harvest_tool_error.log");
         logProperties.setProperty("log4j.appender.error", "org.apache.log4j.RollingFileAppender");
         logProperties.setProperty("log4j.appender.error.MaxFileSize", "10MB");
         logProperties.setProperty("log4j.appender.error.Threshold", "ERROR");
         logProperties.setProperty("log4j.appender.error.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.error.layout.ConversionPattern","%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t (%F) - %m%n");
 
-        logProperties.setProperty("log4j.appender.external_reference.File", path+"/external_references.log");
+        logProperties.setProperty("log4j.appender.external_reference.File", path+"/OMHT_external_references.log");
         logProperties.setProperty("log4j.appender.external_reference", "org.apache.log4j.FileAppender");
         logProperties.setProperty("log4j.appender.external_reference.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.external_reference.layout.ConversionPattern","%m%n");
 
-        logProperties.setProperty("log4j.appender.tots.File", path+"/matchs_totalization.xls");
+        logProperties.setProperty("log4j.appender.tots.File", path+"/OMHT_matchs_totalization.xls");
         logProperties.setProperty("log4j.appender.tots", "org.apache.log4j.FileAppender");
         logProperties.setProperty("log4j.appender.tots.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.tots.layout.ConversionPattern","%m%n");
@@ -661,7 +661,7 @@ public class BaseService {
         String folder = ManageProperties.loadPropertyValue("outputfolder");
         try
         {
-            String filename= "execution_history.log";
+            String filename= "OMHT_execution_history.log";
             FileWriter fw = new FileWriter(folder+File.separator+filename,true); //the true will append the new data
             fw.write(ontology+"\n");//appends the string to the file
             fw.close();
@@ -676,7 +676,7 @@ public class BaseService {
     public String readExecutionHistory(){
 
         String folder = ManageProperties.loadPropertyValue("outputfolder");
-        String filename= "execution_history.log";
+        String filename= "OMHT_execution_history.log";
         String history="";
 
         try(BufferedReader br = new BufferedReader(new FileReader(folder+File.separator+filename))) {
@@ -700,7 +700,7 @@ public class BaseService {
 
     public void deleteExecutionHistory(){
         String folder = ManageProperties.loadPropertyValue("outputfolder");
-        String filename= "execution_history.log";
+        String filename= "OMHT_execution_history.log";
         try {
             Files.deleteIfExists(Paths.get(folder + File.separator + filename));
         } catch (IOException e) {

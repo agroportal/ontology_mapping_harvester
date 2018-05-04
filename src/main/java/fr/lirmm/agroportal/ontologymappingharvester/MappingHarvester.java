@@ -54,7 +54,7 @@ public class MappingHarvester {
             if(command.indexOf("g")>-1) {
 
                 GenerateJSService generateJSService = new GenerateJSService();
-                generateJSService.generateJs(args[1]);
+                generateJSService.generateJs(args[1], args[2]);
 
             }else if(command.indexOf("v")>-1){
 

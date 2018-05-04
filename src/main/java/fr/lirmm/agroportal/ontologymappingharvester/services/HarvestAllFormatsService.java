@@ -385,7 +385,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                     stdoutLogger.info("Sub Total: " + key2 + " --> " + value2);
                     stdoutLogger.info("----------------------------------------------------------");
-                    totalizationLogger.info(Util.getDateTime() + ";" + currentOntologyName + ";" + currentOntologyId + ";" + key + ";" + key2 + ";" + value2 + ";");
+                    totalizationLogger.info(Util.getDateTime() + ";" + currentOntologyName.replaceAll(";","") + ";" + currentOntologyId.replaceAll(";","") + ";" + key.replaceAll(";","") + ";" + key2.replaceAll(";","") + ";" + value2 + ";");
 
                 }
 
@@ -486,12 +486,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         addStat("rootnode;" + currentOntologyName + ";" + countIndividuals + ";" + currentOntologyName);
 
         for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
-            String key2 = entry2.getKey();
+            String key2 = entry2.getKey().replaceAll("'","").replaceAll(";","");
             Integer value2 = entry2.getValue();
 
             if (key2.indexOf("http") == 0) {
                 //key2 = key2.substring(key2.lastIndexOf(File.separator)+1,key2.length()).toUpperCase();
-                key2 = mapExternalLink(key2);
+                key2 = mapExternalLink2(key2);
             }
 
 
@@ -564,19 +564,20 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             aux2 = aux.substring(indexOf1 + 1, indexOf2);
             //an.setAssertion(aux.substring(indexOf1+1,indexOf2-1));
             //System.out.println("ENTROUAQUI-->"+aux.substring(indexOf1+1,indexOf2-1));
-            ret = preClean(aux2);
+            aux2 = preClean(aux2);
             an.setOntology2(ret);
 
-            if (ret.equals("UNMAPPED_REFERENCE")) {
-                if (aux2.indexOf(":") > 1 && aux.indexOf("http") != 0 && aux.indexOf("ftp") != 0 && aux.indexOf("smtp") != 0) {
-                    an.setOntology2(aux2.substring(0, aux2.indexOf(":")).toUpperCase());
-                } else if (aux2.indexOf("_") > 1) {
-                    an.setOntology2(aux2.substring(0, aux2.indexOf("_")).toUpperCase());
-                } else if (aux2.indexOf("-") > 1) {
-                    an.setOntology2(aux2.substring(0, aux2.indexOf("-")).toUpperCase());
-                } else if (aux.indexOf("http") > 0 || aux.indexOf("ftp") > 0 || aux.indexOf("smtp") > 0) {
-                    an.setOntology2("UNMAPPED_REFERENCE");
-                }
+            if(aux2.indexOf("http")==0 || aux2.indexOf("smtp")==0 || aux2.indexOf("ftp")==0){
+                an.setOntology2(mapExternalLink2(aux2));
+            } else if (aux2.indexOf(":") > 0) {
+                an.setOntology2(aux2.substring(0, aux2.indexOf(":")).toUpperCase());
+            } else if (aux2.indexOf("_") > 0) {
+                an.setOntology2(aux2.substring(0, aux2.indexOf("_")).toUpperCase());
+            } else if (aux2.indexOf("-") > 0) {
+                an.setOntology2(aux2.substring(0, aux2.indexOf("-")).toUpperCase());
+            } else {
+
+                an.setOntology2(mapExternalLink2(aux2));
             }
 
 
@@ -585,8 +586,10 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         } else {
             // in case of a null property value
+            externalLogger.error("UNMAPPED_REFERENCE: "+aux2);
             an.setOntologyConcept2("UNMAPPED_REFERENCE");
             an.setOntology2("UNMAPPED_REFERENCE");
+
 
         }
 
@@ -628,16 +631,16 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             // Enter here if it is not an IRI
             aux = propertyValue.toLowerCase().replace("\n", "").trim();
 
-            ret = mapExternalLink(aux);
-            an.setOntology2(ret);
-            if (ret.equals("UNMAPPED_REFERENCE")) {
-                if (aux.indexOf(":") > 1 && aux.indexOf("http") != 0 && aux.indexOf("ftp") != 0 && aux.indexOf("smtp") != 0) {
-                    an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                } else if (aux.indexOf("_") > 1) {
-                    an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                } else if (aux.indexOf("-") > 1) {
-                    an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
-                }
+            if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
+                an.setOntology2(mapExternalLink2(aux));
+            } else if (aux.indexOf(":") > 0) {
+                an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+            } else if (aux.indexOf("_") > 0) {
+                an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+            } else if (aux.indexOf("-") > 0) {
+                an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+            } else {
+                an.setOntology2(mapExternalLink2(aux));
             }
 
         } else {
@@ -645,16 +648,16 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             // Enter here if it is not an IRI
             aux = propertyValue.toLowerCase().replace("\n", "").trim();
 
-            ret = mapExternalLink(aux);
-            an.setOntology2(ret);
-            if (ret.equals("UNMAPPED_REFERENCE")) {
-                if (aux.indexOf(":") > 1 && aux.indexOf("http") != 0 && aux.indexOf("ftp") != 0 && aux.indexOf("smtp") != 0) {
-                    an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                } else if (aux.indexOf("_") > 1) {
-                    an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                } else if (aux.indexOf("-") > 1) {
-                    an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
-                }
+            if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
+                an.setOntology2(mapExternalLink2(aux));
+            } else if (aux.indexOf(":") > 0) {
+                an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+            } else if (aux.indexOf("_") > 0) {
+                an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+            } else if (aux.indexOf("-") > 0) {
+                an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+            } else {
+                an.setOntology2(mapExternalLink2(aux));
             }
 
 
@@ -679,6 +682,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         String aux = anot.toString().replace("\n", "").trim();
         String aux2 = "";
+        String ret="";
 
 
         int indexOf1 = 0;
@@ -731,14 +735,16 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             } else {
 
 
-                if (aux.indexOf(":") > 1 && aux.indexOf("http") != 0 && aux.indexOf("ftp") != 0 && aux.indexOf("smtp") != 0) {
+                if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
+                    an.setOntology2(mapExternalLink2(aux));
+                } else if (aux.indexOf(":") > 0) {
                     an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                } else if (aux.indexOf("_") > 1) {
+                } else if (aux.indexOf("_") > 0) {
                     an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                } else if (aux.indexOf("-") > 1) {
+                } else if (aux.indexOf("-") > 0) {
                     an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
                 } else {
-                    an.setOntology2(mapExternalLink(aux));
+                    an.setOntology2(mapExternalLink2(aux));
                 }
 
                 an.setOntologyConcept2(aux);
@@ -750,40 +756,67 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
-    /**
-     * Map external references for LINKS that are not IRI
-     *
-     * @param searchString
-     * @return
-     */
-    public String mapExternalLink(String searchString) {
+
+//    public String mapExternalLink(String searchString) {
+//
+//
+//        ExternalReference value;
+//        String key;
+//        String result = "";
+//        for (Map.Entry<String, ExternalReference> entry : externalReferenceHashMap.entrySet()) {
+//            key = entry.getKey();
+//            value = entry.getValue();
+//            if (searchString.indexOf(key) > -1) {
+//                result = value.getLink();
+//                break;
+//            }
+//        }
+//        if (result.length() > 0) {
+//            return result.toLowerCase();
+//        } else {
+//            //System.out.println("SearchString: "+searchString);
+//            if (searchString.indexOf("http") > -1) {
+//                stdoutLogger.error("ERROR: External reference not mapped -->" + searchString);
+//                stdoutLogger.info("{\"search_string\":\"" + searchString.replace("http://www.", "").replace("https://www.", "").replace("http://", "").replace("https://", "") + "\",\"link\":\"" + searchString + "\",\"iri\":\"\"},");
+//                externalLogger.info("{\"search_string\":\"" + searchString.replace("http://www.", "").replace("https://www.", "").replace("http://", "").replace("https://", "") + "\",\"link\":\"" + searchString + "\",\"iri\":\"\"},");
+//            } else {
+//                stdoutLogger.error("ERROR: NOT A LINK -->" + searchString);
+//            }
+//
+//            return "UNMAPPED_REFERENCE";
+//        }
+//
+//    }
+
+    public String mapExternalLink2(String value) {
+
+        int counter=0;
+        String process;
+        if(value !=null){
+            process = value.replaceAll("\n","").trim().toLowerCase();
 
 
-        ExternalReference value;
-        String key;
-        String result = "";
-        for (Map.Entry<String, ExternalReference> entry : externalReferenceHashMap.entrySet()) {
-            key = entry.getKey();
-            value = entry.getValue();
-            if (searchString.indexOf(key) > -1) {
-                result = value.getLink();
-                break;
+            String ret = externalTargetReferenceHashMap.get(process);
+            if(ret != null && !ret.equalsIgnoreCase("")){
+                return ret;
+            }else{
+                counter = value.length() - value.replace(" ", "").length();
+                if(counter >=3){
+                    externalLogger.error(currentOntologyName+ " - Could not extract a valid reference from: "+value);
+                    return "UNMAPPED_ONTOLOGY";
+                }else{
+                    return process;
+                }
+
             }
-        }
-        if (result.length() > 0) {
-            return result.toLowerCase();
-        } else {
-            //System.out.println("SearchString: "+searchString);
-            if (searchString.indexOf("http") > -1) {
-                stdoutLogger.error("ERROR: External reference not mapped -->" + searchString);
-                stdoutLogger.info("{\"search_string\":\"" + searchString.replace("http://www.", "").replace("https://www.", "").replace("http://", "").replace("https://", "") + "\",\"link\":\"" + searchString + "\",\"iri\":\"\"},");
-                externalLogger.info("{\"search_string\":\"" + searchString.replace("http://www.", "").replace("https://www.", "").replace("http://", "").replace("https://", "") + "\",\"link\":\"" + searchString + "\",\"iri\":\"\"},");
-            } else {
-                stdoutLogger.error("ERROR: NOT A LINK -->" + searchString);
-            }
 
-            return "UNMAPPED_REFERENCE";
+
+
+        }else{
+            externalLogger.error("NULL VALUE FOUNDED FOR ONTOLOGY REFERENCE: "+currentOntologyName);
+            return "UNMAPPED_ONTOLOGY";
         }
+
 
     }
 
@@ -799,7 +832,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         }
 
-        return mapExternalLink(aux);
+        return mapExternalLink2(aux);
 
     }
 

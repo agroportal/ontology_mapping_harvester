@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester;
 
 import fr.lirmm.agroportal.ontologymappingharvester.services.GenerateJSService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
+import fr.lirmm.agroportal.ontologymappingharvester.services.ValidadeTargetReferenceService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.ValidateIRIService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 
@@ -58,10 +59,15 @@ public class MappingHarvester {
 
             }else if(command.indexOf("v")>-1){
 
-                ValidateIRIService validateIRIService = new ValidateIRIService();
-                validateIRIService.setupLogProperties("","","");
-                validateIRIService.loadAndProcessOntologiesMetadata(command);
-                validateIRIService.validateIRIs(command,files);
+//                ValidateIRIService validateIRIService = new ValidateIRIService();
+//                validateIRIService.setupLogProperties("","","");
+//                validateIRIService.loadAndProcessOntologiesMetadata(command);
+//                validateIRIService.validateIRIs(command,files);
+
+                ValidadeTargetReferenceService validadeTargetReferenceService = new ValidadeTargetReferenceService();
+                validadeTargetReferenceService.setupLogProperties("","","");
+                validadeTargetReferenceService.loadAndProcessOntologiesMetadata(command);
+                validadeTargetReferenceService.validateTargetReferences(command,files);
 
             }else if(command.indexOf("r")>-1){
 

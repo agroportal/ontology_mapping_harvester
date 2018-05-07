@@ -3,6 +3,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
@@ -707,6 +708,35 @@ public class BaseService {
             errorLogger.error("Error trying to delete execution history: " + e.getMessage());
         }
         appendExecutionHistory("");
+    }
+
+
+    public HashMap<String,TargetReference> readTargetReferenceHashMap(){
+
+
+        HashMap<String, TargetReference> hashMap = new HashMap<>();
+        String[] aux = new String[6];
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String filename= "OMHT_target_references.txt";
+        TargetReference tr;
+
+        try(BufferedReader br = new BufferedReader(new FileReader(folder+File.separator+filename))) {
+
+            String line = br.readLine();
+
+            while (line != null) {
+                aux = line.split(";");
+                tr = new TargetReference(aux[0],aux[1],aux[2],aux[3],aux[4],aux[5]);
+                hashMap.put(aux[0],tr);
+                line = br.readLine();
+            }
+
+        } catch (FileNotFoundException e) {
+            errorLogger.error("Target reference file not founded.");
+        } catch (IOException e) {
+            errorLogger.error("Error trying to read target reference file -->"+folder+File.separator+filename+" message: "+e.getMessage());
+        }
+        return hashMap;
     }
 
 }

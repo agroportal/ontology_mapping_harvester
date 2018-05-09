@@ -57,6 +57,7 @@ public class BaseService {
     Logger statisticsLogger;
     Logger externalLogger;
     Logger totalizationLogger;
+    Logger summaryLogger;
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
 
@@ -497,7 +498,7 @@ public class BaseService {
 
         String dir = ManageProperties.loadPropertyValue("externalproperties");
 
-        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_target_matches.txt"))) {
+        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"OMHT_external_matches_phase_1.cfg"))) {
             String line = br.readLine();
             String[] content = new String[2];
 
@@ -532,6 +533,7 @@ public class BaseService {
         logProperties.setProperty("log4j.logger.stdout","TRACE, file, console");
         logProperties.setProperty("log4j.logger.external","TRACE, external_reference");
         logProperties.setProperty("log4j.logger.totals","TRACE, tots");
+        logProperties.setProperty("log4j.logger.summary","TRACE, sum");
 
         logProperties.setProperty("log4j.appender.file", "org.apache.log4j.varia.NullAppender");
         logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
@@ -553,6 +555,11 @@ public class BaseService {
         logProperties.setProperty("log4j.appender.tots", "org.apache.log4j.FileAppender");
         logProperties.setProperty("log4j.appender.tots.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.tots.layout.ConversionPattern","%m%n");
+
+        logProperties.setProperty("log4j.appender.sum.File", path+"/OMHT_summary_matchs.xls");
+        logProperties.setProperty("log4j.appender.sum", "org.apache.log4j.FileAppender");
+        logProperties.setProperty("log4j.appender.sum.layout",  "org.apache.log4j.PatternLayout");
+        logProperties.setProperty("log4j.appender.sum.layout.ConversionPattern","%m%n");
 
 
         if(command.indexOf("p")>-1) {
@@ -584,6 +591,7 @@ public class BaseService {
         statisticsLogger = Logger.getLogger("statistics");
         externalLogger = Logger.getLogger("external");
         totalizationLogger = Logger.getLogger("totals");
+        summaryLogger = Logger.getLogger("summary");
 
     }
 
@@ -659,7 +667,7 @@ public class BaseService {
 
     public void appendExecutionHistory(String ontology){
 
-        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String folder = ManageProperties.loadPropertyValue("externalproperties");
         try
         {
             String filename= "OMHT_execution_history.log";
@@ -676,7 +684,7 @@ public class BaseService {
 
     public String readExecutionHistory(){
 
-        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String folder = ManageProperties.loadPropertyValue("externalproperties");
         String filename= "OMHT_execution_history.log";
         String history="";
 
@@ -716,8 +724,8 @@ public class BaseService {
 
         HashMap<String, TargetReference> hashMap = new HashMap<>();
         String[] aux = new String[6];
-        String folder = ManageProperties.loadPropertyValue("outputfolder");
-        String filename= "OMHT_target_references.txt";
+        String folder = ManageProperties.loadPropertyValue("externalproperties");
+        String filename= "OMHT_external_matches_phase_2.cfg";
         TargetReference tr;
 
         try(BufferedReader br = new BufferedReader(new FileReader(folder+File.separator+filename))) {

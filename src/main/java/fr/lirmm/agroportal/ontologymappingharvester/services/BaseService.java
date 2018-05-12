@@ -42,6 +42,7 @@ public class BaseService {
     int countTotalMatch;
     int totalAnnotationAssertationEntities;
     int countOntologies;
+    int maxSpaceOcorrencies;
     String aux;
     AnnotationAssertationEntity an;
     HashMap<String,AnnotationAssertationEntity> deduplicationHash;
@@ -82,6 +83,7 @@ public class BaseService {
      */
     public BaseService(){
 
+        maxSpaceOcorrencies = 3;
         man = OWLManager.createOWLOntologyManager();
         OWLOntology oA = null;
         totalAnnotationAssertationEntities=0;

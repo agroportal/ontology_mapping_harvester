@@ -493,7 +493,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             if (key2.indexOf("http") == 0) {
                 //key2 = key2.substring(key2.lastIndexOf(File.separator)+1,key2.length()).toUpperCase();
-                key2 = mapExternalLink2(key2);
+                key2 = parseLinkReference(key2);
             }
 
 
@@ -547,7 +547,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         String aux = anot.toString().replace("\n", "").trim();
         String aux2 = "";
         String ret = "";
-
+        int count=0;
 
         int indexOf1 = 0;
         int indexOf2 = 0;
@@ -567,19 +567,32 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             //an.setAssertion(aux.substring(indexOf1+1,indexOf2-1));
             //System.out.println("ENTROUAQUI-->"+aux.substring(indexOf1+1,indexOf2-1));
             aux2 = preClean(aux2);
+
+            count = aux2.length() - aux2.replace(" ","").length();
+
             an.setOntology2(ret);
 
             if(aux2.indexOf("http")==0 || aux2.indexOf("smtp")==0 || aux2.indexOf("ftp")==0){
-                an.setOntology2(mapExternalLink2(aux2));
-            } else if (aux2.indexOf(":") > 0) {
+                an.setOntology2(parseLinkReference(aux2));
+                externalLogger.trace("CLI-(HTTP)-BEFORE: "+aux2);
+                externalLogger.trace("CLI-(HTTP)-AFTER : "+an.getOntology2());
+            } else if (aux2.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux2.substring(0, aux2.indexOf(":")).toUpperCase());
-            } else if (aux2.indexOf("_") > 0) {
+                externalLogger.trace("CLI-(:)-BEFORE: "+aux2);
+                externalLogger.trace("CLI-(:)-AFTER : "+an.getOntology2());
+            } else if (aux2.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux2.substring(0, aux2.indexOf("_")).toUpperCase());
-            } else if (aux2.indexOf("-") > 0) {
+                externalLogger.trace("CLI-(_)-BEFORE: "+aux2);
+                externalLogger.trace("CLI-(_)-AFTER : "+an.getOntology2());
+            } else if (aux2.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux2.substring(0, aux2.indexOf("-")).toUpperCase());
+                externalLogger.trace("CLI-(-)-BEFORE: "+aux2);
+                externalLogger.trace("CLI-(-)-AFTER : "+an.getOntology2());
             } else {
 
                 an.setOntology2(mapExternalLink2(aux2));
+                externalLogger.trace("CLI-(ELSE)-BEFORE: "+aux2);
+                externalLogger.trace("CLI-(ELSE)-AFTER : "+an.getOntology2());
             }
 
 
@@ -621,45 +634,67 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         String name = currentOntologyName;
         String aux = "";
         String ret = "";
+        int count=0;
 
         an.setOntology1(name);
         an.setOntologyConcept1(subject.replace("\n", "").trim());
         an.setOntologyConcept2(propertyValue.replace("\n", "").trim());
         an.setAssertion(property.replace("<", "").replace(">", "").replace("\n", "").trim());
 
+        aux = propertyValue.toLowerCase().replace("\n", "").trim();
+
+        count = aux.length() - aux.replace(" ","").length();
 
         if (isIRI) {
 
             // Enter here if it is not an IRI
-            aux = propertyValue.toLowerCase().replace("\n", "").trim();
 
             if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
-                an.setOntology2(mapExternalLink2(aux));
-            } else if (aux.indexOf(":") > 0) {
+                an.setOntology2(parseLinkReference(aux));
+                externalLogger.trace("CLII-IRI(HTTP)-BEFORE: "+aux);
+                externalLogger.trace("CLII-IRI(HTTP)-AFTER : "+an.getOntology2());
+            } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-            } else if (aux.indexOf("_") > 0) {
+                externalLogger.trace("CLII-IRI(:)-BEFORE: "+aux);
+                externalLogger.trace("CLII-IRI(:)-AFTER : "+an.getOntology2());
+            } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-            } else if (aux.indexOf("-") > 0) {
+                externalLogger.trace("CLII-IRI(_)-BEFORE: "+aux);
+                externalLogger.trace("CLII-IRI(_)-AFTER : "+an.getOntology2());
+            } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                externalLogger.trace("CLII-IRI(-)-BEFORE: "+aux);
+                externalLogger.trace("CLII-IRI(-)-AFTER : "+an.getOntology2());
             } else {
                 an.setOntology2(mapExternalLink2(aux));
+                externalLogger.trace("CLII-IRI(ELSE)-BEFORE: "+aux);
+                externalLogger.trace("CLII-IRI(ELSE)-AFTER : "+an.getOntology2());
             }
 
         } else {
 
             // Enter here if it is not an IRI
-            aux = propertyValue.toLowerCase().replace("\n", "").trim();
 
             if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
-                an.setOntology2(mapExternalLink2(aux));
-            } else if (aux.indexOf(":") > 0) {
+                an.setOntology2(parseLinkReference(aux));
+                externalLogger.trace("CLII-NIRI(HTTP)-BEFORE: "+aux);
+                externalLogger.trace("CLII-NIRI(HTTP)-AFTER : "+an.getOntology2());
+            } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-            } else if (aux.indexOf("_") > 0) {
+                externalLogger.trace("CLII-NIRI(:)-BEFORE: "+aux);
+                externalLogger.trace("CLII-NIRI(:)-AFTER : "+an.getOntology2());
+            } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-            } else if (aux.indexOf("-") > 0) {
+                externalLogger.trace("CLII-NIRI(_)-BEFORE: "+aux);
+                externalLogger.trace("CLII-NIRI(_)-AFTER : "+an.getOntology2());
+            } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
                 an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                externalLogger.trace("CLII-NIRI(-)-BEFORE: "+aux);
+                externalLogger.trace("CLII-NIRI(-)-AFTER : "+an.getOntology2());
             } else {
                 an.setOntology2(mapExternalLink2(aux));
+                externalLogger.trace("CLII-NIRI(ELSE)-BEFORE: "+aux);
+                externalLogger.trace("CLII-NIRI(ELSE)-AFTER : "+an.getOntology2());
             }
 
 
@@ -682,9 +717,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      */
     public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot, IRI iri, String assertion, int id) {
 
-        String aux = anot.toString().replace("\n", "").trim();
+        // TODO check the cleanup of the literal type ^^xsd:string)
+        String aux = anot.toString().replace("\n", "").trim().replace("^^xsd:string)","");
         String aux2 = "";
-        String ret="";
+        String aux3="";
+        String aux4="";
+
+        int count=0;
 
 
         int indexOf1 = 0;
@@ -718,37 +757,54 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             an.setOntology1(an.getOntologyConcept1().substring(0, an.getOntologyConcept1().lastIndexOf("/")));
 
             aux = aux.substring(indexOf2 + 1).replace(" ", "").replace("\"", "");
-
+            count = aux.length() - aux.replace(" ","").length();
             //System.out.println(aux);
             indexOf1 = aux.indexOf("<");
             indexOf2 = aux.indexOf(">");
 
 
             if (indexOf1 > -1 && indexOf2 > 1) {
-                an.setOntologyConcept2(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
 
+                externalLogger.trace("IDIII-(SKOS)-BEFORE ORIGINAL: "+aux);
+
+
+                an.setOntologyConcept2(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
+                externalLogger.trace("IDIII-(SKOS)-DURING1 CONCEPT: "+an.getOntologyConcept2());
 
                 aux2 = an.getOntologyConcept2();
                 if (aux2.length() > 0 && aux2.substring(aux2.length() - 1, aux2.length()).equalsIgnoreCase("/")) {
                     an.setOntologyConcept2(aux2.substring(0, aux2.length() - 1));
+                    externalLogger.trace("IDIII-(SKOS)-DURING2 CONCEPT: "+an.getOntologyConcept2());
                 }
 
                 an.setOntology2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/")));
+                externalLogger.trace("IDIII-(SKOS)-AFTER ONTOLOGY: "+an.getOntology2());
             } else {
 
 
                 if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
-                    an.setOntology2(mapExternalLink2(aux));
-                } else if (aux.indexOf(":") > 0) {
+                    an.setOntology2(parseLinkReference(aux));
+                    externalLogger.trace("IDIII-(HTTP)-BEFORE: "+aux);
+                    externalLogger.trace("IDIII-(HTTP)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
                     an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                } else if (aux.indexOf("_") > 0) {
+                    externalLogger.trace("IDIII-(:)-BEFORE: "+aux);
+                    externalLogger.trace("IDIII-(:)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
                     an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                } else if (aux.indexOf("-") > 0) {
+                    externalLogger.trace("IDIII-(_)-BEFORE: "+aux);
+                    externalLogger.trace("IDIII-(_)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
                     an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                    externalLogger.trace("IDIII-(-)-BEFORE: "+aux);
+                    externalLogger.trace("IDIII-(-)-AFTER : "+an.getOntology2());
                 } else {
                     an.setOntology2(mapExternalLink2(aux));
+                    externalLogger.trace("IDIII-(ELSE)-BEFORE: "+aux);
+                    externalLogger.trace("IDIII-(ELSE)-AFTER : "+an.getOntology2());
                 }
 
+                // TODO check if we could take out the referrence for the type of the literal.
                 an.setOntologyConcept2(aux);
             }
 
@@ -790,11 +846,56 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 //
 //    }
 
+    /**
+     * Find root link for reference
+     * @param value
+     * @return
+     */
+    public String parseLinkReference(String value){
+
+        String partA="";
+        String partB="";
+
+        if(value.indexOf("http://")==0){
+            partA="http://";
+            partB=value.replace("http://","");
+            if(partB.indexOf("/")>-1){
+                partB = partB.substring(0, partB.indexOf("/"));
+            }
+
+        }else if(value.indexOf("https://")==0){
+            partA="https://";
+            partB=value.replace("https://","");
+            if(partB.indexOf("/")>-1){
+                partB = partB.substring(0, partB.indexOf("/"));
+            }
+        }else if(value.indexOf("ftp://")==0){
+            partA="ftp://";
+            partB=value.replace("ftp://","");
+            if(partB.indexOf("/")>-1){
+                partB = partB.substring(0, partB.indexOf("/"));
+            }
+        }else if(value.indexOf("smtp://")==0){
+            partA="smtp://";
+            partB=value.replace("smtp://","");
+            if(partB.indexOf("/")>-1){
+                partB = partB.substring(0, partB.indexOf("/"));
+            }
+        }
+
+        return partA+partB;
+    }
+
+
+
+
     public String mapExternalLink2(String value) {
 
         int counter=0;
         String process;
-        if(value !=null){
+        int count= value.length()-(value.replace(" ","").length());
+        //TODO discuss this with Clement to ajust the count of empity spaces.
+        if(value !=null && count <= maxSpaceOcorrencies){
             process = value.replaceAll("\n","").trim().toLowerCase();
 
 
@@ -815,7 +916,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
         }else{
-            externalLogger.error("NULL VALUE FOUNDED FOR ONTOLOGY REFERENCE: "+currentOntologyName);
+            externalLogger.error("IMPOSSIBLE TO MAP REFERENCE: "+value+" FOR ONTOLOGY: "+currentOntologyName);
             return "UNMAPPED_ONTOLOGY";
         }
 

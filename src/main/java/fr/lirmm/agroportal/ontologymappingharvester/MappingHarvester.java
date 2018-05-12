@@ -152,7 +152,7 @@ public class MappingHarvester {
         System.out.println("-p print LOG on screen");
         System.out.println("-b bulk load files from folder");
         System.out.println("-g Generate javascript for Graph representation of matches");
-        System.out.println("-d Download ontologies from Agroportal (require destination folder)");
+        System.out.println("-d Download ontologies from Agroportal");
         System.out.println("-n dowload ontologies from BIOPORTAL");
         System.out.println("-u Download an unique ontology (require destination folder and acronym)");
         System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");

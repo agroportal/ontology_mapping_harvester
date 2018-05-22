@@ -43,12 +43,14 @@ public class BaseService {
     int totalAnnotationAssertationEntities;
     int countOntologies;
     int maxSpaceOcorrencies;
+    int targetRegisterCounter;
     String aux;
     AnnotationAssertationEntity an;
     HashMap<String,AnnotationAssertationEntity> deduplicationHash;
     HashMap<String,HashMap<String,Integer>> maps;
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
+    HashMap<String,Integer> phase1TargetHashMap;
     HashMap<String, ExternalReference> externalReferenceHashMap;
     HashMap<String, String> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
@@ -59,6 +61,7 @@ public class BaseService {
     Logger externalLogger;
     Logger totalizationLogger;
     Logger summaryLogger;
+    Logger phase1Logger;
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
 
@@ -96,6 +99,7 @@ public class BaseService {
         an = null;
         mappings = new HashMap<>();
         maps = new HashMap<>();
+        phase1TargetHashMap = new HashMap<>();
         totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
         ontologyNameHashMapAgro = new HashMap<>();
@@ -113,6 +117,7 @@ public class BaseService {
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
         currentOntologyId="";
+        targetRegisterCounter=0;
     }
 
 
@@ -463,34 +468,34 @@ public class BaseService {
     /**
      * Load external references JSON file
      */
-    public void loadExternalReferences(){
-
-
-    String dir = ManageProperties.loadPropertyValue("externalproperties");
-
-        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_references.json"))) {
-            StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                line = br.readLine();
-            }
-            String everything = sb.toString();
-
-            Gson gson = new GsonBuilder().create();
-            ExtRefList references = gson.fromJson(everything, ExtRefList.class);
-
-            for(ExternalReference reference: references.getExternalReferences()){
-                externalReferenceHashMap.put(reference.getSearchString().toLowerCase(),reference);
-            }
-
-
-        } catch (IOException e) {
-            errorLogger.error("Error trying to load external references JSON file located in: "+dir+" message:"+e.getMessage());
-        }
-
-    }
+//    public void loadExternalReferences(){
+//
+//
+//    String dir = ManageProperties.loadPropertyValue("externalproperties");
+//
+//        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_references.json"))) {
+//            StringBuilder sb = new StringBuilder();
+//            String line = br.readLine();
+//
+//            while (line != null) {
+//                sb.append(line);
+//                line = br.readLine();
+//            }
+//            String everything = sb.toString();
+//
+//            Gson gson = new GsonBuilder().create();
+//            ExtRefList references = gson.fromJson(everything, ExtRefList.class);
+//
+//            for(ExternalReference reference: references.getExternalReferences()){
+//                externalReferenceHashMap.put(reference.getSearchString().toLowerCase(),reference);
+//            }
+//
+//
+//        } catch (IOException e) {
+//            errorLogger.error("Error trying to load external references JSON file located in: "+dir+" message:"+e.getMessage());
+//        }
+//
+//    }
 
     /**
      * Load external references JSON file
@@ -536,6 +541,7 @@ public class BaseService {
         logProperties.setProperty("log4j.logger.external","TRACE, external_reference");
         logProperties.setProperty("log4j.logger.totals","TRACE, tots");
         logProperties.setProperty("log4j.logger.summary","TRACE, sum");
+        logProperties.setProperty("log4j.logger.cleaning","TRACE, phase1");
 
         logProperties.setProperty("log4j.appender.file", "org.apache.log4j.varia.NullAppender");
         logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
@@ -562,6 +568,11 @@ public class BaseService {
         logProperties.setProperty("log4j.appender.sum", "org.apache.log4j.FileAppender");
         logProperties.setProperty("log4j.appender.sum.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.sum.layout.ConversionPattern","%m%n");
+
+        logProperties.setProperty("log4j.appender.phase1.File", path+"/OMHT_external_matches_phase_1.cfg");
+        logProperties.setProperty("log4j.appender.phase1", "org.apache.log4j.FileAppender");
+        logProperties.setProperty("log4j.appender.phase1.layout",  "org.apache.log4j.PatternLayout");
+        logProperties.setProperty("log4j.appender.phase1.layout.ConversionPattern","%m%n");
 
 
         if(command.indexOf("p")>-1) {
@@ -594,6 +605,7 @@ public class BaseService {
         externalLogger = Logger.getLogger("external");
         totalizationLogger = Logger.getLogger("totals");
         summaryLogger = Logger.getLogger("summary");
+        phase1Logger = Logger.getLogger("cleaning");
 
     }
 
@@ -710,7 +722,7 @@ public class BaseService {
 
 
     public void deleteExecutionHistory(){
-        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        String folder = ManageProperties.loadPropertyValue("externalproperties");
         String filename= "OMHT_execution_history.log";
         try {
             Files.deleteIfExists(Paths.get(folder + File.separator + filename));

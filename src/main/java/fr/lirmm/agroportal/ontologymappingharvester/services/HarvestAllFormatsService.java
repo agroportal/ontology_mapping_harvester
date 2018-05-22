@@ -9,6 +9,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalR
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Contact;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.SortMapByValue;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -22,6 +23,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
     private String[] MATCH;
+    private String[] REGEX;
     private boolean isIRI;
 
 
@@ -31,6 +33,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     public HarvestAllFormatsService() {
         super();
         MATCH = new String[]{"owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
+        REGEX = new String[]{"/^[pthr]\\d{5}$/"};
         isIRI = false;
         this.files = files;
 
@@ -347,6 +350,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         } else {
             totalMappings.put(MapIRI, 1);
         }
+        if (phase1TargetHashMap.containsKey(MapIRI)) {
+            counter = phase1TargetHashMap.get(MapIRI);
+            counter++;
+            phase1TargetHashMap.put(MapIRI, counter);
+        } else {
+            phase1TargetHashMap.put(MapIRI, 1);
+        }
+        //phase1Logger.trace("REGISTER;"+(++targetRegisterCounter)+";"+MapIRI.replaceAll(";","")+";"+an.toStringFlat());
 
 
     }
@@ -386,6 +397,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     stdoutLogger.info("Sub Total: " + key2 + " --> " + value2);
                     stdoutLogger.info("----------------------------------------------------------");
                     totalizationLogger.info(Util.getDateTime() + ";" + currentOntologyName.replaceAll(";","") + ";" + currentOntologyId.replaceAll(";","") + ";" + key.replaceAll(";","") + ";" + key2.replaceAll(";","") + ";" + value2 + ";");
+                    phase1Logger.info("REGISTER;"+(++targetRegisterCounter)+";"+currentOntologyName.replaceAll(";","") + ";" + currentOntologyId.replaceAll(";","") + ";" + key.replaceAll(";","") + ";" + key2.replaceAll(";","") + ";" + value2 + ";");
 
                 }
 
@@ -940,6 +952,33 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
+    public void generatePhase1Targets(){
+
+        System.out.println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
+
+        int counter = 1;
+        phase1Logger.info("----------------------------------------------------------");
+        stdoutLogger.info("Generating phase1 Targets: "+Util.getDateTime());
+        stdoutLogger.info("Sorting Targets by number of matches: "+Util.getDateTime());
+        phase1TargetHashMap = SortMapByValue.sortByValues(phase1TargetHashMap,SortMapByValue.DESC);
+
+        System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
+
+        stdoutLogger.info("Finished Sorting Targets by number of matches: "+Util.getDateTime());
+
+        for (Map.Entry<String, Integer> entry2 : phase1TargetHashMap.entrySet()) {
+            String key2 = entry2.getKey();
+            Integer value2 = entry2.getValue();
+
+            phase1Logger.info("TARGET;"+(counter++)+";"+ key2 + ";" + value2);
+
+
+        }
+        stdoutLogger.info("Finished generating phase1 Targets: "+Util.getDateTime());
+
+    }
+
+
     /**
      * Download list of files
      *
@@ -1009,6 +1048,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 stdoutLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
             }
 
+        }
+        if(phase1TargetHashMap.size()>0){
+            generatePhase1Targets();
         }
         System.out.println(Util.getDateTime() + " Finished processing.");
     }
@@ -1101,6 +1143,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
             }
 
+        }
+        if(phase1TargetHashMap.size()>0){
+            generatePhase1Targets();
         }
         System.out.println(Util.getDateTime() + " Finished processings.");
     }
@@ -1202,6 +1247,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             }
 
 
+        }
+        if(phase1TargetHashMap.size()>0){
+            generatePhase1Targets();
         }
         if (!founded) {
             errorLogger.error("Error: ontology not founded: " + ontology);

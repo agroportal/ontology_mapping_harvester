@@ -85,4 +85,8 @@ public class AnnotationAssertationEntity {
                 ", ontologyIdPortal='" + ontologyIdPortal + '\'' +
                 '}';
     }
+
+    public String toStringFlat() {
+        return assertion.replaceAll(";","") + ";"+ ontology1.replaceAll(";","") + ";" +ontologyConcept1.replaceAll(";","")+";"+ontology2.replaceAll(";","") + ";" + ontologyConcept2.replaceAll(";","");
+    }
 }

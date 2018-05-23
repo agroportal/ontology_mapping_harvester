@@ -1,5 +1,7 @@
 package fr.lirmm.agroportal.ontologymappingharvester.utils;
 
+import fr.lirmm.agroportal.ontologymappingharvester.CurationEntity;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -73,34 +75,35 @@ public class SortMapByValue
         }
     }
 
-    public static HashMap sortByValues(HashMap map, boolean order) {
-        List list = new LinkedList(map.entrySet());
-        // Defined Custom Comparator here
-        Collections.sort(list, new Comparator() {
-            public int compare(Object o1, Object o2) {
+    public static HashMap<String,CurationEntity> sortByValues(HashMap map, boolean order) {
 
+        // not yet sorted
+        List<CurationEntity> targetsByCounter = new ArrayList<CurationEntity>(map.values());
+
+        Collections.sort(targetsByCounter, new Comparator<CurationEntity>() {
+
+            public int compare(CurationEntity o1, CurationEntity o2) {
 
                 if (order)
                 {
-                    return ((Comparable) ((Map.Entry) (o1)).getValue())
-                            .compareTo(((Map.Entry) (o2)).getValue());
+                    return o1.getCounter() - o2.getCounter();
                 }
                 else
                 {
-                    return ((Comparable) ((Map.Entry) (o2)).getValue())
-                            .compareTo(((Map.Entry) (o1)).getValue());
+                    return o2.getCounter() - o1.getCounter();
 
                 }
+
 
             }
         });
 
         // Here I am copying the sorted list in HashMap
         // using LinkedHashMap to preserve the insertion order
-        HashMap sortedHashMap = new LinkedHashMap();
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            Map.Entry entry = (Map.Entry) it.next();
-            sortedHashMap.put(entry.getKey(), entry.getValue());
+        HashMap sortedHashMap = new LinkedHashMap<String,CurationEntity>();
+        for (Iterator it = targetsByCounter.iterator(); it.hasNext();) {
+            CurationEntity entry = (CurationEntity) it.next();
+            sortedHashMap.put(entry.getTargetFounded(), entry);
         }
         return sortedHashMap;
     }

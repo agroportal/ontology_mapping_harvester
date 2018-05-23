@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.lirmm.agroportal.ontologymappingharvester.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
@@ -23,7 +24,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
     private String[] MATCH;
-    private String[] REGEX;
+    private String[] INVALIDCHARACTERS;
     private boolean isIRI;
 
 
@@ -33,7 +34,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     public HarvestAllFormatsService() {
         super();
         MATCH = new String[]{"owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
-        REGEX = new String[]{"/^[pthr]\\d{5}$/"};
+        INVALIDCHARACTERS = new String[]{"2",":","2","-","2","_","3"," ","1","[pthr]\\d{5}"};
+        // "/^[pthr]\\d{5}$/"
         isIRI = false;
         this.files = files;
 
@@ -351,11 +353,18 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             totalMappings.put(MapIRI, 1);
         }
         if (phase1TargetHashMap.containsKey(MapIRI)) {
-            counter = phase1TargetHashMap.get(MapIRI);
-            counter++;
-            phase1TargetHashMap.put(MapIRI, counter);
+            curationEntity = phase1TargetHashMap.get(MapIRI);
+            curationEntity.addMatch();
+            curationEntity.addExampleList(an.getOntologyConcept2());
+            curationEntity.addFoundedIn(currentOntologyName);
+            phase1TargetHashMap.put(MapIRI, curationEntity);
         } else {
-            phase1TargetHashMap.put(MapIRI, 1);
+            curationEntity = new CurationEntity();
+            curationEntity.addMatch();
+            curationEntity.addExampleList(an.getOntologyConcept2());
+            curationEntity.addFoundedIn(currentOntologyName);
+            curationEntity.setTargetFounded(MapIRI);
+            phase1TargetHashMap.put(MapIRI, curationEntity);
         }
         //phase1Logger.trace("REGISTER;"+(++targetRegisterCounter)+";"+MapIRI.replaceAll(";","")+";"+an.toStringFlat());
 
@@ -397,7 +406,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     stdoutLogger.info("Sub Total: " + key2 + " --> " + value2);
                     stdoutLogger.info("----------------------------------------------------------");
                     totalizationLogger.info(Util.getDateTime() + ";" + currentOntologyName.replaceAll(";","") + ";" + currentOntologyId.replaceAll(";","") + ";" + key.replaceAll(";","") + ";" + key2.replaceAll(";","") + ";" + value2 + ";");
-                    phase1Logger.info("REGISTER;"+(++targetRegisterCounter)+";"+currentOntologyName.replaceAll(";","") + ";" + currentOntologyId.replaceAll(";","") + ";" + key.replaceAll(";","") + ";" + key2.replaceAll(";","") + ";" + value2 + ";");
+//                    phase1Logger.info("REGISTER;"+(++targetRegisterCounter)+";"+currentOntologyName.replaceAll(";","") + ";" + currentOntologyId.replaceAll(";","") + ";" + key.replaceAll(";","") + ";" + key2.replaceAll(";","") + ";" + value2 + ";");
 
                 }
 
@@ -584,38 +593,43 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             an.setOntology2(ret);
 
-            if(aux2.indexOf("http")==0 || aux2.indexOf("smtp")==0 || aux2.indexOf("ftp")==0){
-                an.setOntology2(parseLinkReference(aux2));
-                externalLogger.trace("CLI-(HTTP)-BEFORE: "+aux2);
-                externalLogger.trace("CLI-(HTTP)-AFTER : "+an.getOntology2());
-            } else if (aux2.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux2.substring(0, aux2.indexOf(":")).toUpperCase());
-                externalLogger.trace("CLI-(:)-BEFORE: "+aux2);
-                externalLogger.trace("CLI-(:)-AFTER : "+an.getOntology2());
-            } else if (aux2.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux2.substring(0, aux2.indexOf("_")).toUpperCase());
-                externalLogger.trace("CLI-(_)-BEFORE: "+aux2);
-                externalLogger.trace("CLI-(_)-AFTER : "+an.getOntology2());
-            } else if (aux2.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux2.substring(0, aux2.indexOf("-")).toUpperCase());
-                externalLogger.trace("CLI-(-)-BEFORE: "+aux2);
-                externalLogger.trace("CLI-(-)-AFTER : "+an.getOntology2());
-            } else {
+            if(isValidMap(aux2)) {
 
-                an.setOntology2(mapExternalLink2(aux2));
-                externalLogger.trace("CLI-(ELSE)-BEFORE: "+aux2);
-                externalLogger.trace("CLI-(ELSE)-AFTER : "+an.getOntology2());
+                if (aux2.indexOf("http") == 0 || aux2.indexOf("smtp") == 0 || aux2.indexOf("ftp") == 0) {
+                    an.setOntology2(parseLinkReference(aux2));
+                    externalLogger.trace("CLI-(HTTP)-BEFORE: " + aux2);
+                    externalLogger.trace("CLI-(HTTP)-AFTER : " + an.getOntology2());
+                } else if (aux2.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux2.substring(0, aux2.indexOf(":")).toUpperCase());
+                    externalLogger.trace("CLI-(:)-BEFORE: " + aux2);
+                    externalLogger.trace("CLI-(:)-AFTER : " + an.getOntology2());
+                } else if (aux2.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux2.substring(0, aux2.indexOf("_")).toUpperCase());
+                    externalLogger.trace("CLI-(_)-BEFORE: " + aux2);
+                    externalLogger.trace("CLI-(_)-AFTER : " + an.getOntology2());
+                } else if (aux2.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux2.substring(0, aux2.indexOf("-")).toUpperCase());
+                    externalLogger.trace("CLI-(-)-BEFORE: " + aux2);
+                    externalLogger.trace("CLI-(-)-AFTER : " + an.getOntology2());
+                } else {
+
+                    an.setOntology2(mapExternalLink2(aux2));
+                    externalLogger.trace("CLI-(ELSE)-BEFORE: " + aux2);
+                    externalLogger.trace("CLI-(ELSE)-AFTER : " + an.getOntology2());
+                }
+
+            }else{
+                externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux2+"<--");
+                an.setOntology2("UNKNOW_ONTOLOGY");
             }
-
-
             an.setOntologyConcept2(aux2);
 
 
         } else {
             // in case of a null property value
-            externalLogger.error("UNMAPPED_REFERENCE: -->"+aux2+"<--");
-            an.setOntologyConcept2("UNMAPPED_REFERENCE");
-            an.setOntology2("UNMAPPED_REFERENCE");
+            externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux2+"<--");
+            an.setOntologyConcept2("UNMAPPED_MAPPING");
+            an.setOntology2("UNKNOW_ONTOLOGY");
 
 
         }
@@ -661,52 +675,64 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             // Enter here if it is not an IRI
 
-            if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
-                an.setOntology2(parseLinkReference(aux));
-                externalLogger.trace("CLII-IRI(HTTP)-BEFORE: "+aux);
-                externalLogger.trace("CLII-IRI(HTTP)-AFTER : "+an.getOntology2());
-            } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                externalLogger.trace("CLII-IRI(:)-BEFORE: "+aux);
-                externalLogger.trace("CLII-IRI(:)-AFTER : "+an.getOntology2());
-            } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                externalLogger.trace("CLII-IRI(_)-BEFORE: "+aux);
-                externalLogger.trace("CLII-IRI(_)-AFTER : "+an.getOntology2());
-            } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
-                externalLogger.trace("CLII-IRI(-)-BEFORE: "+aux);
-                externalLogger.trace("CLII-IRI(-)-AFTER : "+an.getOntology2());
-            } else {
-                an.setOntology2(mapExternalLink2(aux));
-                externalLogger.trace("CLII-IRI(ELSE)-BEFORE: "+aux);
-                externalLogger.trace("CLII-IRI(ELSE)-AFTER : "+an.getOntology2());
+            if(isValidMap(aux)) {
+
+                if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
+                    an.setOntology2(parseLinkReference(aux));
+                    externalLogger.trace("CLII-IRI(HTTP)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-IRI(HTTP)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+                    externalLogger.trace("CLII-IRI(:)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-IRI(:)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+                    externalLogger.trace("CLII-IRI(_)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-IRI(_)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                    externalLogger.trace("CLII-IRI(-)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-IRI(-)-AFTER : "+an.getOntology2());
+                } else {
+                    an.setOntology2(mapExternalLink2(aux));
+                    externalLogger.trace("CLII-IRI(ELSE)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-IRI(ELSE)-AFTER : "+an.getOntology2());
+                }
+            }else{
+                externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
+                an.setOntology2("UNKNOW_ONTOLOGY");
             }
 
         } else {
 
             // Enter here if it is not an IRI
 
-            if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
-                an.setOntology2(parseLinkReference(aux));
-                externalLogger.trace("CLII-NIRI(HTTP)-BEFORE: "+aux);
-                externalLogger.trace("CLII-NIRI(HTTP)-AFTER : "+an.getOntology2());
-            } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                externalLogger.trace("CLII-NIRI(:)-BEFORE: "+aux);
-                externalLogger.trace("CLII-NIRI(:)-AFTER : "+an.getOntology2());
-            } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                externalLogger.trace("CLII-NIRI(_)-BEFORE: "+aux);
-                externalLogger.trace("CLII-NIRI(_)-AFTER : "+an.getOntology2());
-            } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
-                an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
-                externalLogger.trace("CLII-NIRI(-)-BEFORE: "+aux);
-                externalLogger.trace("CLII-NIRI(-)-AFTER : "+an.getOntology2());
-            } else {
-                an.setOntology2(mapExternalLink2(aux));
-                externalLogger.trace("CLII-NIRI(ELSE)-BEFORE: "+aux);
-                externalLogger.trace("CLII-NIRI(ELSE)-AFTER : "+an.getOntology2());
+            if(isValidMap(aux)) {
+
+                if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
+                    an.setOntology2(parseLinkReference(aux));
+                    externalLogger.trace("CLII-NIRI(HTTP)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-NIRI(HTTP)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+                    externalLogger.trace("CLII-NIRI(:)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-NIRI(:)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+                    externalLogger.trace("CLII-NIRI(_)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-NIRI(_)-AFTER : "+an.getOntology2());
+                } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                    an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                    externalLogger.trace("CLII-NIRI(-)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-NIRI(-)-AFTER : "+an.getOntology2());
+                } else {
+                    an.setOntology2(mapExternalLink2(aux));
+                    externalLogger.trace("CLII-NIRI(ELSE)-BEFORE: "+aux);
+                    externalLogger.trace("CLII-NIRI(ELSE)-AFTER : "+an.getOntology2());
+                }
+            }else{
+                externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
+                an.setOntology2("UNKNOW_ONTOLOGY");
             }
 
 
@@ -777,43 +803,52 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             if (indexOf1 > -1 && indexOf2 > 1) {
 
-                externalLogger.trace("IDIII-(SKOS)-BEFORE ORIGINAL: "+aux);
+                if(isValidMap(aux)) {
+                    externalLogger.trace("IDIII-(SKOS)-BEFORE ORIGINAL: " + aux);
 
 
-                an.setOntologyConcept2(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
-                externalLogger.trace("IDIII-(SKOS)-DURING1 CONCEPT: "+an.getOntologyConcept2());
+                    an.setOntologyConcept2(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
+                    externalLogger.trace("IDIII-(SKOS)-DURING1 CONCEPT: " + an.getOntologyConcept2());
 
-                aux2 = an.getOntologyConcept2();
-                if (aux2.length() > 0 && aux2.substring(aux2.length() - 1, aux2.length()).equalsIgnoreCase("/")) {
-                    an.setOntologyConcept2(aux2.substring(0, aux2.length() - 1));
-                    externalLogger.trace("IDIII-(SKOS)-DURING2 CONCEPT: "+an.getOntologyConcept2());
+                    aux2 = an.getOntologyConcept2();
+                    if (aux2.length() > 0 && aux2.substring(aux2.length() - 1, aux2.length()).equalsIgnoreCase("/")) {
+                        an.setOntologyConcept2(aux2.substring(0, aux2.length() - 1));
+                        externalLogger.trace("IDIII-(SKOS)-DURING2 CONCEPT: " + an.getOntologyConcept2());
+                    }
+
+                    an.setOntology2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/")));
+                    externalLogger.trace("IDIII-(SKOS)-AFTER ONTOLOGY: " + an.getOntology2());
+                }else{
+                    externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
+                    an.setOntology2("UNKNOW_ONTOLOGY");
                 }
-
-                an.setOntology2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/")));
-                externalLogger.trace("IDIII-(SKOS)-AFTER ONTOLOGY: "+an.getOntology2());
             } else {
 
-
-                if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
-                    an.setOntology2(parseLinkReference(aux));
-                    externalLogger.trace("IDIII-(HTTP)-BEFORE: "+aux);
-                    externalLogger.trace("IDIII-(HTTP)-AFTER : "+an.getOntology2());
-                } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
-                    an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
-                    externalLogger.trace("IDIII-(:)-BEFORE: "+aux);
-                    externalLogger.trace("IDIII-(:)-AFTER : "+an.getOntology2());
-                } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
-                    an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
-                    externalLogger.trace("IDIII-(_)-BEFORE: "+aux);
-                    externalLogger.trace("IDIII-(_)-AFTER : "+an.getOntology2());
-                } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
-                    an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
-                    externalLogger.trace("IDIII-(-)-BEFORE: "+aux);
-                    externalLogger.trace("IDIII-(-)-AFTER : "+an.getOntology2());
-                } else {
-                    an.setOntology2(mapExternalLink2(aux));
-                    externalLogger.trace("IDIII-(ELSE)-BEFORE: "+aux);
-                    externalLogger.trace("IDIII-(ELSE)-AFTER : "+an.getOntology2());
+                if(isValidMap(aux)) {
+                    if (aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
+                        an.setOntology2(parseLinkReference(aux));
+                        externalLogger.trace("IDIII-(HTTP)-BEFORE: " + aux);
+                        externalLogger.trace("IDIII-(HTTP)-AFTER : " + an.getOntology2());
+                    } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                        an.setOntology2(aux.substring(0, aux.indexOf(":")).toUpperCase());
+                        externalLogger.trace("IDIII-(:)-BEFORE: " + aux);
+                        externalLogger.trace("IDIII-(:)-AFTER : " + an.getOntology2());
+                    } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                        an.setOntology2(aux.substring(0, aux.indexOf("_")).toUpperCase());
+                        externalLogger.trace("IDIII-(_)-BEFORE: " + aux);
+                        externalLogger.trace("IDIII-(_)-AFTER : " + an.getOntology2());
+                    } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                        an.setOntology2(aux.substring(0, aux.indexOf("-")).toUpperCase());
+                        externalLogger.trace("IDIII-(-)-BEFORE: " + aux);
+                        externalLogger.trace("IDIII-(-)-AFTER : " + an.getOntology2());
+                    } else {
+                        an.setOntology2(mapExternalLink2(aux));
+                        externalLogger.trace("IDIII-(ELSE)-BEFORE: " + aux);
+                        externalLogger.trace("IDIII-(ELSE)-AFTER : " + an.getOntology2());
+                    }
+                }else{
+                    externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
+                    an.setOntology2("UNKNOW_ONTOLOGY");
                 }
 
                 // TODO check if we could take out the referrence for the type of the literal.
@@ -899,15 +934,18 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
-
+    /**
+     * Map external Link that is already curated
+     * @param value
+     * @return
+     */
 
     public String mapExternalLink2(String value) {
 
-        int counter=0;
+
         String process;
-        int count= value.length()-(value.replace(" ","").length());
-        //TODO discuss this with Clement to ajust the count of empity spaces.
-        if(value !=null && count <= maxSpaceOcorrencies){
+
+        if(value !=null ){
             process = value.replaceAll("\n","").trim().toLowerCase();
 
 
@@ -915,13 +953,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             if(ret != null && !ret.equalsIgnoreCase("")){
                 return ret;
             }else{
-                counter = value.length() - value.replace(" ", "").length();
-                if(counter >=3){
-                    externalLogger.error(currentOntologyName+ " - Could not extract a valid reference from: "+value);
-                    return "UNMAPPED_ONTOLOGY";
-                }else{
+
                     return process;
-                }
 
             }
 
@@ -929,10 +962,23 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         }else{
             externalLogger.error("IMPOSSIBLE TO MAP REFERENCE: "+value+" FOR ONTOLOGY: "+currentOntologyName);
-            return "UNMAPPED_ONTOLOGY";
+            return "UNKNOW_ONTOLOGY";
         }
 
 
+    }
+
+
+    private boolean isValidMap(String value){
+
+        for(int i =0;i<INVALIDCHARACTERS.length-1;i=i+2){
+
+            if(value.matches("(.*"+INVALIDCHARACTERS[i+1]+".*){"+INVALIDCHARACTERS[i]+",}")){
+
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -957,7 +1003,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         System.out.println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
 
         int counter = 1;
-        phase1Logger.info("----------------------------------------------------------");
+
         stdoutLogger.info("Generating phase1 Targets: "+Util.getDateTime());
         stdoutLogger.info("Sorting Targets by number of matches: "+Util.getDateTime());
         phase1TargetHashMap = SortMapByValue.sortByValues(phase1TargetHashMap,SortMapByValue.DESC);
@@ -965,12 +1011,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
 
         stdoutLogger.info("Finished Sorting Targets by number of matches: "+Util.getDateTime());
+        phase1Logger.info("NUMBER;TARGET;FOUNDE IN;EXAMPLES;TOTAL COUNT;CURATED TARGET;BASE CLASS URI;CURATED BY;DATE;COMMENTS;STATUS");
 
-        for (Map.Entry<String, Integer> entry2 : phase1TargetHashMap.entrySet()) {
+        for (Map.Entry<String, CurationEntity> entry2 : phase1TargetHashMap.entrySet()) {
             String key2 = entry2.getKey();
-            Integer value2 = entry2.getValue();
+            CurationEntity ce = entry2.getValue();
 
-            phase1Logger.info("TARGET;"+(counter++)+";"+ key2 + ";" + value2);
+            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+ce.getFoundedIn()+";"+ce.getExampleList()+";"+ce.getCounter()+";;;;;");
 
 
         }

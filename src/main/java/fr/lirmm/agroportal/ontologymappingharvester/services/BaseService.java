@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.lirmm.agroportal.ontologymappingharvester.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
@@ -50,7 +51,7 @@ public class BaseService {
     HashMap<String,HashMap<String,Integer>> maps;
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
-    HashMap<String,Integer> phase1TargetHashMap;
+    HashMap<String,CurationEntity> phase1TargetHashMap;
     HashMap<String, ExternalReference> externalReferenceHashMap;
     HashMap<String, String> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
@@ -64,6 +65,7 @@ public class BaseService {
     Logger phase1Logger;
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
+    CurationEntity curationEntity;
 
     int counter;
     String MapIRI;
@@ -569,7 +571,7 @@ public class BaseService {
         logProperties.setProperty("log4j.appender.sum.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.sum.layout.ConversionPattern","%m%n");
 
-        logProperties.setProperty("log4j.appender.phase1.File", path+"/OMHT_external_matches_phase_1.cfg");
+        logProperties.setProperty("log4j.appender.phase1.File", path+"/OMHT_external_matches_phase_1_to_be_curated.xls");
         logProperties.setProperty("log4j.appender.phase1", "org.apache.log4j.FileAppender");
         logProperties.setProperty("log4j.appender.phase1.layout",  "org.apache.log4j.PatternLayout");
         logProperties.setProperty("log4j.appender.phase1.layout.ConversionPattern","%m%n");

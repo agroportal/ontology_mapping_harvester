@@ -2,12 +2,11 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lirmm.agroportal.ontologymappingharvester.CurationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
@@ -625,7 +624,7 @@ public class BaseService {
         }
 
         for(OntologyEntity oe: ontologiesAgro){
-            ontologyNameHashMapAgro.put(oe.getId(),oe.getAcronym());
+            ontologyNameHashMapAgro.put(oe.getAcronym(),oe.getId());
         }
 
 
@@ -639,7 +638,7 @@ public class BaseService {
         }
 
         for(OntologyEntity oe: ontologiesBio){
-            ontologyNameHashMapBio.put(oe.getId(),oe.getAcronym());
+            ontologyNameHashMapBio.put(oe.getAcronym(),oe.getId());
         }
 
 

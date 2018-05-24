@@ -2,11 +2,10 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lirmm.agroportal.ontologymappingharvester.CurationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Contact;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
@@ -1000,6 +999,59 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     public void generatePhase1Targets(){
 
+
+        stdoutLogger.info("Local portal verification initiated: "+Util.getDateTime());
+
+        CurationEntity ce = null;
+        String key="";
+        String keyLocalPortal=null;
+        String result=null;
+
+        for (Map.Entry<String, CurationEntity> entry2 : phase1TargetHashMap.entrySet()) {
+            key = entry2.getKey().toUpperCase();
+            ce = entry2.getValue();
+
+            if(command.indexOf("n")>-1){
+                keyLocalPortal = ontologyNameHashMapBio.get(key);
+                if(keyLocalPortal==null){
+                    keyLocalPortal = ontologyNameHashMapAgro.get(key);
+                    if(keyLocalPortal!=null){
+                        result = "AGROPORTAL:"+key;
+                    }
+                }else{
+                    result = "NCBO:"+key;
+                }
+            }else{
+                keyLocalPortal = ontologyNameHashMapAgro.get(key);
+                if(keyLocalPortal==null){
+                    keyLocalPortal = ontologyNameHashMapBio.get(key);
+                    if(keyLocalPortal!=null){
+                        result = "NCBO:"+key;
+                    }
+                }else{
+                    result = "AGROPORTAL:"+key;
+                }
+            }
+            if(result!=null){
+                ce.setBaseClassURI(keyLocalPortal);
+                ce.setCuratedTarget(result);
+                ce.setCuredtedBy("OMHT");
+                ce.setComments("Founded on Agroportal or Bioportal");
+                ce.setDate(Util.getDateTime());
+                ce.setStatus(1);
+                phase1TargetHashMap.put(key.toLowerCase(),ce);
+                //System.out.println(ce.toString());
+
+                result = null;
+            }
+            // TODO continue here with identifiers.org
+
+        }
+
+
+
+
+
         System.out.println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
 
         int counter = 1;
@@ -1015,9 +1067,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         for (Map.Entry<String, CurationEntity> entry2 : phase1TargetHashMap.entrySet()) {
             String key2 = entry2.getKey();
-            CurationEntity ce = entry2.getValue();
+            ce = entry2.getValue();
 
-            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+ce.getFoundedIn()+";"+ce.getExampleList()+";"+ce.getCounter()+";;;;;");
+            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+ce.getFoundedIn()+";"+ce.getExampleList()+";"+ce.getCounter()+";"+ce.getCuratedTarget()+";"+ce.getBaseClassURI()+";"+ce.getCuredtedBy()+";"+ce.getDate()+";"+ce.getComments()+";"+ce.getStatus());
 
 
         }

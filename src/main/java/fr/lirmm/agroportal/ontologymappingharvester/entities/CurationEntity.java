@@ -1,6 +1,4 @@
-package fr.lirmm.agroportal.ontologymappingharvester;
-
-import org.apache.logging.log4j.util.PropertySource;
+package fr.lirmm.agroportal.ontologymappingharvester.entities;
 
 public class CurationEntity implements Comparable {
 
@@ -44,13 +42,15 @@ public class CurationEntity implements Comparable {
     }
 
     public void addExampleList(String example){
-        example = example.replaceAll(";","");
-        if(counter<10) {
-            if (exampleList.indexOf(example) == -1) {
-                if (exampleList.length() > 0) {
-                    exampleList += "," + example;
-                } else {
-                    exampleList = example;
+        if(example!=null) {
+            example = example.replaceAll(";", "");
+            if (counter < 10) {
+                if (exampleList.indexOf(example) == -1) {
+                    if (exampleList.length() > 0) {
+                        exampleList += "," + example;
+                    } else {
+                        exampleList = example;
+                    }
                 }
             }
         }
@@ -149,5 +149,21 @@ public class CurationEntity implements Comparable {
             return 0;
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return "CurationEntity{" +
+                "targetFounded='" + targetFounded + '\'' +
+                ", foundedIn='" + foundedIn + '\'' +
+                ", exampleList='" + exampleList + '\'' +
+                ", counter=" + counter +
+                ", curatedTarget='" + curatedTarget + '\'' +
+                ", baseClassURI='" + baseClassURI + '\'' +
+                ", curedtedBy='" + curedtedBy + '\'' +
+                ", date='" + date + '\'' +
+                ", comments='" + comments + '\'' +
+                ", status=" + status +
+                '}';
     }
 }

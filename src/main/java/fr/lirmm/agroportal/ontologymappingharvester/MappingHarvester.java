@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester;
 
 import fr.lirmm.agroportal.ontologymappingharvester.services.GenerateJSService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
+import fr.lirmm.agroportal.ontologymappingharvester.services.ValidadeTargetReferenceService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.ValidateIRIService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 
@@ -54,14 +55,19 @@ public class MappingHarvester {
             if(command.indexOf("g")>-1) {
 
                 GenerateJSService generateJSService = new GenerateJSService();
-                generateJSService.generateJs(args[1]);
+                generateJSService.generateJs(args[1], args[2]);
 
             }else if(command.indexOf("v")>-1){
 
-                ValidateIRIService validateIRIService = new ValidateIRIService();
-                validateIRIService.setupLogProperties("","","");
-                validateIRIService.loadAndProcessOntologiesMetadata(command);
-                validateIRIService.validateIRIs(command,files);
+//                ValidateIRIService validateIRIService = new ValidateIRIService();
+//                validateIRIService.setupLogProperties("","","");
+//                validateIRIService.loadAndProcessOntologiesMetadata(command);
+//                validateIRIService.validateIRIs(command,files);
+
+                ValidadeTargetReferenceService validadeTargetReferenceService = new ValidadeTargetReferenceService();
+                validadeTargetReferenceService.setupLogProperties("","","");
+                validadeTargetReferenceService.loadAndProcessOntologiesMetadata(command);
+                validadeTargetReferenceService.validateTargetReferences(command,files);
 
             }else if(command.indexOf("r")>-1){
 
@@ -105,7 +111,7 @@ public class MappingHarvester {
 
                 HarvestAllFormatsService service = new HarvestAllFormatsService();
                 service.setupLogProperties("","","");
-                service.loadExternalReferences();
+                //service.loadExternalReferences();
                 service.loadExternalTargetReferences();
                 service.loadAndProcessOntologiesMetadata(command);
 
@@ -146,11 +152,11 @@ public class MappingHarvester {
         System.out.println("-p print LOG on screen");
         System.out.println("-b bulk load files from folder");
         System.out.println("-g Generate javascript for Graph representation of matches");
-        System.out.println("-d Download ontologies from Agroportal (require destination folder)");
+        System.out.println("-d Download ontologies from Agroportal");
         System.out.println("-n dowload ontologies from BIOPORTAL");
         System.out.println("-u Download an unique ontology (require destination folder and acronym)");
         System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");
-        System.out.println("-r Setup location folder for external_reference.txt file");
+        System.out.println("-r Setup location folder for configuration files (.cfg)");
         System.out.println("-ka Setup api key to acess Agroportal from this script");
         System.out.println("-kb Setup api key to acess Bioportal from this script");
         System.out.println("-f Setup output folder");

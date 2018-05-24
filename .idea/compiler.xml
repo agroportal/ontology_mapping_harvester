@@ -9,7 +9,7 @@
         <module name="ontology_mapping_harvester" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="9">
+    <bytecodeTargetLevel target="1.8">
       <module name="ontology_mapping_harvester" target="1.8" />
     </bytecodeTargetLevel>
   </component>

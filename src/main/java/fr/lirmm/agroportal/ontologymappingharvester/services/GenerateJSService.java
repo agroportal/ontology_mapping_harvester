@@ -15,6 +15,8 @@ public class GenerateJSService {
 
 
     private StringBuffer js;
+    private String minimumMatches;
+    private int minimum;
     private HashMap<String,String> node;
     private HashMap<String,String> edge;
     private HashMap<String,Integer> mapCounter;
@@ -27,9 +29,15 @@ public class GenerateJSService {
         mapCounter = new HashMap<>();
     }
 
-    public void generateJs(String dirName){
+    public void generateJs(String dirName, String minimumMatches){
 
+        this.minimumMatches = minimumMatches;
 
+        try{
+            minimum = Integer.parseInt(minimumMatches);
+        }catch (NumberFormatException e){
+            minimum=0;
+        }
 
         File dir = new File(dirName);
         String[] extensions = new String[] { "sts" };
@@ -159,17 +167,21 @@ public class GenerateJSService {
         counter = 1;
         int idFrom =0;
         int idTo =0;
+        int size = 0;
 
         for (Map.Entry<String, String> entry : edge.entrySet()) {
             String key = entry.getKey().replaceAll("'","");;
             values = entry.getValue().split(";");
             idFrom = mapCounter.get(values[1].replaceAll("'",""));
             idTo = mapCounter.get(values[2].replaceAll("'",""));
-            js.append("{from: "+idFrom+", to: "+idTo+", value: "+(values[3].replaceAll("'",""))+", title: '"+(values[4].replaceAll("'",""))+"'}");
-            if(counter < mapSize){
-                js.append(",");
+            size = Integer.parseInt(values[3].replaceAll("'",""));
+            if(size >= minimum){
+                js.append("{from: "+idFrom+", to: "+idTo+", value: "+(values[3].replaceAll("'",""))+", title: '"+(values[4].replaceAll("'",""))+"'}");
+                if(counter < mapSize){
+                    js.append(",");
+                }
+                js.append("\n");
             }
-            js.append("\n");
             counter++;
         }
 

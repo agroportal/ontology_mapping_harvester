@@ -6,6 +6,8 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.OBOOntologies;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.Ontology;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
@@ -25,6 +27,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,6 +58,7 @@ public class BaseService {
     HashMap<String, String> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
     HashMap<String,String> ontologyNameHashMapBio;
+    HashMap<String, String> oboOntologies;
     Logger stdoutLogger;
     Logger errorLogger;
     Logger statisticsLogger;
@@ -105,6 +109,7 @@ public class BaseService {
         deduplicationHash = new HashMap<>();
         ontologyNameHashMapAgro = new HashMap<>();
         ontologyNameHashMapBio = new HashMap<>();
+        oboOntologies = new HashMap<>();
         counter = 0;
         MapIRI="";
         sb = new StringBuffer("");
@@ -761,5 +766,50 @@ public class BaseService {
         }
         return hashMap;
     }
+
+    public void loadOBOFoundryOntologies(){
+
+        OBOOntologies out=null;
+
+
+        try {
+            URL url = new URL("http://obofoundry.org/registry/ontologies.jsonld");
+            Scanner s = new Scanner(url.openStream());
+
+            StringBuffer sb = new StringBuffer();
+
+            while(s.hasNext()){
+                sb.append(s.nextLine().trim());
+            }
+
+
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
+
+
+            out = gson.fromJson(sb.toString(),OBOOntologies.class);
+
+
+
+            // read from your scanner
+        }
+        catch(IOException ex) {
+            // there was some connection problem, or the file did not exist on the server,
+            // or your URL was not in the right format.
+            // think about what to do now, and put it here.
+            ex.printStackTrace(); // for now, simply output it.
+        }
+
+        for(Ontology ont: out.getOntologies()){
+            if(!ont.isObsolete()){
+                System.out.println("-->"+ont.getId()+" "+ont.getOntologyPurl());
+                oboOntologies.put(ont.getId(),ont.getOntologyPurl());
+            }
+        }
+
+
+
+    }
+
+
 
 }

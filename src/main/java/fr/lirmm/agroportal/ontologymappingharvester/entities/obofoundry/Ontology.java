@@ -69,6 +69,17 @@ public class Ontology {
     @SerializedName("publications")
     @Expose
     private List<Publication> publications = null;
+    @SerializedName("is_obsolete")
+    @Expose
+    private boolean isObsolete = false;
+
+    public boolean isObsolete() {
+        return isObsolete;
+    }
+
+    public void setObsolete(boolean obsolete) {
+        isObsolete = obsolete;
+    }
 
     public List<Browser> getBrowsers() {
         return browsers;

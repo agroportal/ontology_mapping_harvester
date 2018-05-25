@@ -3,6 +3,7 @@ package fr.lirmm.agroportal.ontologymappingharvester;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.OBOOntologies;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.Ontology;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,7 +30,10 @@ public class TestOBODownload {
 
             OBOOntologies out = gson.fromJson(sb.toString(),OBOOntologies.class);
 
-            System.out.println(out.toString());
+            for(Ontology ont: out.getOntologies()){
+                System.out.println(ont.isObsolete());
+
+            }
 
             // read from your scanner
         }

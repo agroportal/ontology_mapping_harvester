@@ -999,6 +999,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     public void generatePhase1Targets(){
 
+        loadOBOFoundryOntologies();
 
         stdoutLogger.info("Local portal verification initiated: "+Util.getDateTime());
 
@@ -1006,6 +1007,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         String key="";
         String keyLocalPortal=null;
         String result=null;
+        int status =0;
 
         for (Map.Entry<String, CurationEntity> entry2 : phase1TargetHashMap.entrySet()) {
             key = entry2.getKey().toUpperCase();
@@ -1017,9 +1019,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     keyLocalPortal = ontologyNameHashMapAgro.get(key);
                     if(keyLocalPortal!=null){
                         result = "AGROPORTAL:"+key;
+                        status = 1;
                     }
                 }else{
                     result = "NCBO:"+key;
+                    status = 2;
                 }
             }else{
                 keyLocalPortal = ontologyNameHashMapAgro.get(key);
@@ -1027,9 +1031,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     keyLocalPortal = ontologyNameHashMapBio.get(key);
                     if(keyLocalPortal!=null){
                         result = "NCBO:"+key;
+                        status = 2;
                     }
                 }else{
                     result = "AGROPORTAL:"+key;
+                    status = 1;
                 }
             }
             if(result!=null){
@@ -1038,13 +1044,30 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 ce.setCuredtedBy("OMHT");
                 ce.setComments("Founded on Agroportal or Bioportal");
                 ce.setDate(Util.getDateTime());
-                ce.setStatus(1);
+                ce.setStatus(status);
                 phase1TargetHashMap.put(key.toLowerCase(),ce);
                 //System.out.println(ce.toString());
 
-                result = null;
+            }else{
+                key=key.toLowerCase();
+                System.out.print("Key: "+key);
+                keyLocalPortal = oboOntologies.get(key);
+                System.out.println(" Value: "+keyLocalPortal);
+                if(keyLocalPortal!=null){
+                    ce.setBaseClassURI(keyLocalPortal);
+                    ce.setCuratedTarget("ext:"+keyLocalPortal);
+                    ce.setCuredtedBy("OMHT");
+                    ce.setComments("Founded on OBO Foundry");
+                    ce.setDate(Util.getDateTime());
+                    ce.setStatus(3);
+                    phase1TargetHashMap.put(key,ce);
+                }else{
+                    //TODO load from identifiers.org
+
+                }
+
             }
-            // TODO continue here with identifiers.org
+            result = null;
 
         }
 

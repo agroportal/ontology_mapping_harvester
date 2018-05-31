@@ -1,6 +1,7 @@
 package fr.lirmm.agroportal.ontologymappingharvester.network;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import retrofit2.Call;
@@ -23,5 +24,8 @@ public interface AgroportalService {
 
     @GET("/search")
     Call<ClassQuery> getOntologyByConcept(@Query("q") String concept, @Query("apikey") String apiKey);
+
+    @GET("/rest/collections")
+    Call<List<Identifier>> getIdentifiers();
 
 }

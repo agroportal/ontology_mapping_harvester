@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.IdentifierEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Contact;
@@ -973,7 +974,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         for(int i =0;i<INVALIDCHARACTERS.length-1;i=i+2){
 
             if(value.matches("(.*"+INVALIDCHARACTERS[i+1]+".*){"+INVALIDCHARACTERS[i]+",}")){
-
+                externalLogger.warn("INVALID CONCEPT FOUNDED - Ontology: "+currentOntologyName+" Concept: "+value);
                 return false;
             }
         }
@@ -996,10 +997,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     }
 
-
+    /**
+     * Method to generate the Manual Curation File
+     */
     public void generatePhase1Targets(){
 
         loadOBOFoundryOntologies();
+        loadIdentifiersOntologies();
 
         stdoutLogger.info("Local portal verification initiated: "+Util.getDateTime());
 
@@ -1062,7 +1066,22 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     ce.setStatus(3);
                     phase1TargetHashMap.put(key,ce);
                 }else{
-                    //TODO load from identifiers.org
+                    key=key.toLowerCase();
+                    for(IdentifierEntity ie: identifiersList){
+                        keyLocalPortal = ie.findMatch(key);
+                        if(keyLocalPortal!=null){
+                            break;
+                        }
+                    }
+                    if(keyLocalPortal!=null){
+                        ce.setBaseClassURI(keyLocalPortal);
+                        ce.setCuratedTarget("ext:"+keyLocalPortal);
+                        ce.setCuredtedBy("OMHT");
+                        ce.setComments("Founded on identifiers.org");
+                        ce.setDate(Util.getDateTime());
+                        ce.setStatus(4);
+                        phase1TargetHashMap.put(key,ce);
+                    }
 
                 }
 

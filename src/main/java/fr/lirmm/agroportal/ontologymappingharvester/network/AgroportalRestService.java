@@ -1,6 +1,7 @@
 package fr.lirmm.agroportal.ontologymappingharvester.network;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
@@ -144,6 +145,39 @@ public class AgroportalRestService {
 
 
         return classQuery;
+
+    }
+
+    /**
+     * Restore the list of Identifiers from Identifiers.org rest service
+     * @return
+     */
+    public List<Identifier> getIdentifiers(){
+
+        String link=ManageProperties.loadPropertyValue("identifiersaddress");
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgroportalService service = retrofit.create(AgroportalService.class);
+
+        Call<List<Identifier>> identifiersEntitiesCall = service.getIdentifiers();
+
+        List<Identifier> identifiers = null;
+
+        try {
+            identifiers = identifiersEntitiesCall.execute().body();
+
+        } catch (Exception e) {
+            System.out.println("Erro: "+e.getMessage()+"getIdentifiers() - see havest_tool_error.log for details.");
+            logger.error("Error: "+ e.getStackTrace());
+        }
+
+        //System.out.println("Size: "+ontologies.size());
+
+        return identifiers;
 
     }
 

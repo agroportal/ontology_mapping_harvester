@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.IdentifierEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.OBOOntologies;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.Ontology;
@@ -69,6 +71,7 @@ public class BaseService {
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
     CurationEntity curationEntity;
+    List<IdentifierEntity> identifiersList;
 
     int counter;
     String MapIRI;
@@ -124,6 +127,7 @@ public class BaseService {
         agroportalRestService = new AgroportalRestService();
         currentOntologyId="";
         targetRegisterCounter=0;
+        identifiersList = new ArrayList<>();
     }
 
 
@@ -767,13 +771,18 @@ public class BaseService {
         return hashMap;
     }
 
+
+    /**
+     * Load Ontologies from OBO Foundry
+     * Used on Pre Manual Curation process
+     */
     public void loadOBOFoundryOntologies(){
 
         OBOOntologies out=null;
 
 
         try {
-            URL url = new URL("http://obofoundry.org/registry/ontologies.jsonld");
+            URL url = new URL(ManageProperties.loadPropertyValue("obofoundryontologies"));
             Scanner s = new Scanner(url.openStream());
 
             StringBuffer sb = new StringBuffer();
@@ -810,6 +819,29 @@ public class BaseService {
 
     }
 
+    /**
+     * Load Ontologies from Identifiers.org
+     * Used on the Manual Pre Curation Process
+     */
+    public void loadIdentifiersOntologies(){
+
+        AgroportalRestService ars = new AgroportalRestService();
+
+        String prefix = "";
+        List<String> synonmyms = null;
+        String url = "";
+
+        for(Identifier i: ars.getIdentifiers()){
+            prefix = i.getPrefix();
+            url = i.getUrl();
+            synonmyms = i.getSynonyms();
+            if(synonmyms==null){
+                synonmyms =  new ArrayList<>();
+            }
+            identifiersList.add(new IdentifierEntity(prefix,synonmyms,url));
+        }
+
+    }
 
 
 }

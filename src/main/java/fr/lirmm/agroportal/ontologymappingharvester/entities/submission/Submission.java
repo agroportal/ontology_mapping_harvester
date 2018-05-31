@@ -15,6 +15,12 @@ public class Submission {
     @SerializedName("hasOntologyLanguage")
     @Expose
     private String hasOntologyLanguage;
+    @SerializedName("identifier")
+    @Expose
+    private String identifier;
+    @SerializedName("URI")
+    @Expose
+    private String uri;
     @SerializedName("released")
     @Expose
     private String released;
@@ -54,6 +60,22 @@ public class Submission {
     @SerializedName("@context")
     @Expose
     private Context___ context;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 
     public List<Contact> getContact() {
         return contact;

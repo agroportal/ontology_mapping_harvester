@@ -1018,6 +1018,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             ce = entry2.getValue();
 
             if(command.indexOf("n")>-1){
+                // LOOKUP ON BIOPORTAL THEN ON AGROPORTAL
                 keyLocalPortal = ontologyNameHashMapBio.get(key);
                 if(keyLocalPortal==null){
                     keyLocalPortal = ontologyNameHashMapAgro.get(key);
@@ -1030,6 +1031,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     status = 2;
                 }
             }else{
+                // LOOKUP ON AGROPORTAL THEN ON BIOPORTAL
                 keyLocalPortal = ontologyNameHashMapAgro.get(key);
                 if(keyLocalPortal==null){
                     keyLocalPortal = ontologyNameHashMapBio.get(key);
@@ -1043,6 +1045,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 }
             }
             if(result!=null){
+
+                //System.out.println();
                 ce.setBaseClassURI(keyLocalPortal);
                 ce.setCuratedTarget(result);
                 ce.setCuredtedBy("OMHT");
@@ -1053,37 +1057,63 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 //System.out.println(ce.toString());
 
             }else{
+
+                // LOOKUP ON AGROPORTAL BY THE URI
                 key=key.toLowerCase();
-                System.out.print("Key: "+key);
-                keyLocalPortal = oboOntologies.get(key);
-                System.out.println(" Value: "+keyLocalPortal);
+                keyLocalPortal = ontologyNameHashMapAgroInverse.get(key);
                 if(keyLocalPortal!=null){
-                    ce.setBaseClassURI(keyLocalPortal);
-                    ce.setCuratedTarget("ext:"+keyLocalPortal);
+                    System.out.println("Ontology: "+currentOntologyName+" Target key: "+key+ " TARGET URI: "+keyLocalPortal);
+                    ce.setBaseClassURI(key);
+                    ce.setCuratedTarget(keyLocalPortal);
                     ce.setCuredtedBy("OMHT");
-                    ce.setComments("Founded on OBO Foundry");
+                    ce.setComments("Founded on Agroportal or Bioportal");
                     ce.setDate(Util.getDateTime());
-                    ce.setStatus(3);
+                    ce.setStatus(1);
                     phase1TargetHashMap.put(key,ce);
-                }else{
+                }else {
+
+                    //LOOKUP ON OBO FOUNDRY
                     key=key.toLowerCase();
-                    for(IdentifierEntity ie: identifiersList){
-                        keyLocalPortal = ie.findMatch(key);
-                        if(keyLocalPortal!=null){
-                            break;
-                        }
-                    }
+                    //System.out.print("Key: "+key);
+                    keyLocalPortal = oboOntologies.get(key);
+                    //System.out.println(" Value: "+keyLocalPortal);
                     if(keyLocalPortal!=null){
                         ce.setBaseClassURI(keyLocalPortal);
                         ce.setCuratedTarget("ext:"+keyLocalPortal);
                         ce.setCuredtedBy("OMHT");
-                        ce.setComments("Founded on identifiers.org");
+                        ce.setComments("Founded on OBO Foundry");
                         ce.setDate(Util.getDateTime());
-                        ce.setStatus(4);
+                        ce.setStatus(3);
                         phase1TargetHashMap.put(key,ce);
-                    }
+                    }else{
 
-                }
+                        // LOOKUP ON IDENTIFIERS.ORG
+                        key=key.toLowerCase();
+                        for(IdentifierEntity ie: identifiersList){
+                            keyLocalPortal = ie.findMatch(key);
+                            if(keyLocalPortal!=null){
+                                break;
+                            }
+                        }
+                        if(keyLocalPortal!=null){
+                            ce.setBaseClassURI(keyLocalPortal);
+                            ce.setCuratedTarget("ext:"+keyLocalPortal);
+                            ce.setCuredtedBy("OMHT");
+                            ce.setComments("Founded on identifiers.org");
+                            ce.setDate(Util.getDateTime());
+                            ce.setStatus(4);
+                            phase1TargetHashMap.put(key,ce);
+                        }
+
+                    }                }
+
+
+
+
+
+
+
+
 
             }
             result = null;
@@ -1094,7 +1124,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
 
-        System.out.println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
+        //System.out.println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
 
         int counter = 1;
 
@@ -1102,7 +1132,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         stdoutLogger.info("Sorting Targets by number of matches: "+Util.getDateTime());
         phase1TargetHashMap = SortMapByValue.sortByValues(phase1TargetHashMap,SortMapByValue.DESC);
 
-        System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
+        //System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
 
         stdoutLogger.info("Finished Sorting Targets by number of matches: "+Util.getDateTime());
         phase1Logger.info("NUMBER;TARGET;FOUNDE IN;EXAMPLES;TOTAL COUNT;CURATED TARGET;BASE CLASS URI;CURATED BY;DATE;COMMENTS;STATUS");

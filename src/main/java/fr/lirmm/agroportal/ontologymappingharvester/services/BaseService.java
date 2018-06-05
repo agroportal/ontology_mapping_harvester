@@ -12,6 +12,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.OBOOntol
 import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.Ontology;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
@@ -59,7 +60,9 @@ public class BaseService {
     HashMap<String, ExternalReference> externalReferenceHashMap;
     HashMap<String, String> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
+    HashMap<String,String> ontologyNameHashMapAgroInverse;
     HashMap<String,String> ontologyNameHashMapBio;
+    HashMap<String,String> ontologyNameHashMapBioInverse;
     HashMap<String, String> oboOntologies;
     Logger stdoutLogger;
     Logger errorLogger;
@@ -112,6 +115,8 @@ public class BaseService {
         deduplicationHash = new HashMap<>();
         ontologyNameHashMapAgro = new HashMap<>();
         ontologyNameHashMapBio = new HashMap<>();
+        ontologyNameHashMapAgroInverse = new HashMap<>();
+        ontologyNameHashMapBioInverse = new HashMap<>();
         oboOntologies = new HashMap<>();
         counter = 0;
         MapIRI="";
@@ -622,6 +627,8 @@ public class BaseService {
 
     public void loadAndProcessOntologiesMetadata(String command){
 
+        Submission submission = null;
+
 
         List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
 
@@ -633,7 +640,15 @@ public class BaseService {
         }
 
         for(OntologyEntity oe: ontologiesAgro){
-            ontologyNameHashMapAgro.put(oe.getAcronym(),oe.getId());
+            submission = agroportalRestService.getLatestSubmission("",oe.getAcronym());
+            if(submission.getURI()!=null){
+                if((submission.getURI().length()-1)==submission.getURI().lastIndexOf("/")){
+                    submission.setURI(submission.getURI().substring(0,submission.getURI().length()-1));
+                }
+            }
+            ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+            ontologyNameHashMapAgro.put(oe.getAcronym(),submission.getURI());
+            externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+submission.getURI());
         }
 
 
@@ -647,7 +662,9 @@ public class BaseService {
         }
 
         for(OntologyEntity oe: ontologiesBio){
+            ontologyNameHashMapBioInverse.put(oe.getId(),"NCBO:"+oe.getAcronym());
             ontologyNameHashMapBio.put(oe.getAcronym(),oe.getId());
+            externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+oe.getId());
         }
 
 
@@ -810,7 +827,7 @@ public class BaseService {
 
         for(Ontology ont: out.getOntologies()){
             if(!ont.isObsolete()){
-                System.out.println("-->"+ont.getId()+" "+ont.getOntologyPurl());
+                //System.out.println("-->"+ont.getId()+" "+ont.getOntologyPurl());
                 oboOntologies.put(ont.getId(),ont.getOntologyPurl());
             }
         }

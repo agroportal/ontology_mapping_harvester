@@ -5,27 +5,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class Group {
 
-    @SerializedName("@id")
-    @Expose
-    private String id;
-    @SerializedName("@type")
-    @Expose
-    private String type;
+	@SerializedName("@id")
+	@Expose
+	private String id6;
+	@SerializedName("@type")
+	@Expose
+	private String type;
 
-    public String getId() {
-        return id;
-    }
+	public String getId6() {
+		return id6;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId6(String id6) {
+		this.id6 = id6;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
 }

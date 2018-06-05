@@ -36,12 +36,9 @@ public class Ontology {
     @SerializedName("viewOf")
     @Expose
     private Object viewOf;
-    @SerializedName("views")
-    @Expose
-    private List<Object> views = null;
     @SerializedName("@id")
     @Expose
-    private String id;
+    private String id2;
     @SerializedName("@type")
     @Expose
     private String type;
@@ -132,20 +129,12 @@ public class Ontology {
         this.viewOf = viewOf;
     }
 
-    public List<Object> getViews() {
-        return views;
+    public String getId2() {
+        return id2;
     }
 
-    public void setViews(List<Object> views) {
-        this.views = views;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setId2(String id2) {
+        this.id2 = id2;
     }
 
     public String getType() {

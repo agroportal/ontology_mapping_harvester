@@ -7,17 +7,17 @@ public class AdministeredBy {
 
     @SerializedName("@id")
     @Expose
-    private String id;
+    private String id5;
     @SerializedName("@type")
     @Expose
     private String type;
 
-    public String getId() {
-        return id;
+    public String getId5() {
+        return id5;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId5(String id5) {
+        this.id5 = id5;
     }
 
     public String getType() {

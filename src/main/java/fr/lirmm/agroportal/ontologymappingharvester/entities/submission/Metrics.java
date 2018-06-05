@@ -3,21 +3,21 @@ package fr.lirmm.agroportal.ontologymappingharvester.entities.submission;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ViewOf {
+public class Metrics {
 
 	@SerializedName("@id")
 	@Expose
-	private String id8;
+	private String id4;
 	@SerializedName("@type")
 	@Expose
 	private String type;
 
-	public String getId8() {
-		return id8;
+	public String getId4() {
+		return id4;
 	}
 
-	public void setId8(String id8) {
-		this.id8 = id8;
+	public void setId4(String id4) {
+		this.id4 = id4;
 	}
 
 	public String getType() {

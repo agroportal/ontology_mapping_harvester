@@ -5,27 +5,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class OntologyType {
 
-    @SerializedName("@id")
-    @Expose
-    private String id;
-    @SerializedName("@type")
-    @Expose
-    private String type;
+	@SerializedName("@id")
+	@Expose
+	private String id9;
+	@SerializedName("@type")
+	@Expose
+	private String type;
 
-    public String getId() {
-        return id;
-    }
+	public String getId9() {
+		return id9;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId9(String id9) {
+		this.id9 = id9;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
 }

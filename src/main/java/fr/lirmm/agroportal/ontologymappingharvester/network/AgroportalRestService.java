@@ -92,7 +92,7 @@ public class AgroportalRestService {
 
 
         //System.out.println("APIKEY: "+apiKey);
-        Call<Submission> latestSubmissionCall = service.getLatestSubmission(acronym,apiKey );
+        Call<Submission> latestSubmissionCall = service.getLatestSubmission(acronym,apiKey,"all" );
 
         Submission submission = null;
 
@@ -100,11 +100,12 @@ public class AgroportalRestService {
             submission = latestSubmissionCall.execute().body();
 
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage()+"getLatestSubmission() - see havest_tool_error.log for detais.");
+            System.out.println("Erro: "+e.getMessage()+" getLatestSubmission() - see havest_tool_error.log for detais."+" Error: "+ e.getStackTrace().toString());
             logger.error("Error: "+ e.getStackTrace());
+            submission = new Submission();
+            submission.setURI("UNKNOW_REFERENCE");
         }
 
-        //System.out.println("Size: "+ontologies.size());
 
         return submission;
 

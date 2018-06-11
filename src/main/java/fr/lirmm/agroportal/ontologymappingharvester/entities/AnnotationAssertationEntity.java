@@ -9,12 +9,16 @@ public class AnnotationAssertationEntity {
     private String ontologyConcept1;
     private String ontologyConcept2;
     private String ontologyIdPortal;
+    private String baseClassURI;
 
 
     /**
      * Main object responsable for the mapping representation
      */
     public AnnotationAssertationEntity() {
+        // on UNKNOW ONOLOGIES this is necessary due target list verification of null values
+        this.ontologyConcept2="";
+        this.ontologyIdPortal="";
     }
 
     public int getId() {
@@ -71,6 +75,14 @@ public class AnnotationAssertationEntity {
 
     public void setOntologyIdPortal(String ontologyIdPortal) {
         this.ontologyIdPortal = ontologyIdPortal;
+    }
+
+    public String getBaseClassURI() {
+        return baseClassURI;
+    }
+
+    public void setBaseClassURI(String baseClassURI) {
+        this.baseClassURI = baseClassURI;
     }
 
     @Override

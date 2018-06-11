@@ -2,7 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
@@ -11,10 +11,10 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEnt
 import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.OBOOntologies;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.Ontology;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -53,12 +53,10 @@ public class BaseService {
     String aux;
     AnnotationAssertationEntity an;
     HashMap<String,AnnotationAssertationEntity> deduplicationHash;
-    HashMap<String,HashMap<String,Integer>> maps;
+    HashMap<String,Integer> maps;
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
-    HashMap<String,CurationEntity> phase1TargetHashMap;
-    HashMap<String, ExternalReference> externalReferenceHashMap;
-    HashMap<String, String> externalTargetReferenceHashMap;
+    HashMap<String, CurationEntity> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
     HashMap<String,String> ontologyNameHashMapAgroInverse;
     HashMap<String,String> ontologyNameHashMapBio;
@@ -110,7 +108,6 @@ public class BaseService {
         an = null;
         mappings = new HashMap<>();
         maps = new HashMap<>();
-        phase1TargetHashMap = new HashMap<>();
         totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
         ontologyNameHashMapAgro = new HashMap<>();
@@ -126,7 +123,6 @@ public class BaseService {
         command="";
         files = new ArrayList<>();
         currentOntologyName="";
-        externalReferenceHashMap = new HashMap<>();
         externalTargetReferenceHashMap = new HashMap<>();
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
@@ -486,60 +482,46 @@ public class BaseService {
         }
     }
 
-    /**
-     * Load external references JSON file
-     */
-//    public void loadExternalReferences(){
-//
-//
-//    String dir = ManageProperties.loadPropertyValue("externalproperties");
-//
-//        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_references.json"))) {
-//            StringBuilder sb = new StringBuilder();
-//            String line = br.readLine();
-//
-//            while (line != null) {
-//                sb.append(line);
-//                line = br.readLine();
-//            }
-//            String everything = sb.toString();
-//
-//            Gson gson = new GsonBuilder().create();
-//            ExtRefList references = gson.fromJson(everything, ExtRefList.class);
-//
-//            for(ExternalReference reference: references.getExternalReferences()){
-//                externalReferenceHashMap.put(reference.getSearchString().toLowerCase(),reference);
-//            }
-//
-//
-//        } catch (IOException e) {
-//            errorLogger.error("Error trying to load external references JSON file located in: "+dir+" message:"+e.getMessage());
-//        }
-//
-//    }
+
 
     /**
      * Load external references JSON file
      */
     public void loadExternalTargetReferences(){
 
-
+        int status=0;
         String dir = ManageProperties.loadPropertyValue("externalproperties");
 
         try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"OMHT_external_matches_phase_1.cfg"))) {
             String line = br.readLine();
-            String[] content = new String[2];
+            String[] content = new String[12];
+            CurationEntity er;
+            // exclude hearder
+            line = br.readLine();
+            String property = "";
 
             while (line != null) {
                 content = line.split(";");
-                externalTargetReferenceHashMap.put(content[0],content[1]);
+                // this due the lack of value on the last column
+                if(content.length<12){
+                    property = "";
+                }else{
+                    property = content[11];
+                }
+                //System.out.println("-->"+line+"<--");
+                er = new CurationEntity(content[0],content[1],content[2],content[3],0,content[5],content[6],content[7],content[8],content[9],Integer.parseInt(content[10]),property);
+                if(er.getStatus()>0){
+                    er.setCounter(Integer.parseInt(content[4]));
+                }
+
+                externalTargetReferenceHashMap.put(content[0],er);
                 line = br.readLine();
             }
 
         } catch (IOException e) {
             errorLogger.error("Error trying to load external target references txt file located in: "+dir+" message:"+e.getMessage());
         }
-
+        System.out.println("External target curated references loaded: "+externalTargetReferenceHashMap.size()+" valid targets");
     }
 
 

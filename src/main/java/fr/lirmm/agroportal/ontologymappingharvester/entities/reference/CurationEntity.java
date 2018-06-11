@@ -1,7 +1,8 @@
-package fr.lirmm.agroportal.ontologymappingharvester.entities;
+package fr.lirmm.agroportal.ontologymappingharvester.entities.reference;
 
 public class CurationEntity implements Comparable {
 
+    private String number;
     private String targetFounded;
     private String foundedIn;
     private String exampleList;
@@ -12,6 +13,7 @@ public class CurationEntity implements Comparable {
     private String date;
     private String comments;
     private int status;
+    private String mappingProperty;
 
     public CurationEntity() {
         this.targetFounded = "";
@@ -24,6 +26,22 @@ public class CurationEntity implements Comparable {
         this.date = "";
         this.comments = "";
         this.status = 0;
+        this.mappingProperty="";
+    }
+
+    public CurationEntity(String number, String targetFounded, String foundedIn, String exampleList, int counter, String curatedTarget, String baseClassURI, String curedtedBy, String date, String comments, int status, String mappingProperty) {
+        this.number = number;
+        this.targetFounded = targetFounded;
+        this.foundedIn = foundedIn;
+        this.exampleList = exampleList;
+        this.counter = counter;
+        this.curatedTarget = curatedTarget;
+        this.baseClassURI = baseClassURI;
+        this.curedtedBy = curedtedBy;
+        this.date = date;
+        this.comments = comments;
+        this.status = status;
+        this.mappingProperty = mappingProperty;
     }
 
     public void addMatch(){
@@ -137,6 +155,22 @@ public class CurationEntity implements Comparable {
         this.status = status;
     }
 
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getMappingProperty() {
+        return mappingProperty;
+    }
+
+    public void setMappingProperty(String mappingProperty) {
+        this.mappingProperty = mappingProperty;
+    }
+
     @Override
     public int compareTo(Object o) {
 
@@ -154,7 +188,8 @@ public class CurationEntity implements Comparable {
     @Override
     public String toString() {
         return "CurationEntity{" +
-                "targetFounded='" + targetFounded + '\'' +
+                "number='" + number + '\'' +
+                ", targetFounded='" + targetFounded + '\'' +
                 ", foundedIn='" + foundedIn + '\'' +
                 ", exampleList='" + exampleList + '\'' +
                 ", counter=" + counter +
@@ -164,6 +199,7 @@ public class CurationEntity implements Comparable {
                 ", date='" + date + '\'' +
                 ", comments='" + comments + '\'' +
                 ", status=" + status +
+                ", mappingProperty='" + mappingProperty + '\'' +
                 '}';
     }
 }

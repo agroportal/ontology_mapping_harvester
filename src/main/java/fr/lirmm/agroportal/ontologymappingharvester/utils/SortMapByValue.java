@@ -1,6 +1,6 @@
 package fr.lirmm.agroportal.ontologymappingharvester.utils;
 
-import fr.lirmm.agroportal.ontologymappingharvester.entities.CurationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.CurationEntity;
 
 import java.util.*;
 import java.util.Map.Entry;

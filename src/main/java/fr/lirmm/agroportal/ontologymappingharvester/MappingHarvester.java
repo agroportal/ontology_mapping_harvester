@@ -117,7 +117,7 @@ public class MappingHarvester {
 
                 if(command.indexOf("c")>-1){
                     service.deleteExecutionHistory();
-                    System.out.println("Execution history deleted. New execution history as initiated.");
+                    System.out.println("Execution history deleted. New execution history was initiated.");
                 }
 
 

@@ -506,10 +506,10 @@ public class BaseService {
                 if(content.length<12){
                     property = "";
                 }else{
-                    property = content[11];
+                    property = content[12];
                 }
                 //System.out.println("-->"+line+"<--");
-                er = new CurationEntity(content[0],content[1],content[2],content[3],0,content[5],content[6],content[7],content[8],content[9],Integer.parseInt(content[10]),property);
+                er = new CurationEntity(content[0],content[1],content[2],content[3],0,content[5],content[6],content[7],content[8],content[9],content[10],Integer.parseInt(content[11]),property);
                 if(er.getStatus()>0){
                     er.setCounter(Integer.parseInt(content[4]));
                 }

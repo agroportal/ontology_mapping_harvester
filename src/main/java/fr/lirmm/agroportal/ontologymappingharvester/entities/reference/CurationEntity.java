@@ -7,6 +7,7 @@ public class CurationEntity implements Comparable {
     private String foundedIn;
     private String exampleList;
     private int counter;
+    private String ontology;
     private String curatedTarget;
     private String baseClassURI;
     private String curedtedBy;
@@ -16,25 +17,28 @@ public class CurationEntity implements Comparable {
     private String mappingProperty;
 
     public CurationEntity() {
+        this.number = "";
         this.targetFounded = "";
         this.foundedIn = "";
         this.exampleList = "";
         this.counter = 0;
+        this.ontology = "";
         this.curatedTarget = "";
         this.baseClassURI = "";
         this.curedtedBy = "";
         this.date = "";
         this.comments = "";
         this.status = 0;
-        this.mappingProperty="";
+        this.mappingProperty = "";
     }
 
-    public CurationEntity(String number, String targetFounded, String foundedIn, String exampleList, int counter, String curatedTarget, String baseClassURI, String curedtedBy, String date, String comments, int status, String mappingProperty) {
+    public CurationEntity(String number, String targetFounded, String foundedIn, String exampleList, int counter, String ontology, String curatedTarget, String baseClassURI, String curedtedBy, String date, String comments, int status, String mappingProperty) {
         this.number = number;
         this.targetFounded = targetFounded;
         this.foundedIn = foundedIn;
         this.exampleList = exampleList;
         this.counter = counter;
+        this.ontology = ontology;
         this.curatedTarget = curatedTarget;
         this.baseClassURI = baseClassURI;
         this.curedtedBy = curedtedBy;
@@ -42,6 +46,14 @@ public class CurationEntity implements Comparable {
         this.comments = comments;
         this.status = status;
         this.mappingProperty = mappingProperty;
+    }
+
+    public String getOntology() {
+        return ontology;
+    }
+
+    public void setOntology(String ontology) {
+        this.ontology = ontology;
     }
 
     public void addMatch(){

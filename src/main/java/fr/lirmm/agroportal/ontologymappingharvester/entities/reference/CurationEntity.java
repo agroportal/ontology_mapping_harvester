@@ -1,31 +1,59 @@
-package fr.lirmm.agroportal.ontologymappingharvester;
-
-import org.apache.logging.log4j.util.PropertySource;
+package fr.lirmm.agroportal.ontologymappingharvester.entities.reference;
 
 public class CurationEntity implements Comparable {
 
+    private String number;
     private String targetFounded;
     private String foundedIn;
     private String exampleList;
     private int counter;
+    private String ontology;
     private String curatedTarget;
     private String baseClassURI;
     private String curedtedBy;
     private String date;
     private String comments;
     private int status;
+    private String mappingProperty;
 
     public CurationEntity() {
+        this.number = "";
         this.targetFounded = "";
         this.foundedIn = "";
         this.exampleList = "";
         this.counter = 0;
+        this.ontology = "";
         this.curatedTarget = "";
         this.baseClassURI = "";
         this.curedtedBy = "";
         this.date = "";
         this.comments = "";
         this.status = 0;
+        this.mappingProperty = "";
+    }
+
+    public CurationEntity(String number, String targetFounded, String foundedIn, String exampleList, int counter, String ontology, String curatedTarget, String baseClassURI, String curedtedBy, String date, String comments, int status, String mappingProperty) {
+        this.number = number;
+        this.targetFounded = targetFounded;
+        this.foundedIn = foundedIn;
+        this.exampleList = exampleList;
+        this.counter = counter;
+        this.ontology = ontology;
+        this.curatedTarget = curatedTarget;
+        this.baseClassURI = baseClassURI;
+        this.curedtedBy = curedtedBy;
+        this.date = date;
+        this.comments = comments;
+        this.status = status;
+        this.mappingProperty = mappingProperty;
+    }
+
+    public String getOntology() {
+        return ontology;
+    }
+
+    public void setOntology(String ontology) {
+        this.ontology = ontology;
     }
 
     public void addMatch(){
@@ -44,13 +72,15 @@ public class CurationEntity implements Comparable {
     }
 
     public void addExampleList(String example){
-        example = example.replaceAll(";","");
-        if(counter<10) {
-            if (exampleList.indexOf(example) == -1) {
-                if (exampleList.length() > 0) {
-                    exampleList += "," + example;
-                } else {
-                    exampleList = example;
+        if(example!=null) {
+            example = example.replaceAll(";", "");
+            if (counter < 10) {
+                if (exampleList.indexOf(example) == -1) {
+                    if (exampleList.length() > 0) {
+                        exampleList += "," + example;
+                    } else {
+                        exampleList = example;
+                    }
                 }
             }
         }
@@ -137,6 +167,22 @@ public class CurationEntity implements Comparable {
         this.status = status;
     }
 
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getMappingProperty() {
+        return mappingProperty;
+    }
+
+    public void setMappingProperty(String mappingProperty) {
+        this.mappingProperty = mappingProperty;
+    }
+
     @Override
     public int compareTo(Object o) {
 
@@ -149,5 +195,23 @@ public class CurationEntity implements Comparable {
             return 0;
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return "CurationEntity{" +
+                "number='" + number + '\'' +
+                ", targetFounded='" + targetFounded + '\'' +
+                ", foundedIn='" + foundedIn + '\'' +
+                ", exampleList='" + exampleList + '\'' +
+                ", counter=" + counter +
+                ", curatedTarget='" + curatedTarget + '\'' +
+                ", baseClassURI='" + baseClassURI + '\'' +
+                ", curedtedBy='" + curedtedBy + '\'' +
+                ", date='" + date + '\'' +
+                ", comments='" + comments + '\'' +
+                ", status=" + status +
+                ", mappingProperty='" + mappingProperty + '\'' +
+                '}';
     }
 }

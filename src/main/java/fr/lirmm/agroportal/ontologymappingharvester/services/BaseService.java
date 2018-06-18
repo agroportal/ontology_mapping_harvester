@@ -2,15 +2,19 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lirmm.agroportal.ontologymappingharvester.CurationEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.IdentifierEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.OBOOntologies;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.obofoundry.Ontology;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExtRefList;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.ExternalReference;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -26,6 +30,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,14 +53,15 @@ public class BaseService {
     String aux;
     AnnotationAssertationEntity an;
     HashMap<String,AnnotationAssertationEntity> deduplicationHash;
-    HashMap<String,HashMap<String,Integer>> maps;
+    HashMap<String,Integer> maps;
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
-    HashMap<String,CurationEntity> phase1TargetHashMap;
-    HashMap<String, ExternalReference> externalReferenceHashMap;
-    HashMap<String, String> externalTargetReferenceHashMap;
+    HashMap<String, CurationEntity> externalTargetReferenceHashMap;
     HashMap<String,String> ontologyNameHashMapAgro;
+    HashMap<String,String> ontologyNameHashMapAgroInverse;
     HashMap<String,String> ontologyNameHashMapBio;
+    HashMap<String,String> ontologyNameHashMapBioInverse;
+    HashMap<String, String> oboOntologies;
     Logger stdoutLogger;
     Logger errorLogger;
     Logger statisticsLogger;
@@ -66,6 +72,7 @@ public class BaseService {
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
     CurationEntity curationEntity;
+    List<IdentifierEntity> identifiersList;
 
     int counter;
     String MapIRI;
@@ -101,11 +108,13 @@ public class BaseService {
         an = null;
         mappings = new HashMap<>();
         maps = new HashMap<>();
-        phase1TargetHashMap = new HashMap<>();
         totalMappings = new HashMap<>();
         deduplicationHash = new HashMap<>();
         ontologyNameHashMapAgro = new HashMap<>();
         ontologyNameHashMapBio = new HashMap<>();
+        ontologyNameHashMapAgroInverse = new HashMap<>();
+        ontologyNameHashMapBioInverse = new HashMap<>();
+        oboOntologies = new HashMap<>();
         counter = 0;
         MapIRI="";
         sb = new StringBuffer("");
@@ -114,12 +123,12 @@ public class BaseService {
         command="";
         files = new ArrayList<>();
         currentOntologyName="";
-        externalReferenceHashMap = new HashMap<>();
         externalTargetReferenceHashMap = new HashMap<>();
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
         currentOntologyId="";
         targetRegisterCounter=0;
+        identifiersList = new ArrayList<>();
     }
 
 
@@ -243,6 +252,12 @@ public class BaseService {
 
 
     public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
+
+        AnnotationAssertationEntity aaa = deduplicationHash.get(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
+        if(aaa!=null){
+            externalLogger.info("Duplicated: "+aaa.getOntology2()+" - "+aaa.getId()+" - "+aaa.getOntologyConcept1()+" "+aaa.getAssertion()+" "+aaa.getOntologyConcept2()+" with: "+an.getId()+" - "+an.getOntologyConcept1()+" "+an.getAssertion()+" "+an.getOntologyConcept2());
+        }
+
         deduplicationHash.put(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
         //stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(an.getId()>totalAnnotationAssertationEntities){
@@ -467,60 +482,46 @@ public class BaseService {
         }
     }
 
-    /**
-     * Load external references JSON file
-     */
-//    public void loadExternalReferences(){
-//
-//
-//    String dir = ManageProperties.loadPropertyValue("externalproperties");
-//
-//        try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"external_references.json"))) {
-//            StringBuilder sb = new StringBuilder();
-//            String line = br.readLine();
-//
-//            while (line != null) {
-//                sb.append(line);
-//                line = br.readLine();
-//            }
-//            String everything = sb.toString();
-//
-//            Gson gson = new GsonBuilder().create();
-//            ExtRefList references = gson.fromJson(everything, ExtRefList.class);
-//
-//            for(ExternalReference reference: references.getExternalReferences()){
-//                externalReferenceHashMap.put(reference.getSearchString().toLowerCase(),reference);
-//            }
-//
-//
-//        } catch (IOException e) {
-//            errorLogger.error("Error trying to load external references JSON file located in: "+dir+" message:"+e.getMessage());
-//        }
-//
-//    }
+
 
     /**
      * Load external references JSON file
      */
     public void loadExternalTargetReferences(){
 
-
+        int status=0;
         String dir = ManageProperties.loadPropertyValue("externalproperties");
 
         try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"OMHT_external_matches_phase_1.cfg"))) {
             String line = br.readLine();
-            String[] content = new String[2];
+            String[] content = new String[12];
+            CurationEntity er;
+            // exclude hearder
+            line = br.readLine();
+            String property = "";
 
             while (line != null) {
                 content = line.split(";");
-                externalTargetReferenceHashMap.put(content[0],content[1]);
+                // this due the lack of value on the last column
+                if(content.length<12){
+                    property = "";
+                }else{
+                    property = content[12];
+                }
+                //System.out.println("-->"+line+"<--");
+                er = new CurationEntity(content[0],content[1],content[2],content[3],0,content[5],content[6],content[7],content[8],content[9],content[10],Integer.parseInt(content[11]),property);
+                if(er.getStatus()>0){
+                    er.setCounter(Integer.parseInt(content[4]));
+                }
+
+                externalTargetReferenceHashMap.put(content[0],er);
                 line = br.readLine();
             }
 
         } catch (IOException e) {
             errorLogger.error("Error trying to load external target references txt file located in: "+dir+" message:"+e.getMessage());
         }
-
+        System.out.println("External target curated references loaded: "+externalTargetReferenceHashMap.size()+" valid targets");
     }
 
 
@@ -614,6 +615,8 @@ public class BaseService {
 
     public void loadAndProcessOntologiesMetadata(String command){
 
+        Submission submission = null;
+
 
         List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
 
@@ -625,7 +628,15 @@ public class BaseService {
         }
 
         for(OntologyEntity oe: ontologiesAgro){
-            ontologyNameHashMapAgro.put(oe.getId(),oe.getAcronym());
+            submission = agroportalRestService.getLatestSubmission("",oe.getAcronym());
+            if(submission.getURI()!=null){
+                if((submission.getURI().length()-1)==submission.getURI().lastIndexOf("/")){
+                    submission.setURI(submission.getURI().substring(0,submission.getURI().length()-1));
+                }
+            }
+            ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+            ontologyNameHashMapAgro.put(oe.getAcronym(),submission.getURI());
+            externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+submission.getURI());
         }
 
 
@@ -639,7 +650,9 @@ public class BaseService {
         }
 
         for(OntologyEntity oe: ontologiesBio){
-            ontologyNameHashMapBio.put(oe.getId(),oe.getAcronym());
+            ontologyNameHashMapBioInverse.put(oe.getId(),"NCBO:"+oe.getAcronym());
+            ontologyNameHashMapBio.put(oe.getAcronym(),oe.getId());
+            externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+oe.getId());
         }
 
 
@@ -762,5 +775,78 @@ public class BaseService {
         }
         return hashMap;
     }
+
+
+    /**
+     * Load Ontologies from OBO Foundry
+     * Used on Pre Manual Curation process
+     */
+    public void loadOBOFoundryOntologies(){
+
+        OBOOntologies out=null;
+
+
+        try {
+            URL url = new URL(ManageProperties.loadPropertyValue("obofoundryontologies"));
+            Scanner s = new Scanner(url.openStream());
+
+            StringBuffer sb = new StringBuffer();
+
+            while(s.hasNext()){
+                sb.append(s.nextLine().trim());
+            }
+
+
+            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
+
+
+            out = gson.fromJson(sb.toString(),OBOOntologies.class);
+
+
+
+            // read from your scanner
+        }
+        catch(IOException ex) {
+            // there was some connection problem, or the file did not exist on the server,
+            // or your URL was not in the right format.
+            // think about what to do now, and put it here.
+            ex.printStackTrace(); // for now, simply output it.
+        }
+
+        for(Ontology ont: out.getOntologies()){
+            if(!ont.isObsolete()){
+                //System.out.println("-->"+ont.getId()+" "+ont.getOntologyPurl());
+                oboOntologies.put(ont.getId(),ont.getOntologyPurl());
+            }
+        }
+
+
+
+    }
+
+    /**
+     * Load Ontologies from Identifiers.org
+     * Used on the Manual Pre Curation Process
+     */
+    public void loadIdentifiersOntologies(){
+
+        AgroportalRestService ars = new AgroportalRestService();
+
+        String prefix = "";
+        List<String> synonmyms = null;
+        String url = "";
+
+        for(Identifier i: ars.getIdentifiers()){
+            prefix = i.getPrefix();
+            url = i.getUrl();
+            synonmyms = i.getSynonyms();
+            if(synonmyms==null){
+                synonmyms =  new ArrayList<>();
+            }
+            identifiersList.add(new IdentifierEntity(prefix,synonmyms,url));
+        }
+
+    }
+
 
 }

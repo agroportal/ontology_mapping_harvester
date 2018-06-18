@@ -1,6 +1,7 @@
 package fr.lirmm.agroportal.ontologymappingharvester.network;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
@@ -91,7 +92,7 @@ public class AgroportalRestService {
 
 
         //System.out.println("APIKEY: "+apiKey);
-        Call<Submission> latestSubmissionCall = service.getLatestSubmission(acronym,apiKey );
+        Call<Submission> latestSubmissionCall = service.getLatestSubmission(acronym,apiKey,"all" );
 
         Submission submission = null;
 
@@ -99,15 +100,17 @@ public class AgroportalRestService {
             submission = latestSubmissionCall.execute().body();
 
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage()+"getLatestSubmission() - see havest_tool_error.log for detais.");
+            System.out.println("Erro: "+e.getMessage()+" getLatestSubmission() - see havest_tool_error.log for detais."+" Error: "+ e.getStackTrace().toString());
             logger.error("Error: "+ e.getStackTrace());
+            submission = new Submission();
+            submission.setURI("UNKNOW_REFERENCE");
         }
 
-        //System.out.println("Size: "+ontologies.size());
 
         return submission;
 
     }
+
 
 
     /**
@@ -144,6 +147,39 @@ public class AgroportalRestService {
 
 
         return classQuery;
+
+    }
+
+    /**
+     * Restore the list of Identifiers from Identifiers.org rest service
+     * @return
+     */
+    public List<Identifier> getIdentifiers(){
+
+        String link=ManageProperties.loadPropertyValue("identifiersaddress");
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgroportalService service = retrofit.create(AgroportalService.class);
+
+        Call<List<Identifier>> identifiersEntitiesCall = service.getIdentifiers();
+
+        List<Identifier> identifiers = null;
+
+        try {
+            identifiers = identifiersEntitiesCall.execute().body();
+
+        } catch (Exception e) {
+            System.out.println("Erro: "+e.getMessage()+"getIdentifiers() - see havest_tool_error.log for details.");
+            logger.error("Error: "+ e.getStackTrace());
+        }
+
+        //System.out.println("Size: "+ontologies.size());
+
+        return identifiers;
 
     }
 

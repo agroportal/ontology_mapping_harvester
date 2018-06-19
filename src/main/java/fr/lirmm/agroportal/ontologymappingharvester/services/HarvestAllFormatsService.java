@@ -831,11 +831,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
             if (indexOf1 > -1 && indexOf2 > 1) {
 
-                if(isValidMap(aux)) {
+                // get only the concept
+                aux = aux.substring(indexOf1+1,indexOf2);
+                // Should not verify for invelid characters on the concept once is an URI and by nature it could be a lot of '.'s
+                if(aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
                     externalLogger.trace("IDIII--SKOS--BEFORE ORIGINAL: " + aux);
 
 
-                    an.setOntologyConcept2(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
+                    an.setOntologyConcept2(aux);
                     externalLogger.trace("IDIII--SKOS--DURING1 CONCEPT: " + an.getOntologyConcept2());
 
                     aux2 = an.getOntologyConcept2();
@@ -843,8 +846,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         an.setOntologyConcept2(aux2.substring(0, aux2.length() - 1));
                         externalLogger.trace("IDIII--SKOS--DURING2 CONCEPT: " + an.getOntologyConcept2());
                     }
-
-                    an.setOntology2(mapExternalLink2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/"))));
+                    // set ontology with the clean URI (if any).
+                    an.setOntology2(cleanSkosURI(mapExternalLink2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/")))));
                     externalLogger.trace("IDIII--SKOS--AFTER ONTOLOGY: " + an.getOntology2());
                 }else{
                     externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
@@ -889,6 +892,23 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         return an;
     }
 
+    /**
+     * This method search by specifica strings inside SKOS URI and return only the root of the concept.
+     * @param value
+     * @return
+     */
+    private String cleanSkosURI(String value){
+
+        String[] itens = {"/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities"};
+
+        for(int i=0;i<itens.length;i++){
+            if(value.indexOf(itens[i])>-1){
+                return value.substring(0,value.indexOf(itens[i]));
+            }
+        }
+
+        return value;
+    }
 
 
     /**
@@ -1143,13 +1163,13 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         //System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
 
         stdoutLogger.info("Finished Sorting Targets by number of matches: "+Util.getDateTime());
-        phase1Logger.info("NUMBER;TARGET;FOUNDE IN;EXAMPLES;TOTAL COUNT;CURATED TARGET;BASE CLASS URI;CURATED BY;DATE;COMMENTS;STATUS");
+        phase1Logger.info("NUMBER;TARGET;FOUNDE IN;EXAMPLES;TOTAL COUNT;ONTOLOGY;CURATED TARGET;BASE CLASS URI;CURATED BY;DATE;COMMENTS;STATUS;PROPOSED ADDITION MAPPING PROPERTY");
 
         for (Map.Entry<String, CurationEntity> entry2 : externalTargetReferenceHashMap.entrySet()) {
             String key2 = entry2.getKey();
             ce = entry2.getValue();
 
-            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+ce.getFoundedIn()+";"+ce.getExampleList()+";"+ce.getCounter()+";"+ce.getCuratedTarget()+";"+ce.getBaseClassURI()+";"+ce.getCuredtedBy()+";"+ce.getDate()+";"+ce.getComments()+";"+ce.getStatus()+";"+ce.getMappingProperty());
+            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+ce.getFoundedIn()+";"+ce.getExampleList()+";"+ce.getCounter()+";"+ce.getOntology()+";"+ce.getCuratedTarget()+";"+ce.getBaseClassURI()+";"+ce.getCuredtedBy()+";"+ce.getDate()+";"+ce.getComments()+";"+ce.getStatus()+";"+ce.getMappingProperty());
 
 
         }

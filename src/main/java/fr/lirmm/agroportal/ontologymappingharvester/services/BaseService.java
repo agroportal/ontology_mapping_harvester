@@ -503,7 +503,7 @@ public class BaseService {
             while (line != null) {
                 content = line.split(";");
                 // this due the lack of value on the last column
-                if(content.length<12){
+                if(content.length<13){
                     property = "";
                 }else{
                     property = content[12];
@@ -735,7 +735,9 @@ public class BaseService {
         return history;
     }
 
-
+    /**
+     * If 'c' is present on COMMAND the history will be cleaned and all ontologies will be processed on the next run.
+     */
     public void deleteExecutionHistory(){
         String folder = ManageProperties.loadPropertyValue("externalproperties");
         String filename= "OMHT_execution_history.log";
@@ -743,6 +745,19 @@ public class BaseService {
             Files.deleteIfExists(Paths.get(folder + File.separator + filename));
         } catch (IOException e) {
             errorLogger.error("Error trying to delete execution history: " + e.getMessage());
+        }
+        appendExecutionHistory("");
+    }
+
+    public void deleteLogFiles(){
+        String folder = ManageProperties.loadPropertyValue("externalproperties");
+        String[] filenames= {"OMHT_matchs_totalization.xls","OMHT_summary_matchs.xls","OMHT_execution_history.log","OMHT_external_matches_phase_1_to_be_curated.xls","OMHT_external_references.log","OMHT_harvest_tool_error.log"};
+        try {
+            for(int i=0;i<filenames.length;i++){
+                Files.deleteIfExists(Paths.get(folder + File.separator + filenames[i]));
+            }
+        } catch (IOException e) {
+            errorLogger.error("Error trying to delete files: " + e.getMessage());
         }
         appendExecutionHistory("");
     }

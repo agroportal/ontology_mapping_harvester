@@ -784,7 +784,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot, IRI iri, String assertion, int id) {
 
         // TODO check the cleanup of the literal type ^^xsd:string)
-        String aux = anot.toString().replace("\n", "").trim().replace("^^xsd:string)","");
+
+        //System.out.println("ANTES->"+anot.toString());
+
+        String aux = anot.toString().replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","");
+
+
         String aux2 = "";
         String aux3="";
         String aux4="";
@@ -823,6 +828,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             an.setOntology1(an.getOntologyConcept1().substring(0, an.getOntologyConcept1().lastIndexOf("/")));
 
             aux = aux.substring(indexOf2 + 1).replace(" ", "").replace("\"", "");
+
+            //System.out.println("DEPOS->"+aux);
             count = aux.length() - aux.replace(" ","").length();
             //System.out.println(aux);
             indexOf1 = aux.indexOf("<");
@@ -847,7 +854,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         externalLogger.trace("IDIII--SKOS--DURING2 CONCEPT: " + an.getOntologyConcept2());
                     }
                     // set ontology with the clean URI (if any).
-                    an.setOntology2(cleanSkosURI(mapExternalLink2(an.getOntologyConcept2().substring(0, an.getOntologyConcept2().lastIndexOf("/")))));
+                    an.setOntology2(cleanSkosURI(mapExternalLink2(cleanSkossSintax(an.getOntologyConcept2()))));
                     externalLogger.trace("IDIII--SKOS--AFTER ONTOLOGY: " + an.getOntology2());
                 }else{
                     externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
@@ -855,7 +862,12 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 }
             } else {
 
+
+
                 if(isValidMap(aux)) {
+
+
+
                     if (aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
                         an.setOntology2(parseLinkReference(aux));
                         externalLogger.trace("IDIII--HTTP--BEFORE: " + aux);
@@ -908,6 +920,31 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         }
 
         return value;
+    }
+
+    /**
+     * Especial case for OBO Foundry sintax
+     * This will transforms this: http://purl.obolibrary.org/obo/NCBITaxon_9925 concept on
+     * this ontology: http://purl.obolibrary.org/obo/NCBITaxon and this concept: http://purl.obolibrary.org/obo/NCBITaxon_9925
+     * @param value
+     * @return
+     */
+    private String cleanSkossSintax(String value){
+        String aux1="";
+        String aux2="";
+        if(value.lastIndexOf("/")>-1){
+            aux1 = value.substring(0,value.lastIndexOf("/"));
+            System.out.println("Aux1: "+aux1);
+            if(aux1.length()<value.length()){
+                aux2 = value.substring(value.lastIndexOf("/")+1,value.length());
+                //System.out.println("Aux2: "+aux1);
+                if(aux1.equalsIgnoreCase("http://purl.obolibrary.org/obo") && aux2.indexOf("_")>0){
+                    //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
+                    return aux1+"/"+(aux2.substring(0,aux2.indexOf("_")));
+                }
+            }
+        }
+        return value.substring(0,value.lastIndexOf("/"));
     }
 
 
@@ -1002,12 +1039,20 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
     private boolean isValidMap(String value){
 
-        for(int i =0;i<INVALIDCHARACTERS.length-1;i=i+2){
+        if(value.indexOf("http")!=0 && value.indexOf("smtp")!=0 && value.indexOf("ftp")!=0) {
 
-            if(value.matches("(.*"+INVALIDCHARACTERS[i+1]+".*){"+INVALIDCHARACTERS[i]+",}")){
-                externalLogger.warn("INVALID CONCEPT FOUNDED - Ontology: "+currentOntologyName+" Concept: "+value);
-                return false;
+            // this verify if the string begin with: abcdf:SOMETHING  It will not match if it is an AAAA://SOMETHING
+            if(!value.matches("^([a-zA-Z].*)(:(?!//)).*")){
+
+                for (int i = 0; i < INVALIDCHARACTERS.length - 1; i = i + 2) {
+
+                    if (value.matches("(.*" + INVALIDCHARACTERS[i + 1] + ".*){" + INVALIDCHARACTERS[i] + ",}")) {
+                        externalLogger.warn("INVALID CONCEPT FOUNDED - Ontology: " + currentOntologyName + " Concept: " + value);
+                        return false;
+                    }
+                }
             }
+
         }
         return true;
     }

@@ -9,13 +9,10 @@ public class TestRegex {
         INVALIDCHARACTERS = new String[]{"2",":","2","-","2","_","3"," ","1","[pthr]\\d{5}"};
 
 
-        String value = "pthr51d34";
+        String value = "fia:Http://";
 
-        if(isValidMap(value)){
-            System.out.println("true");
-        }else{
-            System.out.println("FALSE");
-        }
+            System.out.println(value.matches("^([a-zA-Z].*)(:(?!//)).*"));
+
 
     }
 
@@ -30,5 +27,13 @@ public class TestRegex {
             }
         }
         return true;
+    }
+
+    private static boolean isValidPatern(String value){
+        if(value.matches("^([a-zA-Z0-9])")){
+            return true;
+        }else{
+            return false;
+        }
     }
 }

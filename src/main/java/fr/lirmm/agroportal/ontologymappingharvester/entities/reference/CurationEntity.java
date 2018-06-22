@@ -62,20 +62,20 @@ public class CurationEntity implements Comparable {
 
     public void addFoundedIn(String acronym){
         acronym = acronym.replaceAll(";","");
-        if(foundedIn.indexOf(acronym)==-1){
+
             if(foundedIn.length()>0) {
                 foundedIn += "," + acronym;
             }else{
                 foundedIn = acronym;
             }
-        }
+
     }
 
     public void addExampleList(String example){
         if(example!=null) {
             example = example.replaceAll(";", "");
             if (counter < 10) {
-                if (exampleList.indexOf(example) == -1) {
+
                     if (exampleList.length() > 0) {
                         exampleList += "," + example;
                     } else {
@@ -83,7 +83,7 @@ public class CurationEntity implements Comparable {
                     }
                 }
             }
-        }
+
     }
 
 

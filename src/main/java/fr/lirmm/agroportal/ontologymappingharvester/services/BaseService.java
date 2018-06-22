@@ -57,6 +57,7 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
     HashMap<String, CurationEntity> externalTargetReferenceHashMap;
+    HashMap<String, CurationEntity> externalTargetReferenceHashMapOut;
     HashMap<String,String> ontologyNameHashMapAgro;
     HashMap<String,String> ontologyNameHashMapAgroInverse;
     HashMap<String,String> ontologyNameHashMapBio;
@@ -124,6 +125,7 @@ public class BaseService {
         files = new ArrayList<>();
         currentOntologyName="";
         externalTargetReferenceHashMap = new HashMap<>();
+        externalTargetReferenceHashMapOut = new HashMap<>();
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
         currentOntologyId="";
@@ -253,12 +255,12 @@ public class BaseService {
 
     public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
 
-        AnnotationAssertationEntity aaa = deduplicationHash.get(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
+        AnnotationAssertationEntity aaa = deduplicationHash.get(an.getOntology1()+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(aaa!=null){
             externalLogger.info("Duplicated: "+aaa.getOntology2()+" - "+aaa.getId()+" - "+aaa.getOntologyConcept1()+" "+aaa.getAssertion()+" "+aaa.getOntologyConcept2()+" with: "+an.getId()+" - "+an.getOntologyConcept1()+" "+an.getAssertion()+" "+an.getOntologyConcept2());
         }
 
-        deduplicationHash.put(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
+        deduplicationHash.put(an.getOntology1()+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
         //stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(an.getId()>totalAnnotationAssertationEntities){
             totalAnnotationAssertationEntities=an.getId();

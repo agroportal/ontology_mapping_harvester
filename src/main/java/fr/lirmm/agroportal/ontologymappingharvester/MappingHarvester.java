@@ -128,7 +128,7 @@ public class MappingHarvester {
                     service.parse(command, ManageProperties.loadPropertyValue("outputfolder"));
                 }else if(command.indexOf("u")>-1){
 
-                    service.parse(command, ManageProperties.loadPropertyValue("outputfolder"), args[1]);
+                    service.parse(command, ManageProperties.loadPropertyValue("outputfolder"), args);
                 }else  {
                     service.parse(command, files);
                 }

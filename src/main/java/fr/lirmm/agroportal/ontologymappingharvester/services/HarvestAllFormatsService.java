@@ -33,7 +33,7 @@ public class HarvestAllFormatsService extends BaseService  {
      */
     public HarvestAllFormatsService() {
         super();
-        MATCH = new String[]{"owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
+        MATCH = new String[]{"SameIndividual","owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
         INVALIDCHARACTERS = new String[]{"2",":","2","-","2","_","3"," ","1","[pthr]\\d{5}"};
         // "/^[pthr]\\d{5}$/"
         isIRI = false;
@@ -122,6 +122,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
 
         for (OWLClass c : oA.getClassesInSignature()) {
+            //System.out.println(c.toString());
             countClasses++;
         }
         stdoutLogger.info("Total of Classes: " + countClasses);
@@ -137,7 +138,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 // Get the annotations on the class that use the label property
 
 //                System.out.println("------------------------------------------------------------------------");
-//                System.out.println("Classes: "+cls.toString());
+//                System.out.println("Classes: "+cls.getClassesInSignature());
 //                System.out.println("------------------------------------------");
 
                 for (OWLOntology o : oA.getImportsClosure()) {
@@ -151,6 +152,11 @@ public class HarvestAllFormatsService extends BaseService  {
                         //System.out.println("Entrou no if do assetation");
 
                         aux = annotationAssertionAxiom.toString();
+
+                        //System.out.println(annotationAssertionAxiom.getProperty().toString());
+//                        System.out.println("Subject : " + annotationAssertionAxiom.getSubject());
+//                        System.out.println("Property: " + annotationAssertionAxiom.getProperty());
+//                        System.out.println("Value   : " + annotationAssertionAxiom.getValue());
 
                         if (aux.indexOf(MATCH[x]) > -1) {
 
@@ -237,6 +243,8 @@ public class HarvestAllFormatsService extends BaseService  {
             for (OWLNamedIndividual ind : oA.getIndividualsInSignature()) {
 
 
+
+
                 Set<? extends OWLAxiom> axioms = oA.getAxioms(ind);
 //                for (OWLAxiom ax : axioms) {
 //                    System.out.println("Axiom " + ax);
@@ -247,6 +255,8 @@ public class HarvestAllFormatsService extends BaseService  {
 
 
                 for (OWLAxiom ax : axioms) {
+
+                    //System.out.println("Axiom " + ax);
 
                     //System.out.println("*** INDIVIDUAL AXIOMS *** of Individual: "+ind.getIRI());
                     //System.out.println("*** INDIVIDUAL AXIOMS :  "+ax);
@@ -300,6 +310,23 @@ public class HarvestAllFormatsService extends BaseService  {
 
                 }
 
+                //Special case for NamedIndividuals
+
+                Set<? extends OWLAxiom> axioms2 = oA.getAxioms(ind);
+                Set<OWLEntity> entities = null;
+                for (OWLAxiom ax : axioms2) {
+
+                    if(ax.getAxiomType().toString().equalsIgnoreCase(MATCH[x])){
+                        //System.out.println(ax.getAxiomWithoutAnnotations());
+                        an = getAnnotationAssertationEntity(ax.getAxiomWithoutAnnotations().toString(),currentOntologyName,MATCH[x],++countMatch);
+                        // variation 5
+                        addToDeduplicationHash(an,5);
+                    }
+                }
+
+
+
+
                 // (<http://www.w3.org/2004/02/skos/core#exactMatch>
 
 
@@ -318,6 +345,14 @@ public class HarvestAllFormatsService extends BaseService  {
                 }
 
             }
+
+
+
+
+
+
+
+
 
             stdoutLogger.info("End search of matchs in individuals.");
 
@@ -919,13 +954,90 @@ public class HarvestAllFormatsService extends BaseService  {
     }
 
     /**
+     * Special case for SameIndividual Realtion (Exemple founde on PO2 ontology in the xrdf format
+     * @param anot
+     * @param ontologyName
+     * @param assertion
+     * @param id
+     * @return
+     */
+    public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot, String ontologyName, String assertion, int id){
+
+        String aux = anot.replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","");
+
+
+        String aux2 = "";
+
+        int indexOf1 = 0;
+        int indexOf2 = 0;
+        AnnotationAssertationEntity an = new AnnotationAssertationEntity();
+        an.setId(id);
+        an.setAssertion(assertion);
+        an.setOntology1(ontologyName);
+
+        if (aux.length() > 6) {
+
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+            an.setOntologyConcept2(aux.substring(indexOf1+1, indexOf2));
+            aux = aux.substring(indexOf2 + 1);
+
+            //System.out.println(aux);
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+
+            while (indexOf2 <= indexOf1) {
+                aux = aux.substring(indexOf2 + 1, aux.length());
+                indexOf1 = aux.indexOf("<");
+                indexOf2 = aux.indexOf(">");
+            }
+
+            an.setOntologyConcept1(aux.substring(aux.indexOf("<")+1,aux.indexOf(">")));
+
+            aux2 = an.getOntologyConcept2();
+
+            externalLogger.trace("IDIV--OWL--BEFORE CONCEPT: " + aux2);
+
+            if (aux2.length() > 0 && aux2.substring(aux2.length() - 1, aux2.length()).equalsIgnoreCase("/")) {
+                an.setOntologyConcept2(aux2.substring(0, aux2.length() - 1));
+                externalLogger.trace("IDIV--OWL--DURING CONCEPT: " + an.getOntologyConcept2());
+            }
+
+            aux = an.getOntologyConcept2();
+
+            if(aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
+
+               an.setOntology2(cleanSkosURI(aux.substring(0,aux.lastIndexOf("/"))));
+               externalLogger.trace("IDIV--OWL--AFTER CONCEPT: " + an.getOntologyConcept2());
+
+            }else{
+                externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
+                an.setOntology2("UNKNOW_ONTOLOGY");
+            }
+
+
+
+        }
+
+        //System.out.println(an.toString());
+
+
+
+        return an;
+    }
+
+
+
+
+
+    /**
      * This method search by specifica strings inside SKOS URI and return only the root of the concept.
      * @param value
      * @return
      */
     private String cleanSkosURI(String value){
 
-        String[] itens = {"/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities"};
+        String[] itens = {"/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities", "/product", "/material", "/attribute","/step"};
 
         for(int i=0;i<itens.length;i++){
             if(value.indexOf(itens[i])>-1){
@@ -1055,7 +1167,10 @@ public class HarvestAllFormatsService extends BaseService  {
 //    private String preClean(String searchString) {
 //
 //        String aux = searchString;
-//        int index1 = searchString.indexOf(":");
+//        int index1 = searchString.indexOf(":");        String aux3="";
+        String aux4="";
+
+        int count=0;
 //        int index2 = searchString.lastIndexOf(":");
 //        if (index2 > index1) {
 //            aux = searchString.substring(index1 + 1, searchString.length());
@@ -1299,7 +1414,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 ManageProperties.setProperty("executionhistory", executionHistory + currentOntologyName.toUpperCase() + ";");
             } else {
                 errorLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
-                stdoutLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
+                //stdoutLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
             }
 
         }

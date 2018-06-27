@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Entity to represent ontology JSON MAPPING
@@ -114,4 +115,25 @@ public class MappingEntity implements Serializable {
                 ", classes=" + classes +
                 '}';
     }
+
+    public String getClassesFormated(){
+        String begin="";
+        String end="";
+
+        String key="";
+        String value="";
+
+        for (Map.Entry<String, String> entry : classes.entrySet()) {
+            key = entry.getKey();
+            value = entry.getValue();
+            if(value.equalsIgnoreCase(sourceName)){
+                begin = key + "  " + value;
+            }else{
+                end = key + "  " + value;
+            }
+        }
+
+        return begin + " - " + end;
+    }
+
 }

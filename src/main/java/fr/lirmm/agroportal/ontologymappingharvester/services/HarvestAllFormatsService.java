@@ -1064,7 +1064,10 @@ public class HarvestAllFormatsService extends BaseService  {
             if(aux1.length()<value.length()){
                 aux2 = value.substring(value.lastIndexOf("/")+1,value.length());
                 //System.out.println("Aux2: "+aux1);
-                if(aux1.equalsIgnoreCase("http://purl.obolibrary.org/obo") && aux2.indexOf("_")>0){
+                if(aux1.equalsIgnoreCase("http://purl.obolibrary.org/obo") && isConcept(aux2)){
+                    //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
+                    return aux1+"/"+(aux2.substring(0,getSeparator(aux2)));
+                }else if(aux1.equalsIgnoreCase("http://purl.bioontology.org/ontology") && isConcept(aux2)){
                     //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
                     return aux1+"/"+(aux2.substring(0,aux2.indexOf("_")));
                 }
@@ -1072,6 +1075,36 @@ public class HarvestAllFormatsService extends BaseService  {
         }
         return value.substring(0,value.lastIndexOf("/"));
     }
+
+    /**
+     * Verify if the last part of the URI is a concept
+     * @param value
+     * @return
+     */
+    public boolean isConcept(String value){
+        if(value.indexOf("_")>0 || value.indexOf(":")>0 || value.indexOf("#")>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * Return the position of the separator on the concept string
+     * @param value
+     * @return
+     */
+    public int getSeparator(String value){
+        if(value.indexOf("_")>0){
+            return value.indexOf("_");
+        }else if(value.indexOf(":")>0){
+            return value.indexOf(":");
+        }else if(value.indexOf("#")>0){
+            return value.indexOf("#");
+        }
+        return value.length();
+    }
+
 
 
     /**
@@ -1510,7 +1543,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
             } else {
                 errorLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
-                stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
+                //stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
             }
 
         }
@@ -1608,7 +1641,7 @@ public class HarvestAllFormatsService extends BaseService  {
                     appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
                 } else {
                     errorLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
-                    stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
+                    //stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
                 }
 
             }

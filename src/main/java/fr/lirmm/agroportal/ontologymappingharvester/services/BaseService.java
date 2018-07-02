@@ -48,7 +48,6 @@ public class BaseService {
     int countTotalMatch;
     int totalAnnotationAssertationEntities;
     int countOntologies;
-    int maxSpaceOcorrencies;
     int targetRegisterCounter;
     String aux;
     AnnotationAssertationEntity an;
@@ -96,7 +95,6 @@ public class BaseService {
      */
     public BaseService(){
 
-        maxSpaceOcorrencies = 3;
         man = OWLManager.createOWLOntologyManager();
         OWLOntology oA = null;
         totalAnnotationAssertationEntities=0;

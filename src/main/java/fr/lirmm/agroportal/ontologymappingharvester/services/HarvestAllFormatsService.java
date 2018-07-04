@@ -543,7 +543,7 @@ public class HarvestAllFormatsService extends BaseService  {
             me.setSourceContactInfo(ontologyContactEmail);
             me.setSource(currentOntologyId);
             me.setSourceName(currentOntologyName);
-            me.setComment("Generated with the Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - " + Util.getFormatedDateTime("dd/MM/yyyy HH:mm") + " - FR");
+            me.setComment("Generated with the Ontology Mapping Harvest Tool - v.1.3 - Agroportal Project - LIRMM - " + Util.getFormatedDateTime("dd/MM/yyyy HH:mm") + " - FR");
             String[] mappings = new String[1];
             mappings[0] = an.getAssertion();
             me.setRelation(mappings);
@@ -1162,6 +1162,7 @@ public class HarvestAllFormatsService extends BaseService  {
         if(value !=null ){
             process = value.replaceAll("\n","").trim().toLowerCase();
             er = externalTargetReferenceHashMap.get(process);
+            externalLogger.info("SEARCH_CURATION--> "+process);
             if(er != null){
                 externalLogger.info("CURATION: "+ currentOntologyName+"- process--> "+process+ " curated: "+er.getCuratedTarget());
                 return er.getCuratedTarget();
@@ -1222,17 +1223,25 @@ public class HarvestAllFormatsService extends BaseService  {
 
         loadOBOFoundryOntologies();
         loadIdentifiersOntologies();
+        CurationEntity ce = null;
+        String key="";
+
+
+        for (Map.Entry<String, CurationEntity> entry2 : externalTargetReferenceHashMap.entrySet()) {
+            key = entry2.getKey().toLowerCase();
+            ce = entry2.getValue();
+            externalLogger.info("ExternalLogger--> "+key+" "+ce.toString());
+        }
 
         stdoutLogger.info("Local portal verification initiated: "+Util.getDateTime());
 
-        CurationEntity ce = null;
-        String key="";
+
         String keyLocalPortal=null;
         String result=null;
         int status =0;
 
         for (Map.Entry<String, CurationEntity> entry2 : externalTargetReferenceHashMapOut.entrySet()) {
-            key = entry2.getKey().toUpperCase();
+            key = entry2.getKey().toLowerCase();
             ce = entry2.getValue();
 
             // Loockup for external references only if status = 0 (not curated)

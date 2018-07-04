@@ -195,7 +195,7 @@ public class BaseService {
         if(command.indexOf("j")>-1) {
 
             String path = fileIN.getAbsolutePath();
-            String extension=".json.tmp";
+            String extension=".json.";
             Path p = Paths.get(path);
             String fileName = p.getFileName().toString().substring(0,p.getFileName().toString().indexOf("."));
             String directory = p.getParent().toString();
@@ -514,7 +514,7 @@ public class BaseService {
                     er.setCounter(Integer.parseInt(content[4]));
                 }
 
-                externalTargetReferenceHashMap.put(content[0],er);
+                externalTargetReferenceHashMap.put(content[1].toLowerCase(),er);
                 line = br.readLine();
             }
 

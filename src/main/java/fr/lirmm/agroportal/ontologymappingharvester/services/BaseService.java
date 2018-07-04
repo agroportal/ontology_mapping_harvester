@@ -48,7 +48,6 @@ public class BaseService {
     int countTotalMatch;
     int totalAnnotationAssertationEntities;
     int countOntologies;
-    int maxSpaceOcorrencies;
     int targetRegisterCounter;
     String aux;
     AnnotationAssertationEntity an;
@@ -57,6 +56,7 @@ public class BaseService {
     HashMap<String,Integer> mappings;
     HashMap<String,Integer> totalMappings;
     HashMap<String, CurationEntity> externalTargetReferenceHashMap;
+    HashMap<String, CurationEntity> externalTargetReferenceHashMapOut;
     HashMap<String,String> ontologyNameHashMapAgro;
     HashMap<String,String> ontologyNameHashMapAgroInverse;
     HashMap<String,String> ontologyNameHashMapBio;
@@ -95,7 +95,6 @@ public class BaseService {
      */
     public BaseService(){
 
-        maxSpaceOcorrencies = 3;
         man = OWLManager.createOWLOntologyManager();
         OWLOntology oA = null;
         totalAnnotationAssertationEntities=0;
@@ -124,6 +123,7 @@ public class BaseService {
         files = new ArrayList<>();
         currentOntologyName="";
         externalTargetReferenceHashMap = new HashMap<>();
+        externalTargetReferenceHashMapOut = new HashMap<>();
         ontologyContactEmail = "";
         agroportalRestService = new AgroportalRestService();
         currentOntologyId="";
@@ -195,7 +195,7 @@ public class BaseService {
         if(command.indexOf("j")>-1) {
 
             String path = fileIN.getAbsolutePath();
-            String extension=".json.tmp";
+            String extension=".json.";
             Path p = Paths.get(path);
             String fileName = p.getFileName().toString().substring(0,p.getFileName().toString().indexOf("."));
             String directory = p.getParent().toString();
@@ -253,12 +253,12 @@ public class BaseService {
 
     public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
 
-        AnnotationAssertationEntity aaa = deduplicationHash.get(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
+        AnnotationAssertationEntity aaa = deduplicationHash.get(an.getOntology1()+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(aaa!=null){
             externalLogger.info("Duplicated: "+aaa.getOntology2()+" - "+aaa.getId()+" - "+aaa.getOntologyConcept1()+" "+aaa.getAssertion()+" "+aaa.getOntologyConcept2()+" with: "+an.getId()+" - "+an.getOntologyConcept1()+" "+an.getAssertion()+" "+an.getOntologyConcept2());
         }
 
-        deduplicationHash.put(an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
+        deduplicationHash.put(an.getOntology1()+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2(),an);
         //stdoutLogger.trace("variation "+variation+" "+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(an.getId()>totalAnnotationAssertationEntities){
             totalAnnotationAssertationEntities=an.getId();
@@ -514,7 +514,7 @@ public class BaseService {
                     er.setCounter(Integer.parseInt(content[4]));
                 }
 
-                externalTargetReferenceHashMap.put(content[0],er);
+                externalTargetReferenceHashMap.put(content[1].toLowerCase(),er);
                 line = br.readLine();
             }
 

@@ -2,7 +2,7 @@
   <configuration default="false" name="MappingHarvester Command Line" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="fr.lirmm.agroportal.ontologymappingharvester.MappingHarvester" />
     <module name="ontology_mapping_harvester" />
-    <option name="PROGRAM_PARAMETERS" value="-jlspc $USER_HOME$/data/repository/AGRO_SAMEAS.owl" />
+    <option name="PROGRAM_PARAMETERS" value="-jlspc $USER_HOME$/data/workarea/PO2_DG.rdf" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <extension name="coverage">
       <pattern>

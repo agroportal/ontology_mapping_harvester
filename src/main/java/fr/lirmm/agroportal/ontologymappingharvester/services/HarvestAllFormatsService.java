@@ -20,7 +20,7 @@ import org.semanticweb.owlapi.model.*;
 import java.io.File;
 import java.util.*;
 
-public class HarvestAllFormatsService extends BaseService implements HarvestService {
+public class HarvestAllFormatsService extends BaseService  {
 
 
     private String[] MATCH;
@@ -33,7 +33,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      */
     public HarvestAllFormatsService() {
         super();
-        MATCH = new String[]{"owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
+        MATCH = new String[]{"SameIndividual","owl:sameAs", "http://www.w3.org/2002/07/owl#sameAs", "http://www.w3.org/2000/01/rdf-schema#seeAlso", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.w3.org/2004/02/skos/core#exactMatch", "http://www.w3.org/2004/02/skos/core#broadMatch", "http://www.w3.org/2004/02/skos/core#closeMatch", "http://www.w3.org/2004/02/skos/core#narrowMatch", "http://www.w3.org/2004/02/skos/core#relatedMatch"};
         INVALIDCHARACTERS = new String[]{"2",":","2","-","2","_","3"," ","1","[pthr]\\d{5}"};
         // "/^[pthr]\\d{5}$/"
         isIRI = false;
@@ -114,7 +114,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     /**
      * Parse ontology searching for matches
      */
-    @Override
+
     public void findMatches() {
 
         boolean countIndividualsFlag = true;
@@ -122,6 +122,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
         for (OWLClass c : oA.getClassesInSignature()) {
+            //System.out.println(c.toString());
             countClasses++;
         }
         stdoutLogger.info("Total of Classes: " + countClasses);
@@ -137,7 +138,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 // Get the annotations on the class that use the label property
 
 //                System.out.println("------------------------------------------------------------------------");
-//                System.out.println("Classes: "+cls.toString());
+//                System.out.println("Classes: "+cls.getClassesInSignature());
 //                System.out.println("------------------------------------------");
 
                 for (OWLOntology o : oA.getImportsClosure()) {
@@ -151,6 +152,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         //System.out.println("Entrou no if do assetation");
 
                         aux = annotationAssertionAxiom.toString();
+
+                        //System.out.println(annotationAssertionAxiom.getProperty().toString());
+//                        System.out.println("Subject : " + annotationAssertionAxiom.getSubject());
+//                        System.out.println("Property: " + annotationAssertionAxiom.getProperty());
+//                        System.out.println("Value   : " + annotationAssertionAxiom.getValue());
 
                         if (aux.indexOf(MATCH[x]) > -1) {
 
@@ -237,6 +243,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             for (OWLNamedIndividual ind : oA.getIndividualsInSignature()) {
 
 
+
+
                 Set<? extends OWLAxiom> axioms = oA.getAxioms(ind);
 //                for (OWLAxiom ax : axioms) {
 //                    System.out.println("Axiom " + ax);
@@ -247,6 +255,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
 
                 for (OWLAxiom ax : axioms) {
+
+                    //System.out.println("Axiom " + ax);
 
                     //System.out.println("*** INDIVIDUAL AXIOMS *** of Individual: "+ind.getIRI());
                     //System.out.println("*** INDIVIDUAL AXIOMS :  "+ax);
@@ -300,6 +310,23 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
                 }
 
+                //Special case for NamedIndividuals
+
+                Set<? extends OWLAxiom> axioms2 = oA.getAxioms(ind);
+                Set<OWLEntity> entities = null;
+                for (OWLAxiom ax : axioms2) {
+
+                    if(ax.getAxiomType().toString().equalsIgnoreCase(MATCH[x])){
+                        //System.out.println(ax.getAxiomWithoutAnnotations());
+                        an = getAnnotationAssertationEntity(ax.getAxiomWithoutAnnotations().toString(),currentOntologyName,MATCH[x],++countMatch);
+                        // variation 5
+                        addToDeduplicationHash(an,5);
+                    }
+                }
+
+
+
+
                 // (<http://www.w3.org/2004/02/skos/core#exactMatch>
 
 
@@ -318,6 +345,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 }
 
             }
+
+
+
+
+
+
+
+
 
             stdoutLogger.info("End search of matchs in individuals.");
 
@@ -341,6 +376,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             AnnotationAssertationEntity an = entry.getValue();
 
             MapIRI = an.getOntology2();
+
+            if(MapIRI.trim().equalsIgnoreCase("")){
+                System.out.println(currentOntologyName+ "-->"+MapIRI+"<-->"+curationEntity.getFoundedIn());
+            }
+
             if(MapIRI.trim().length()!=0) {
 
                 relation = an.getAssertion();
@@ -358,24 +398,29 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 } else {
                     totalMappings.put(MapIRI, 1);
                 }
-                if (externalTargetReferenceHashMap.containsKey(MapIRI)) {
-                    curationEntity = externalTargetReferenceHashMap.get(MapIRI);
+
+
+
+                if (externalTargetReferenceHashMapOut.containsKey(MapIRI)) {
+                    curationEntity = externalTargetReferenceHashMapOut.get(MapIRI);
                     curationEntity.addMatch();
                     // add only if it is not already there
-                    if (curationEntity.getFoundedIn().indexOf(currentOntologyName) == -1) {
-                        curationEntity.addFoundedIn(currentOntologyName);
+
+                    if (curationEntity.getFoundedIn().indexOf("##"+currentOntologyName+"##") == -1) {
+                        curationEntity.addFoundedIn("##"+currentOntologyName+"##");
                     }
                     if (curationEntity.getExampleList().indexOf(an.getOntologyConcept2()) == -1) {
                         curationEntity.addExampleList(an.getOntologyConcept2());
                     }
-                    externalTargetReferenceHashMap.put(MapIRI, curationEntity);
+
+                    externalTargetReferenceHashMapOut.put(MapIRI, curationEntity);
                 } else {
                     curationEntity = new CurationEntity();
                     curationEntity.addMatch();
                     curationEntity.addExampleList(an.getOntologyConcept2());
-                    curationEntity.addFoundedIn(currentOntologyName);
+                    curationEntity.addFoundedIn("##"+currentOntologyName+"##");
                     curationEntity.setTargetFounded(MapIRI);
-                    externalTargetReferenceHashMap.put(MapIRI, curationEntity);
+                    externalTargetReferenceHashMapOut.put(MapIRI, curationEntity);
                 }
                 if (maps.containsKey(relation + ";" + MapIRI)) {
                     counter = maps.get(relation + ";" + MapIRI);
@@ -404,7 +449,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     /**
      * Generate LOG file information
      */
-    @Override
+
     public void saveFile() {
 
 
@@ -467,7 +512,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     /**
      * Generate JSON files to export mappings
      */
-    @Override
+
     public void buildJson() {
 
         MappingEntity me;
@@ -498,7 +543,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             me.setSourceContactInfo(ontologyContactEmail);
             me.setSource(currentOntologyId);
             me.setSourceName(currentOntologyName);
-            me.setComment("Generated with the Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - " + Util.getFormatedDateTime("dd/MM/yyyy HH:mm") + " - FR");
+            me.setComment("Generated with the Ontology Mapping Harvest Tool - v.1.3 - Agroportal Project - LIRMM - " + Util.getFormatedDateTime("dd/MM/yyyy HH:mm") + " - FR");
             String[] mappings = new String[1];
             mappings[0] = an.getAssertion();
             me.setRelation(mappings);
@@ -506,7 +551,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             HashMap<String, String> classes = new HashMap<>();
 
             classes.put(an.getOntologyConcept1(), currentOntologyName);
-            classes.put(an.getOntologyConcept2(), (command.indexOf("n") > -1 ? "ncbo:" + an.getOntology2() : "agroportal:" + an.getOntology2()));
+            //classes.put(an.getOntologyConcept2(), (command.indexOf("n") > -1 ? "ncbo:" + an.getOntology2() : "agroportal:" + an.getOntology2()));
+            classes.put(an.getOntologyConcept2(), an.getOntology2());
+
 
             me.setClasses(classes);
 
@@ -529,27 +576,24 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      */
     public void generateStatistics() {
 
+        int minimum = Integer.parseInt(ManageProperties.loadPropertyValue("minimummappings"));
         String aux = "";
+        if(totalMappings.size()>0) {
+            addStat("rootnode;" + currentOntologyName + ";" + countIndividuals + ";" + currentOntologyName);
 
-        addStat("rootnode;" + currentOntologyName + ";" + countIndividuals + ";" + currentOntologyName);
-
-        for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
-            String key2 = entry2.getKey().replaceAll("'","").replaceAll(";","");
-            Integer value2 = entry2.getValue();
-
-            if (key2.indexOf("http") == 0) {
-                //key2 = key2.substring(key2.lastIndexOf(File.separator)+1,key2.length()).toUpperCase();
-                key2 = parseLinkReference(key2);
+            for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
+                String key2 = entry2.getKey().replaceAll("'", "").replaceAll(";", "");
+                Integer value2 = entry2.getValue();
+                if(value2>minimum){
+                    addStat("node;" + key2 + ";" + value2 + ";" + key2);
+                    addStat("edge;" + currentOntologyName + ";" + key2 + ";" + value2 + ";" + value2 + " matches from " + currentOntologyName + " to " + key2);
+                }
             }
 
+                stdoutLogger.info("Statistic file was generated");
+                writeStatFile();
 
-            addStat("node;" + key2 + ";" + value2 + ";" + key2);
-            addStat("edge;" + currentOntologyName + ";" + key2 + ";" + value2 + ";" + value2 + " matches from " + currentOntologyName + " to " + key2);
-        }
-        if (sts.toString().length() > 0) {
-            stdoutLogger.info("Statistic file was generated");
-            writeStatFile();
-        } else {
+        }else{
             stdoutLogger.warn("No matches, Statistic file generation skiped!");
         }
 
@@ -593,7 +637,6 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         String aux = anot.toString().replace("\n", "").trim();
         String aux2 = "";
         String ret = "";
-        int count=0;
 
         int indexOf1 = 0;
         int indexOf2 = 0;
@@ -612,9 +655,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             aux2 = aux.substring(indexOf1 + 1, indexOf2);
             //an.setAssertion(aux.substring(indexOf1+1,indexOf2-1));
             //System.out.println("ENTROUAQUI-->"+aux.substring(indexOf1+1,indexOf2-1));
-            aux2 = preClean(aux2);
-
-            count = aux2.length() - aux2.replace(" ","").length();
+            //aux2 = preClean(aux2);
 
             an.setOntology2(ret);
 
@@ -624,24 +665,31 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     an.setOntology2(parseLinkReference(aux2));
                     externalLogger.trace("CLI--HTTP--BEFORE: " + aux2);
                     externalLogger.trace("CLI--HTTP--AFTER : " + an.getOntology2());
-                } else if (aux2.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux2.indexOf(":") > 0 ) {
                     an.setOntology2(mapExternalLink2(aux2.substring(0, aux2.indexOf(":"))));
                     externalLogger.trace("CLI-:-BEFORE: " + aux2);
                     externalLogger.trace("CLI-:-AFTER : " + an.getOntology2());
-                } else if (aux2.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux2.indexOf("_") > 0 ) {
                     an.setOntology2(mapExternalLink2(aux2.substring(0, aux2.indexOf("_"))));
                     externalLogger.trace("CLI-_-BEFORE: " + aux2);
                     externalLogger.trace("CLI-_-AFTER : " + an.getOntology2());
-                } else if (aux2.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux2.indexOf("-") > 0 ) {
                     an.setOntology2(mapExternalLink2(aux2.substring(0, aux2.indexOf("-"))));
                     externalLogger.trace("CLI---BEFORE: " + aux2);
                     externalLogger.trace("CLI---AFTER : " + an.getOntology2());
                 } else {
-
-                    an.setOntology2(mapExternalLink2(aux2));
-                    an.setBaseClassURI(aux2);
-                    externalLogger.trace("CLI-ELSE-BEFORE: " + aux2);
-                    externalLogger.trace("CLI-ELSE-AFTER : " + an.getOntology2());
+                    // in case there is a OBO xREF with an empty content
+                    if(aux2.trim().isEmpty()){
+                        an.setOntology2("UNKNOW_ONTOLOGY");
+                        an.setBaseClassURI("EMPITY_CONCEPT");
+                        externalLogger.trace("CLI-ELSE-BEFORE: " + aux2);
+                        externalLogger.trace("CLI-ELSE-AFTER : " + an.getOntology2());
+                    }else {
+                        an.setOntology2(mapExternalLink2(aux2));
+                        an.setBaseClassURI(aux2);
+                        externalLogger.trace("CLI-ELSE-BEFORE: " + aux2);
+                        externalLogger.trace("CLI-ELSE-AFTER : " + an.getOntology2());
+                    }
                 }
 
             }else{
@@ -707,15 +755,15 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     an.setOntology2(parseLinkReference(aux));
                     externalLogger.trace("CLII-IRI-HTTP-BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-HTTP-AFTER : "+an.getOntology2());
-                } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux.indexOf(":") > 0) {
                     an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
                     externalLogger.trace("CLII-IRI-:--BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-:--AFTER : "+an.getOntology2());
-                } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux.indexOf("_") > 0) {
                     an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
                     externalLogger.trace("CLII-IRI-_--BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-_--AFTER : "+an.getOntology2());
-                } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux.indexOf("-") > 0) {
                     an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
                     externalLogger.trace("CLII-IRI----BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI----AFTER : "+an.getOntology2());
@@ -740,15 +788,15 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     an.setOntology2(parseLinkReference(aux));
                     externalLogger.trace("CLII-NIRI-HTTP--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-HTTP--AFTER : "+an.getOntology2());
-                } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux.indexOf(":") > 0) {
                     an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
                     externalLogger.trace("CLII-NIRI-:--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-:--AFTER : "+an.getOntology2());
-                } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux.indexOf("_") > 0) {
                     an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
                     externalLogger.trace("CLII-NIRI-_--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-_--AFTER : "+an.getOntology2());
-                } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                } else if (aux.indexOf("-") > 0) {
                     an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
                     externalLogger.trace("CLII-NIRI----BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI----AFTER : "+an.getOntology2());
@@ -872,15 +920,15 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         an.setOntology2(parseLinkReference(aux));
                         externalLogger.trace("IDIII--HTTP--BEFORE: " + aux);
                         externalLogger.trace("IDIII--HTTP--AFTER : " + an.getOntology2());
-                    } else if (aux.indexOf(":") > 0 && count <= maxSpaceOcorrencies) {
+                    } else if (aux.indexOf(":") > 0) {
                         an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
                         externalLogger.trace("IDIII--:--BEFORE: " + aux);
                         externalLogger.trace("IDIII--:--AFTER : " + an.getOntology2());
-                    } else if (aux.indexOf("_") > 0 && count <= maxSpaceOcorrencies) {
+                    } else if (aux.indexOf("_") > 0) {
                         an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
                         externalLogger.trace("IDIII--_--BEFORE: " + aux);
                         externalLogger.trace("IDIII--_--AFTER : " + an.getOntology2());
-                    } else if (aux.indexOf("-") > 0 && count <= maxSpaceOcorrencies) {
+                    } else if (aux.indexOf("-") > 0) {
                         an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
                         externalLogger.trace("IDIII-----BEFORE: " + aux);
                         externalLogger.trace("IDIII-----AFTER : " + an.getOntology2());
@@ -905,13 +953,90 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
     /**
+     * Special case for SameIndividual Realtion (Exemple founde on PO2 ontology in the xrdf format
+     * @param anot
+     * @param ontologyName
+     * @param assertion
+     * @param id
+     * @return
+     */
+    public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot, String ontologyName, String assertion, int id){
+
+        String aux = anot.replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","");
+
+
+        String aux2 = "";
+
+        int indexOf1 = 0;
+        int indexOf2 = 0;
+        AnnotationAssertationEntity an = new AnnotationAssertationEntity();
+        an.setId(id);
+        an.setAssertion(assertion);
+        an.setOntology1(ontologyName);
+
+        if (aux.length() > 6) {
+
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+            an.setOntologyConcept2(aux.substring(indexOf1+1, indexOf2));
+            aux = aux.substring(indexOf2 + 1);
+
+            //System.out.println(aux);
+            indexOf1 = aux.indexOf("<");
+            indexOf2 = aux.indexOf(">");
+
+            while (indexOf2 <= indexOf1) {
+                aux = aux.substring(indexOf2 + 1, aux.length());
+                indexOf1 = aux.indexOf("<");
+                indexOf2 = aux.indexOf(">");
+            }
+
+            an.setOntologyConcept1(aux.substring(aux.indexOf("<")+1,aux.indexOf(">")));
+
+            aux2 = an.getOntologyConcept2();
+
+            externalLogger.trace("IDIV--OWL--BEFORE CONCEPT: " + aux2);
+
+            if (aux2.length() > 0 && aux2.substring(aux2.length() - 1, aux2.length()).equalsIgnoreCase("/")) {
+                an.setOntologyConcept2(aux2.substring(0, aux2.length() - 1));
+                externalLogger.trace("IDIV--OWL--DURING CONCEPT: " + an.getOntologyConcept2());
+            }
+
+            aux = an.getOntologyConcept2();
+
+            if(aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
+
+               an.setOntology2(cleanSkosURI(aux.substring(0,aux.lastIndexOf("/"))));
+               externalLogger.trace("IDIV--OWL--AFTER CONCEPT: " + an.getOntologyConcept2());
+
+            }else{
+                externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
+                an.setOntology2("UNKNOW_ONTOLOGY");
+            }
+
+
+
+        }
+
+        //System.out.println(an.toString());
+
+
+
+        return an;
+    }
+
+
+
+
+
+    /**
      * This method search by specifica strings inside SKOS URI and return only the root of the concept.
      * @param value
      * @return
      */
     private String cleanSkosURI(String value){
 
-        String[] itens = {"/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities"};
+        String[] itens = {"/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities", "/product", "/material", "/attribute","/step"};
 
         for(int i=0;i<itens.length;i++){
             if(value.indexOf(itens[i])>-1){
@@ -934,11 +1059,14 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         String aux2="";
         if(value.lastIndexOf("/")>-1){
             aux1 = value.substring(0,value.lastIndexOf("/"));
-            System.out.println("Aux1: "+aux1);
+            //System.out.println("Aux1: "+aux1);
             if(aux1.length()<value.length()){
                 aux2 = value.substring(value.lastIndexOf("/")+1,value.length());
                 //System.out.println("Aux2: "+aux1);
-                if(aux1.equalsIgnoreCase("http://purl.obolibrary.org/obo") && aux2.indexOf("_")>0){
+                if(aux1.equalsIgnoreCase("http://purl.obolibrary.org/obo") && isConcept(aux2)){
+                    //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
+                    return aux1+"/"+(aux2.substring(0,getSeparator(aux2)));
+                }else if(aux1.equalsIgnoreCase("http://purl.bioontology.org/ontology") && isConcept(aux2)){
                     //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
                     return aux1+"/"+(aux2.substring(0,aux2.indexOf("_")));
                 }
@@ -946,6 +1074,36 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         }
         return value.substring(0,value.lastIndexOf("/"));
     }
+
+    /**
+     * Verify if the last part of the URI is a concept
+     * @param value
+     * @return
+     */
+    public boolean isConcept(String value){
+        if(value.indexOf("_")>0 || value.indexOf(":")>0 || value.indexOf("#")>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /**
+     * Return the position of the separator on the concept string
+     * @param value
+     * @return
+     */
+    public int getSeparator(String value){
+        if(value.indexOf("_")>0){
+            return value.indexOf("_");
+        }else if(value.indexOf(":")>0){
+            return value.indexOf(":");
+        }else if(value.indexOf("#")>0){
+            return value.indexOf("#");
+        }
+        return value.length();
+    }
+
 
 
     /**
@@ -983,6 +1141,8 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             if(partB.indexOf("/")>-1){
                 partB = partB.substring(0, partB.indexOf("/"));
             }
+        }else{
+            partA="UNKNOW_ONTOLOGY";
         }
 
         return partA+partB;
@@ -1002,7 +1162,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
         if(value !=null ){
             process = value.replaceAll("\n","").trim().toLowerCase();
             er = externalTargetReferenceHashMap.get(process);
+            externalLogger.info("SEARCH_CURATION--> "+process);
             if(er != null){
+                externalLogger.info("CURATION: "+ currentOntologyName+"- process--> "+process+ " curated: "+er.getCuratedTarget());
                 return er.getCuratedTarget();
             }else{
                     return process;
@@ -1011,31 +1173,9 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             externalLogger.error("IMPOSSIBLE TO MAP REFERENCE: "+value+" FOR ONTOLOGY: "+currentOntologyName);
             return "UNKNOW_ONTOLOGY";
         }
+
     }
 
-    /**
-     * Get base class URI
-     * @param value
-     * @return
-     */
-    public String getBaseClassURI(String value) {
-
-        String process;
-        CurationEntity er;
-
-        if(value !=null ){
-            process = value.replaceAll("\n","").trim().toLowerCase();
-            er = externalTargetReferenceHashMap.get(process);
-            if(er != null){
-                return er.getBaseClassURI();
-            }else{
-                return "";
-            }
-        }else{
-            externalLogger.error("IMPOSSIBLE TO FIND BASE CLASS URI: "+value+" FOR ONTOLOGY: "+currentOntologyName);
-            return "";
-        }
-    }
 
     private boolean isValidMap(String value){
 
@@ -1058,20 +1198,23 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
     }
 
 
-    private String preClean(String searchString) {
+//    private String preClean(String searchString) {
+//
+//        String aux = searchString;
+//        int index1 = searchString.indexOf(":");        String aux3="";
+        String aux4="";
 
-        String aux = searchString;
-        int index1 = searchString.indexOf(":");
-        int index2 = searchString.lastIndexOf(":");
-        if (index2 > index1) {
-            aux = searchString.substring(index1 + 1, searchString.length());
-            //System.out.println("*************************************--->>>"+aux);
-
-        }
-
-        return mapExternalLink2(aux);
-
-    }
+        int count=0;
+//        int index2 = searchString.lastIndexOf(":");
+//        if (index2 > index1) {
+//            aux = searchString.substring(index1 + 1, searchString.length());
+//            //System.out.println("*************************************--->>>"+aux);
+//
+//        }
+//
+//        return mapExternalLink2(aux);
+//
+//    }
 
     /**
      * Method to generate the Manual Curation File
@@ -1080,17 +1223,25 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         loadOBOFoundryOntologies();
         loadIdentifiersOntologies();
+        CurationEntity ce = null;
+        String key="";
+
+
+        for (Map.Entry<String, CurationEntity> entry2 : externalTargetReferenceHashMap.entrySet()) {
+            key = entry2.getKey().toLowerCase();
+            ce = entry2.getValue();
+            externalLogger.info("ExternalLogger--> "+key+" "+ce.toString());
+        }
 
         stdoutLogger.info("Local portal verification initiated: "+Util.getDateTime());
 
-        CurationEntity ce = null;
-        String key="";
+
         String keyLocalPortal=null;
         String result=null;
         int status =0;
 
-        for (Map.Entry<String, CurationEntity> entry2 : externalTargetReferenceHashMap.entrySet()) {
-            key = entry2.getKey().toUpperCase();
+        for (Map.Entry<String, CurationEntity> entry2 : externalTargetReferenceHashMapOut.entrySet()) {
+            key = entry2.getKey().toLowerCase();
             ce = entry2.getValue();
 
             // Loockup for external references only if status = 0 (not curated)
@@ -1132,7 +1283,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                     ce.setComments("Founded on Agroportal or Bioportal");
                     ce.setDate(Util.getDateTime());
                     ce.setStatus(status);
-                    externalTargetReferenceHashMap.put(key.toLowerCase(), ce);
+                    externalTargetReferenceHashMapOut.put(key.toLowerCase(), ce);
                     //System.out.println(ce.toString());
 
                 } else {
@@ -1148,7 +1299,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                         ce.setComments("Founded on Agroportal or Bioportal");
                         ce.setDate(Util.getDateTime());
                         ce.setStatus(1);
-                        externalTargetReferenceHashMap.put(key, ce);
+                        externalTargetReferenceHashMapOut.put(key, ce);
                     } else {
 
                         //LOOKUP ON OBO FOUNDRY
@@ -1163,7 +1314,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                             ce.setComments("Founded on OBO Foundry");
                             ce.setDate(Util.getDateTime());
                             ce.setStatus(3);
-                            externalTargetReferenceHashMap.put(key, ce);
+                            externalTargetReferenceHashMapOut.put(key, ce);
                         } else {
 
                             // LOOKUP ON IDENTIFIERS.ORG
@@ -1181,7 +1332,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                                 ce.setComments("Founded on identifiers.org");
                                 ce.setDate(Util.getDateTime());
                                 ce.setStatus(4);
-                                externalTargetReferenceHashMap.put(key, ce);
+                                externalTargetReferenceHashMapOut.put(key, ce);
                             }
 
                         }
@@ -1203,7 +1354,22 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
 
         stdoutLogger.info("Generating phase1 Targets: "+Util.getDateTime());
         stdoutLogger.info("Sorting Targets by number of matches: "+Util.getDateTime());
-        externalTargetReferenceHashMap = SortMapByValue.sortByValues(externalTargetReferenceHashMap,SortMapByValue.DESC);
+
+
+        // transfer targets not on CURATED EXTERNAL REFERENCES to new XLS
+        for (Map.Entry<String, CurationEntity> entry1 : externalTargetReferenceHashMap.entrySet()) {
+            String key1 = entry1.getKey();
+            ce = externalTargetReferenceHashMapOut.get(key1);
+            if(ce==null){
+                ce = entry1.getValue();
+                externalTargetReferenceHashMapOut.put(key1,ce);
+                //System.out.println("ADD--->"+ce.toString());
+            }
+        }
+
+        externalTargetReferenceHashMap.clear();
+        externalTargetReferenceHashMap = SortMapByValue.sortByValues(externalTargetReferenceHashMapOut,SortMapByValue.DESC);
+
 
         //System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
 
@@ -1214,7 +1380,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
             String key2 = entry2.getKey();
             ce = entry2.getValue();
 
-            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+ce.getFoundedIn()+";"+ce.getExampleList()+";"+ce.getCounter()+";"+ce.getOntology()+";"+ce.getCuratedTarget()+";"+ce.getBaseClassURI()+";"+ce.getCuredtedBy()+";"+ce.getDate()+";"+ce.getComments()+";"+ce.getStatus()+";"+ce.getMappingProperty());
+            phase1Logger.info(""+(counter++)+";"+ce.getTargetFounded()+";"+(ce.getFoundedIn().replaceAll("#",""))+";"+ce.getExampleList()+";"+ce.getCounter()+";"+ce.getOntology()+";"+ce.getCuratedTarget()+";"+ce.getBaseClassURI()+";"+ce.getCuredtedBy()+";"+ce.getDate()+";"+ce.getComments()+";"+ce.getStatus()+";"+ce.getMappingProperty());
 
 
         }
@@ -1229,7 +1395,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      * @param command
      * @param files
      */
-    @Override
+
     public void parse(String command, ArrayList<String> files) {
 
 
@@ -1290,11 +1456,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 ManageProperties.setProperty("executionhistory", executionHistory + currentOntologyName.toUpperCase() + ";");
             } else {
                 errorLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
-                stdoutLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
+                //stdoutLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
             }
 
         }
-        if(externalTargetReferenceHashMap.size()>0){
+        if(externalTargetReferenceHashMapOut.size()>0){
             generatePhase1Targets();
         }
         System.out.println(Util.getDateTime() + " Finished processing.");
@@ -1307,7 +1473,7 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      * @param command
      * @param dir
      */
-    @Override
+
     public void parse(String command, String dir) {
 
         //System.out.println("External references size: "+externalReferenceHashMap.size());
@@ -1386,11 +1552,11 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                 appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
             } else {
                 errorLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
-                stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
+                //stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
             }
 
         }
-        if(externalTargetReferenceHashMap.size()>0){
+        if(externalTargetReferenceHashMapOut.size()>0){
             generatePhase1Targets();
         }
         System.out.println(Util.getDateTime() + " Finished processings.");
@@ -1402,66 +1568,61 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
      *
      * @param command
      * @param dir
-     * @param ontology
+     * @param onto
      */
-    @Override
-    public void parse(String command, String dir, String ontology) {
+    public void parse(String command, String dir, String[] onto) {
 
         //System.out.println("External references size: "+externalReferenceHashMap.size());
 
         String executionHistory = readExecutionHistory();
         this.command = command;
-        boolean founded = false;
         totalizationLogger.info(Util.getDateTime() + "------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
         totalizationLogger.info("DATE;SOURCE;SOURCE_ID;RELATION;TARGET;MATCHS_COUNT;");
-        System.out.println("Total of Ontologies founded: " + ontologies.size());
         summaryLogger.info(Util.getDateTime() + ";-----------------------------");
         summaryLogger.info("Ontology;Total Matches");
 
-        for (OntologyEntity ontologyEntity : ontologies) {
+        System.out.println("Total of Ontologies founded: " + ontologies.size());
+
+        for(int n=1;n<onto.length;n++) {
 
 
-            man = OWLManager.createOWLOntologyManager();
-            OWLOntology oA = null;
+            // run thru ontologies collection
+            for (OntologyEntity ontologyEntity : ontologies) {
 
-            // verify if this the desired ontology
-            if (ontologyEntity.getAcronym().equalsIgnoreCase(ontology)) {
-
-                // verify execution history to dice if maus be processes or not
-                if (executionHistory.indexOf(ontologyEntity.getAcronym().toUpperCase()) == -1) {
+                // verify execution history to dice if must be processes or not
+                if (executionHistory.indexOf(ontologyEntity.getAcronym().toUpperCase()) == -1 && ontologyEntity.getAcronym().toUpperCase().equalsIgnoreCase(onto[n])) {
 
 
+                    // verify if the ontology is summary only on the repository
                     if (ontologyEntity.getSummaryOnly() == null || ontologyEntity.getSummaryOnly().toString().equalsIgnoreCase("false")) {
 
-
-                        founded = true;
-
-                        externalLogger.info("******************************************External References for: " + ontology + " " + Util.getDateTime());
-
+                        man = OWLManager.createOWLOntologyManager();
+                        OWLOntology oA = null;
 
                         try {
                             currentOntologyName = ontologyEntity.getAcronym();
                             currentOntologyId = ontologyEntity.getId();
-                            System.out.println(Util.getDateTime() + " Processing: " + currentOntologyName);
-                            for (Contact contact : agroportalRestService.getLatestSubmission(command, currentOntologyName).getContact()) {
-                                ontologyContactEmail += contact.getEmail() + ",";
+                            externalLogger.info("******************************************External References for: " + currentOntologyName + " " + Util.getDateTime());
+
+                            System.out.println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
+                            List<Contact> contacts = agroportalRestService.getLatestSubmission(command, currentOntologyName).getContact();
+                            if (contacts != null) {
+                                for (Contact contact : contacts) {
+                                    ontologyContactEmail += contact.getEmail() + ",";
+                                }
+                                if (ontologyContactEmail.length() > 0) {
+                                    ontologyContactEmail = ontologyContactEmail.substring(0, ontologyContactEmail.length() - 1);
+                                }
+                            } else {
+                                ontologyContactEmail = "NO CONTACT INFO FOUNDED";
+                                errorLogger.error("No contact info founded on ontology submission for " + currentOntologyName);
                             }
-                            ontologyContactEmail = ontologyContactEmail.substring(0, ontologyContactEmail.length() - 1);
+
                             setupLogProperties(this.command, currentOntologyName, dir + File.separator);
                             downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                             findMatches();
                             totalizeMappings();
-
-//                try {
-//                    shouldUseReasoner();
-//                    shouldCreateAndReadAnnotations();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-
                             saveFile();
-
-
                             if (command.indexOf("j") > -1) {
                                 buildJson();
                             }
@@ -1472,37 +1633,32 @@ public class HarvestAllFormatsService extends BaseService implements HarvestServ
                             errorLogger.error("Error trying to download ontology from file" + e.getMessage());
                             saveFile();
                         }
+
+
+                        mappings = new HashMap<>();
+                        maps = new HashMap<>();
+                        totalMappings = new HashMap<>();
+                        deduplicationHash = new HashMap<>();
+                        sb = new StringBuffer("");
+                        sts = new StringBuffer("");
+                        totalMappings.clear();
+
                     } else {
                         errorLogger.error("Ontology: " + ontologyEntity.getAcronym() + " is summary only ! Processing skiped !");
                         externalLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " is summary only ! Processing skiped !");
                     }
-
-                }else {
+                    appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
+                } else {
                     errorLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
-                    stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
+                    //stdoutLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " Already processes on previous history, process skiped.");
                 }
 
-                mappings = new HashMap<>();
-                maps = new HashMap<>();
-                totalMappings = new HashMap<>();
-                deduplicationHash = new HashMap<>();
-                sb = new StringBuffer("");
-                sts = new StringBuffer("");
-                totalMappings.clear();
-
-                appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
             }
-
-
         }
-        if(externalTargetReferenceHashMap.size()>0){
+        if(externalTargetReferenceHashMapOut.size()>0){
             generatePhase1Targets();
         }
-        if (!founded) {
-            errorLogger.error("Error: ontology not founded: " + ontology);
-            System.out.println("Error: ontology not founded: " + ontology);
-        }
-        System.out.println(Util.getDateTime() + " Finished processing. ");
+        System.out.println(Util.getDateTime() + " Finished processings.");
     }
 
 

@@ -10,6 +10,7 @@ public class AnnotationAssertationEntity {
     private String ontologyConcept2;
     private String ontologyIdPortal;
     private String baseClassURI;
+    private String ontology2Curated;
 
 
     /**
@@ -19,6 +20,7 @@ public class AnnotationAssertationEntity {
         // on UNKNOW ONOLOGIES this is necessary due target list verification of null values
         this.ontologyConcept2="";
         this.ontologyIdPortal="";
+        this.ontology2Curated="";
     }
 
     public int getId() {
@@ -85,6 +87,18 @@ public class AnnotationAssertationEntity {
         this.baseClassURI = baseClassURI;
     }
 
+    public String getOntology2Curated() {
+        if(ontology2Curated.trim().length()==0){
+            return ontology2;
+        }else {
+            return ontology2Curated;
+        }
+    }
+
+    public void setOntology2Curated(String ontology2Curated) {
+        this.ontology2Curated = ontology2Curated;
+    }
+
     @Override
     public String toString() {
         return "AnnotationAssertationEntity{" +
@@ -95,6 +109,8 @@ public class AnnotationAssertationEntity {
                 ", ontologyConcept1='" + ontologyConcept1 + '\'' +
                 ", ontologyConcept2='" + ontologyConcept2 + '\'' +
                 ", ontologyIdPortal='" + ontologyIdPortal + '\'' +
+                ", baseClassURI='" + baseClassURI + '\'' +
+                ", ontology2Curated='" + ontology2Curated + '\'' +
                 '}';
     }
 

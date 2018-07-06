@@ -183,7 +183,7 @@ public class HarvestAllFormatsService extends BaseService  {
                                 }
 
                                 //CLII
-                                an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), annotationAssertionAxiom.getProperty().toString(), auxProperty, isIRI, ++countMatch);
+                                an = getAnnotationAssertationEntity(currentOntologyId, annotationAssertionAxiom.getSubject().toString(), annotationAssertionAxiom.getProperty().toString(), auxProperty, isIRI, ++countMatch);
 
                                 // Variation one
                                 addToDeduplicationHash(an,1);
@@ -211,7 +211,7 @@ public class HarvestAllFormatsService extends BaseService  {
                                         }
 
                                         //CLII
-                                        an = getAnnotationAssertationEntity(currentOntologyName, currentOntologyId, annotationAssertionAxiom.getSubject().toString(), aaa.getProperty().toString(), auxProperty, isIRI, ++countMatch);
+                                        an = getAnnotationAssertationEntity(currentOntologyId, annotationAssertionAxiom.getSubject().toString(), aaa.getProperty().toString(), auxProperty, isIRI, ++countMatch);
 
                                         // variation 2
                                         addToDeduplicationHash(an,2);
@@ -318,7 +318,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
                     if(ax.getAxiomType().toString().equalsIgnoreCase(MATCH[x])){
                         //System.out.println(ax.getAxiomWithoutAnnotations());
-                        an = getAnnotationAssertationEntity(ax.getAxiomWithoutAnnotations().toString(),currentOntologyName,MATCH[x],++countMatch);
+                        an = getAnnotationAssertationEntity(ax.getAxiomWithoutAnnotations().toString(),MATCH[x],++countMatch);
                         // variation 5
                         addToDeduplicationHash(an,5);
                     }
@@ -378,7 +378,7 @@ public class HarvestAllFormatsService extends BaseService  {
             MapIRI = an.getOntology2();
 
             if(MapIRI.trim().equalsIgnoreCase("")){
-                System.out.println(currentOntologyName+ "-->"+MapIRI+"<-->"+curationEntity.getFoundedIn());
+                System.out.println(currentOntologyName+ "-->"+MapIRI+"<-->"+curationEntity.getFoundedIn() + " an: "+an.toString());
             }
 
             if(MapIRI.trim().length()!=0) {
@@ -552,7 +552,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
             classes.put(an.getOntologyConcept1(), currentOntologyName);
             //classes.put(an.getOntologyConcept2(), (command.indexOf("n") > -1 ? "ncbo:" + an.getOntology2() : "agroportal:" + an.getOntology2()));
-            classes.put(an.getOntologyConcept2(), an.getOntology2());
+            classes.put(an.getOntologyConcept2(), an.getOntology2Curated());
 
 
             me.setClasses(classes);
@@ -652,40 +652,48 @@ public class HarvestAllFormatsService extends BaseService  {
 
         if (indexOf1 < indexOf2) {
 
-            aux2 = aux.substring(indexOf1 + 1, indexOf2);
+            aux2 = aux.substring(indexOf1 + 1, indexOf2).toLowerCase();
             //an.setAssertion(aux.substring(indexOf1+1,indexOf2-1));
             //System.out.println("ENTROUAQUI-->"+aux.substring(indexOf1+1,indexOf2-1));
             //aux2 = preClean(aux2);
 
             an.setOntology2(ret);
+            an.setOntology2Curated(ret);
 
             if(isValidMap(aux2)) {
 
                 if (aux2.indexOf("http") == 0 || aux2.indexOf("smtp") == 0 || aux2.indexOf("ftp") == 0) {
                     an.setOntology2(parseLinkReference(aux2));
+                    an.setOntology2Curated(an.getOntology2());
                     externalLogger.trace("CLI--HTTP--BEFORE: " + aux2);
                     externalLogger.trace("CLI--HTTP--AFTER : " + an.getOntology2());
                 } else if (aux2.indexOf(":") > 0 ) {
-                    an.setOntology2(mapExternalLink2(aux2.substring(0, aux2.indexOf(":"))));
+                    an.setOntology2(aux2.substring(0, aux2.indexOf(":")));
+                    an.setOntology2Curated(mapExternalLink2(aux2.substring(0, aux2.indexOf(":"))));
+
                     externalLogger.trace("CLI-:-BEFORE: " + aux2);
                     externalLogger.trace("CLI-:-AFTER : " + an.getOntology2());
                 } else if (aux2.indexOf("_") > 0 ) {
-                    an.setOntology2(mapExternalLink2(aux2.substring(0, aux2.indexOf("_"))));
+                    an.setOntology2(aux2.substring(0, aux2.indexOf("_")));
+                    an.setOntology2Curated(mapExternalLink2(aux2.substring(0, aux2.indexOf("_"))));
                     externalLogger.trace("CLI-_-BEFORE: " + aux2);
                     externalLogger.trace("CLI-_-AFTER : " + an.getOntology2());
                 } else if (aux2.indexOf("-") > 0 ) {
-                    an.setOntology2(mapExternalLink2(aux2.substring(0, aux2.indexOf("-"))));
+                    an.setOntology2(aux2.substring(0, aux2.indexOf("-")));
+                    an.setOntology2Curated(mapExternalLink2(aux2.substring(0, aux2.indexOf("-"))));
                     externalLogger.trace("CLI---BEFORE: " + aux2);
                     externalLogger.trace("CLI---AFTER : " + an.getOntology2());
                 } else {
                     // in case there is a OBO xREF with an empty content
                     if(aux2.trim().isEmpty()){
                         an.setOntology2("UNKNOW_ONTOLOGY");
+                        an.setOntology2Curated("UNKNOW_ONTOLOGY");
                         an.setBaseClassURI("EMPITY_CONCEPT");
                         externalLogger.trace("CLI-ELSE-BEFORE: " + aux2);
                         externalLogger.trace("CLI-ELSE-AFTER : " + an.getOntology2());
                     }else {
-                        an.setOntology2(mapExternalLink2(aux2));
+                        an.setOntology2(aux2);
+                        an.setOntology2Curated(mapExternalLink2(aux2));
                         an.setBaseClassURI(aux2);
                         externalLogger.trace("CLI-ELSE-BEFORE: " + aux2);
                         externalLogger.trace("CLI-ELSE-AFTER : " + an.getOntology2());
@@ -695,6 +703,7 @@ public class HarvestAllFormatsService extends BaseService  {
             }else{
                 externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux2+"<--");
                 an.setOntology2("UNKNOW_ONTOLOGY");
+                an.setOntology2Curated("UNKNOW_ONTOLOGY");
             }
             an.setOntologyConcept2(aux2);
 
@@ -704,6 +713,7 @@ public class HarvestAllFormatsService extends BaseService  {
             externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux2+"<--");
             an.setOntologyConcept2("UNMAPPED_MAPPING");
             an.setOntology2("UNKNOW_ONTOLOGY");
+            an.setOntology2Curated("UNKNOW_ONTOLOGY");
 
 
         }
@@ -716,7 +726,6 @@ public class HarvestAllFormatsService extends BaseService  {
     /**
      * Create AnnotationAssertationEntity for Classes Variation II
      *
-     * @param currentOntologyName
      * @param ontologyName
      * @param subject
      * @param property
@@ -725,18 +734,17 @@ public class HarvestAllFormatsService extends BaseService  {
      * @param id
      * @return
      */
-    public AnnotationAssertationEntity getAnnotationAssertationEntity(String currentOntologyName, String ontologyName, String subject, String property, String propertyValue, boolean isIRI, int id) {
+    public AnnotationAssertationEntity getAnnotationAssertationEntity(String ontologyName, String subject, String property, String propertyValue, boolean isIRI, int id) {
 
 
         AnnotationAssertationEntity an = new AnnotationAssertationEntity();
         an.setId(id);
 
-        String name = currentOntologyName;
         String aux = "";
         String ret = "";
         int count=0;
 
-        an.setOntology1(name);
+        an.setOntology1(currentOntologyName);
         an.setOntologyConcept1(subject.replace("\n", "").trim());
         an.setOntologyConcept2(propertyValue.replace("\n", "").trim());
         an.setAssertion(property.replace("<", "").replace(">", "").replace("\n", "").trim());
@@ -753,22 +761,27 @@ public class HarvestAllFormatsService extends BaseService  {
 
                 if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
                     an.setOntology2(parseLinkReference(aux));
+                    an.setOntology2Curated(an.getOntology2());
                     externalLogger.trace("CLII-IRI-HTTP-BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-HTTP-AFTER : "+an.getOntology2());
                 } else if (aux.indexOf(":") > 0) {
-                    an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
+                    an.setOntology2(aux.substring(0, aux.indexOf(":")));
+                    an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
                     externalLogger.trace("CLII-IRI-:--BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-:--AFTER : "+an.getOntology2());
                 } else if (aux.indexOf("_") > 0) {
-                    an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
+                    an.setOntology2(aux.substring(0, aux.indexOf("_")));
+                    an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
                     externalLogger.trace("CLII-IRI-_--BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-_--AFTER : "+an.getOntology2());
                 } else if (aux.indexOf("-") > 0) {
-                    an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
+                    an.setOntology2(aux.substring(0, aux.indexOf("-")));
+                    an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
                     externalLogger.trace("CLII-IRI----BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI----AFTER : "+an.getOntology2());
                 } else {
-                    an.setOntology2(mapExternalLink2(aux));
+                    an.setOntology2(aux);
+                    an.setOntology2Curated(mapExternalLink2(aux));
                     an.setBaseClassURI(aux);
                     externalLogger.trace("CLII-IRI-ELSE--BEFORE: "+aux);
                     externalLogger.trace("CLII-IRI-ELSE--AFTER : "+an.getOntology2());
@@ -776,6 +789,7 @@ public class HarvestAllFormatsService extends BaseService  {
             }else{
                 externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
                 an.setOntology2("UNKNOW_ONTOLOGY");
+                an.setOntology2Curated("UNKNOW_ONTOLOGY");
             }
 
         } else {
@@ -786,22 +800,27 @@ public class HarvestAllFormatsService extends BaseService  {
 
                 if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
                     an.setOntology2(parseLinkReference(aux));
+                    an.setOntology2Curated(an.getOntology2());
                     externalLogger.trace("CLII-NIRI-HTTP--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-HTTP--AFTER : "+an.getOntology2());
                 } else if (aux.indexOf(":") > 0) {
-                    an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
+                    an.setOntology2(aux.substring(0, aux.indexOf(":")));
+                    an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
                     externalLogger.trace("CLII-NIRI-:--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-:--AFTER : "+an.getOntology2());
                 } else if (aux.indexOf("_") > 0) {
-                    an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
+                    an.setOntology2(aux.substring(0, aux.indexOf("_")));
+                    an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
                     externalLogger.trace("CLII-NIRI-_--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-_--AFTER : "+an.getOntology2());
                 } else if (aux.indexOf("-") > 0) {
-                    an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
+                    an.setOntology2(aux.substring(0, aux.indexOf("-")));
+                    an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
                     externalLogger.trace("CLII-NIRI----BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI----AFTER : "+an.getOntology2());
                 } else {
-                    an.setOntology2(mapExternalLink2(aux));
+                    an.setOntology2(aux);
+                    an.setOntology2Curated(mapExternalLink2(aux));
                     an.setBaseClassURI(aux);
                     externalLogger.trace("CLII-NIRI-ELSE--BEFORE: "+aux);
                     externalLogger.trace("CLII-NIRI-ELSE--AFTER : "+an.getOntology2());
@@ -873,7 +892,8 @@ public class HarvestAllFormatsService extends BaseService  {
 
             an.setOntologyConcept1(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
 
-            an.setOntology1(an.getOntologyConcept1().substring(0, an.getOntologyConcept1().lastIndexOf("/")));
+            //TODO verificar depois
+            //an.setOntology1(an.getOntologyConcept1().substring(0, an.getOntologyConcept1().lastIndexOf("/")));
 
             aux = aux.substring(indexOf2 + 1).replace(" ", "").replace("\"", "");
 
@@ -902,11 +922,15 @@ public class HarvestAllFormatsService extends BaseService  {
                         externalLogger.trace("IDIII--SKOS--DURING2 CONCEPT: " + an.getOntologyConcept2());
                     }
                     // set ontology with the clean URI (if any).
-                    an.setOntology2(cleanSkosURI(mapExternalLink2(cleanSkossSintax(an.getOntologyConcept2()))));
+                    an.setOntology2(cleanSkosURI(cleanSkossSintax(an.getOntologyConcept2())));
+                    an.setOntology2Curated(cleanSkosURI(mapExternalLink2(cleanSkossSintax(an.getOntologyConcept2()))));
+
                     externalLogger.trace("IDIII--SKOS--AFTER ONTOLOGY: " + an.getOntology2());
                 }else{
                     externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
                     an.setOntology2("UNKNOW_ONTOLOGY");
+                    an.setOntology2Curated("UNKNOW_ONTOLOGY");
+
                 }
             } else {
 
@@ -918,22 +942,27 @@ public class HarvestAllFormatsService extends BaseService  {
 
                     if (aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
                         an.setOntology2(parseLinkReference(aux));
+                        an.setOntology2Curated(an.getOntology2());
                         externalLogger.trace("IDIII--HTTP--BEFORE: " + aux);
                         externalLogger.trace("IDIII--HTTP--AFTER : " + an.getOntology2());
                     } else if (aux.indexOf(":") > 0) {
-                        an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
+                        an.setOntology2(aux.substring(0, aux.indexOf(":")));
+                        an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf(":"))));
                         externalLogger.trace("IDIII--:--BEFORE: " + aux);
                         externalLogger.trace("IDIII--:--AFTER : " + an.getOntology2());
                     } else if (aux.indexOf("_") > 0) {
-                        an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
+                        an.setOntology2(aux.substring(0, aux.indexOf("_")));
+                        an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf("_"))));
                         externalLogger.trace("IDIII--_--BEFORE: " + aux);
                         externalLogger.trace("IDIII--_--AFTER : " + an.getOntology2());
                     } else if (aux.indexOf("-") > 0) {
-                        an.setOntology2(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
+                        an.setOntology2(aux.substring(0, aux.indexOf("-")));
+                        an.setOntology2Curated(mapExternalLink2(aux.substring(0, aux.indexOf("-"))));
                         externalLogger.trace("IDIII-----BEFORE: " + aux);
                         externalLogger.trace("IDIII-----AFTER : " + an.getOntology2());
                     } else {
-                        an.setOntology2(mapExternalLink2(aux));
+                        an.setOntology2(aux);
+                        an.setOntology2Curated(mapExternalLink2(aux));
                         an.setBaseClassURI(aux);
                         externalLogger.trace("IDIII--ELSE--BEFORE: " + aux);
                         externalLogger.trace("IDIII--ELSE--AFTER : " + an.getOntology2());
@@ -941,6 +970,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 }else{
                     externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
                     an.setOntology2("UNKNOW_ONTOLOGY");
+                    an.setOntology2Curated("UNKNOW_ONTOLOGY");
                 }
 
                 // TODO check if we could take out the referrence for the type of the literal.
@@ -955,12 +985,11 @@ public class HarvestAllFormatsService extends BaseService  {
     /**
      * Special case for SameIndividual Realtion (Exemple founde on PO2 ontology in the xrdf format
      * @param anot
-     * @param ontologyName
      * @param assertion
      * @param id
      * @return
      */
-    public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot, String ontologyName, String assertion, int id){
+    public AnnotationAssertationEntity getAnnotationAssertationEntity(String anot,  String assertion, int id){
 
         String aux = anot.replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","");
 
@@ -972,7 +1001,7 @@ public class HarvestAllFormatsService extends BaseService  {
         AnnotationAssertationEntity an = new AnnotationAssertationEntity();
         an.setId(id);
         an.setAssertion(assertion);
-        an.setOntology1(ontologyName);
+        an.setOntology1(currentOntologyName);
 
         if (aux.length() > 6) {
 
@@ -1007,11 +1036,13 @@ public class HarvestAllFormatsService extends BaseService  {
             if(aux.indexOf("http") == 0 || aux.indexOf("smtp") == 0 || aux.indexOf("ftp") == 0) {
 
                an.setOntology2(cleanSkosURI(aux.substring(0,aux.lastIndexOf("/"))));
+                an.setOntology2Curated(cleanSkosURI(aux.substring(0,aux.lastIndexOf("/"))));
                externalLogger.trace("IDIV--OWL--AFTER CONCEPT: " + an.getOntologyConcept2());
 
             }else{
                 externalLogger.error("UNKNOW_ONTOLOGY: -->"+aux+"<--");
                 an.setOntology2("UNKNOW_ONTOLOGY");
+                an.setOntology2Curated("UNKNOW_ONTOLOGY");
             }
 
 
@@ -1159,13 +1190,20 @@ public class HarvestAllFormatsService extends BaseService  {
         String process;
         CurationEntity er;
 
+        //System.out.println("Tamanho do hash external references: "+externalTargetReferenceHashMap.size());
+
         if(value !=null ){
             process = value.replaceAll("\n","").trim().toLowerCase();
             er = externalTargetReferenceHashMap.get(process);
             externalLogger.info("SEARCH_CURATION--> "+process);
             if(er != null){
                 externalLogger.info("CURATION: "+ currentOntologyName+"- process--> "+process+ " curated: "+er.getCuratedTarget());
-                return er.getCuratedTarget();
+                if(er.getStatus()>0){
+                    return er.getCuratedTarget();
+                }else{
+                    return process;
+                }
+
             }else{
                     return process;
             }
@@ -1179,6 +1217,9 @@ public class HarvestAllFormatsService extends BaseService  {
 
     private boolean isValidMap(String value){
 
+        int length = value.length();
+        int count = value.replaceAll(" ","").length();
+
         if(value.indexOf("http")!=0 && value.indexOf("smtp")!=0 && value.indexOf("ftp")!=0) {
 
             // this verify if the string begin with: abcdf:SOMETHING  It will not match if it is an AAAA://SOMETHING
@@ -1188,6 +1229,10 @@ public class HarvestAllFormatsService extends BaseService  {
 
                     if (value.matches("(.*" + INVALIDCHARACTERS[i + 1] + ".*){" + INVALIDCHARACTERS[i] + ",}")) {
                         externalLogger.warn("INVALID CONCEPT FOUNDED - Ontology: " + currentOntologyName + " Concept: " + value);
+                        return false;
+                    }
+
+                    if(length-count>=3){
                         return false;
                     }
                 }
@@ -1202,9 +1247,9 @@ public class HarvestAllFormatsService extends BaseService  {
 //
 //        String aux = searchString;
 //        int index1 = searchString.indexOf(":");        String aux3="";
-        String aux4="";
-
-        int count=0;
+//        String aux4="";
+//
+//        int count=0;
 //        int index2 = searchString.lastIndexOf(":");
 //        if (index2 > index1) {
 //            aux = searchString.substring(index1 + 1, searchString.length());
@@ -1621,6 +1666,7 @@ public class HarvestAllFormatsService extends BaseService  {
                             setupLogProperties(this.command, currentOntologyName, dir + File.separator);
                             downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                             findMatches();
+                            //System.out.println("Tamanho dedplicated: "+deduplicationHash.size());
                             totalizeMappings();
                             saveFile();
                             if (command.indexOf("j") > -1) {

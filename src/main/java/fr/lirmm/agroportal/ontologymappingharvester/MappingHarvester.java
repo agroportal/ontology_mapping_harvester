@@ -19,7 +19,7 @@ public class MappingHarvester {
 
         System.out.println();
         System.out.println("-------------------------------------------------------------------------------------");
-        System.out.println("Ontology Mapping Harvest Tool - v.1.0 - Agroportal Project - LIRMM - Montpellier - FR");
+        System.out.println("Ontology Mapping Harvest Tool - v.1.3 - Agroportal Project - LIRMM - Montpellier - FR");
         System.out.println("-------------------------------------------------------------------------------------");
         System.out.println();
 

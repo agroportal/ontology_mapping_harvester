@@ -205,6 +205,7 @@ public class CurationEntity implements Comparable {
                 ", foundedIn='" + foundedIn + '\'' +
                 ", exampleList='" + exampleList + '\'' +
                 ", counter=" + counter +
+                ", ontology='" + ontology + '\'' +
                 ", curatedTarget='" + curatedTarget + '\'' +
                 ", baseClassURI='" + baseClassURI + '\'' +
                 ", curedtedBy='" + curedtedBy + '\'' +
@@ -213,5 +214,21 @@ public class CurationEntity implements Comparable {
                 ", status=" + status +
                 ", mappingProperty='" + mappingProperty + '\'' +
                 '}';
+    }
+
+    public String getSerializedLine() {
+        return  number + ';' +
+                targetFounded + ';' +
+                foundedIn + ';' +
+                exampleList + ';' +
+                counter + ';' +
+                ontology + ';' +
+                curatedTarget + ';' +
+                baseClassURI + ';' +
+                curedtedBy + ';' +
+                date + ';' +
+                comments + ';' +
+                status + ';' +
+                mappingProperty;
     }
 }

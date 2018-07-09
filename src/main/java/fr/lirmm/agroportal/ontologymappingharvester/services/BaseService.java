@@ -195,7 +195,7 @@ public class BaseService {
         if(command.indexOf("j")>-1) {
 
             String path = fileIN.getAbsolutePath();
-            String extension=".json.";
+            String extension=".json";
             Path p = Paths.get(path);
             String fileName = p.getFileName().toString().substring(0,p.getFileName().toString().indexOf("."));
             String directory = p.getParent().toString();
@@ -492,7 +492,13 @@ public class BaseService {
         int status=0;
         String dir = ManageProperties.loadPropertyValue("externalproperties");
 
+        //System.out.println(dir);
+        //System.out.println(dir+File.separator+"OMHT_external_matches_phase_1.cfg");
+
         try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"OMHT_external_matches_phase_1.cfg"))) {
+
+            //System.out.println("Entrou qui....");
+
             String line = br.readLine();
             String[] content = new String[12];
             CurationEntity er;
@@ -510,6 +516,9 @@ public class BaseService {
                 }
                 //System.out.println("-->"+line+"<--");
                 er = new CurationEntity(content[0],content[1],content[2],content[3],0,content[5],content[6],content[7],content[8],content[9],content[10],Integer.parseInt(content[11]),property);
+
+                //System.out.println("CURATED_TARGETS: "+content[0]+" - "+content[1]+" - "+content[2]+" - "+content[3]+" - "+"0"+" - "+content[5]+" - "+content[6]+" - "+content[7]+" - "+content[8]+" - "+content[9]+" - "+content[10]+" - "+content[11]+" - "+property);
+
                 if(er.getStatus()>0){
                     er.setCounter(Integer.parseInt(content[4]));
                 }
@@ -617,6 +626,7 @@ public class BaseService {
 
         Submission submission = null;
 
+        System.out.println("Load and process ontology metadata...");
 
         List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
 

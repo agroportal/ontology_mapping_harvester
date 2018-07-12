@@ -1,9 +1,6 @@
 package fr.lirmm.agroportal.ontologymappingharvester;
 
-import fr.lirmm.agroportal.ontologymappingharvester.services.GenerateJSService;
-import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
-import fr.lirmm.agroportal.ontologymappingharvester.services.ValidadeTargetReferenceService;
-import fr.lirmm.agroportal.ontologymappingharvester.services.ValidateIRIService;
+import fr.lirmm.agroportal.ontologymappingharvester.services.*;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 
 import java.util.ArrayList;
@@ -33,7 +30,7 @@ public class MappingHarvester {
 
         }else{
 
-            command = args[0].replace("-","");
+            command = args[0].replaceAll("-","");
             if(args.length==0){
                 if(command.indexOf("-")==-1){
                     System.out.println();
@@ -93,6 +90,18 @@ public class MappingHarvester {
 
                 System.out.println("New output folder associated to this script is "+args[1]);
 
+            }else if(command.indexOf("aas")>-1){
+
+                ManageProperties.setProperty("stageagroportaladdress",args[1]);
+
+                System.out.println("New address to STAGEAGROPORTAL: "+args[1]);
+
+            }else if(command.indexOf("abs")>-1){
+
+                ManageProperties.setProperty("stagebioportaladdress",args[1]);
+
+                System.out.println("New address to STAGEBIOPORTAL: "+args[1]);
+
             }else if(command.indexOf("aa")>-1){
 
                 ManageProperties.setProperty("agroportaladdress",args[1]);
@@ -105,7 +114,22 @@ public class MappingHarvester {
 
                 System.out.println("New address to BIOPORTAL: "+args[1]);
 
-            }else {
+            }else if(command.indexOf("rest")>-1){
+
+                MappingsRestService mrs = new MappingsRestService();
+
+                if(args[1].equalsIgnoreCase("post")){
+
+                    mrs.postMappings(args);
+
+                }else if(args[1].equalsIgnoreCase("patch")){
+
+                }else if(args[1].equalsIgnoreCase("delete")){
+
+                }
+
+
+            }else{
 
 
 
@@ -164,6 +188,9 @@ public class MappingHarvester {
         System.out.println("-f Setup output folder");
         System.out.println("-aa Setup AGROPORTAL API ADDRESS");
         System.out.println("-ab Setup BIOPORTAL API ADDRESS");
+        System.out.println("-aas Setup STAGE AGROPORTAL API ADDRESS");
+        System.out.println("-abs Setup STAGE BIOPORTAL API ADDRESS");
+        System.out.println("-rest [post,patch,delete] ONTOLOGY_ACRONYMS_LIST to manage matches on Agroportal");
         System.out.println("-c Clean execution history for the current script execution");
         System.out.println("Examples of usage:");
         System.out.println("/.MappingHarvest -jlsp path1/onto1.ref path2/onto2.ref pathn/onto3.ref");

@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.network;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
@@ -180,6 +181,35 @@ public class AgroportalRestService {
         //System.out.println("Size: "+ontologies.size());
 
         return identifiers;
+
+    }
+
+
+    public String postMappings(MappingEntity me){
+
+        String link=ManageProperties.loadPropertyValue("stageagroportaladdress");
+        String key=ManageProperties.loadPropertyValue("apikeystageportal");
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgroportalService service = retrofit.create(AgroportalService.class);
+
+        Call<String> postMapping = service.postMapping(me,key);
+
+        String result = "";
+
+        try {
+            result = postMapping.execute().body();
+
+        } catch (Exception e) {
+            System.out.println("Erro: "+e.getMessage()+"POST");
+            logger.error("Error: "+ e.getStackTrace());
+        }
+
+        return result;
 
     }
 

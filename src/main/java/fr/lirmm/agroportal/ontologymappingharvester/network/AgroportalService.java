@@ -2,10 +2,12 @@ package fr.lirmm.agroportal.ontologymappingharvester.network;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identifier;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -27,5 +29,8 @@ public interface AgroportalService {
 
     @GET("/rest/collections")
     Call<List<Identifier>> getIdentifiers();
+
+    @POST("/mappings")
+    Call<String> postMapping(MappingEntity me, @Query("apikey") String apiKey);
 
 }

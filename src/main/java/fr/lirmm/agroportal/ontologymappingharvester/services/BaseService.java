@@ -88,6 +88,7 @@ public class BaseService {
     String currentOntologyId;
 
     String ontologyContactEmail;
+    public boolean printToConsole;
 
 
     /**
@@ -95,6 +96,7 @@ public class BaseService {
      */
     public BaseService(){
 
+        printToConsole=false;
         man = OWLManager.createOWLOntologyManager();
         OWLOntology oA = null;
         totalAnnotationAssertationEntities=0;
@@ -153,13 +155,13 @@ public class BaseService {
             } catch (OWLOntologyCreationException e) {
                 e.printStackTrace();
             }
-//            System.out.println(oA);
+//            println(oA);
 //            oA.logicalAxioms().forEach(System.out::println);
 
 
             //OWLDocumentFormat format = oA.getNonnullFormat();
 
-            //System.out.println("ONTOLOGY FORMAT:" + format.getKey());
+            //println("ONTOLOGY FORMAT:" + format.getKey());
 
 
             stdoutLogger.info("ONTOLOGY:" + oA.toString());
@@ -167,18 +169,18 @@ public class BaseService {
             ontologyID = oA.getOntologyID();
 
 //            if (ontologyID != null) {
-//                System.out.println("ID :" + ontologyID.toString());
+//                println("ID :" + ontologyID.toString());
 //                //Optional<IRI> ontologyIRI = ontologyID.getOntologyIRI();
 //                if (ontologyIRI.isPresent()) {
-//                    System.out.println("ONTOLOGYIRI :" + ontologyIRI.toString());
+//                    println("ONTOLOGYIRI :" + ontologyIRI.toString());
 //                } else {
-//                    System.out.println("Sem IRI");
+//                    println("Sem IRI");
 //                }
 //            } else {
-//                System.out.println("Sem ID");
+//                println("Sem ID");
 //            }
         }else{
-            System.out.println("No file selected !!!");
+            println("No file selected !!!");
         }
         return true;
 
@@ -207,7 +209,7 @@ public class BaseService {
             }
 
             File f = new File(directory + File.separator + fileName + extension);
-            //System.out.println("file   ->"+f);
+            //println("file   ->"+f);
             stdoutLogger.info("Writing JSON file: " + f.getAbsolutePath());
 
             try {
@@ -452,12 +454,12 @@ public class BaseService {
 
             for (OWLOntology o : oA.getImportsClosure()) {
 
-                //System.out.println("AnnotationAssetationAxioms: "+o.getAnnotationAssertionAxioms(cls.getIRI()));
+                //println("AnnotationAssetationAxioms: "+o.getAnnotationAssertionAxioms(cls.getIRI()));
 
                 //annotationObjects(o.getAnnotationAssertionAxioms(cls.getIRI()),label)
 
                 for (OWLAnnotationAssertionAxiom annotationAssertionAxiom : o.getAnnotationAssertionAxioms(cls.getIRI())) {
-                    //System.out.println("Entrou no if do assetation");
+                    //println("Entrou no if do assetation");
 
                     stdoutLogger.info("=======================");
                     stdoutLogger.info("AnnotationAssertationAxiom: "+annotationAssertionAxiom);
@@ -468,7 +470,7 @@ public class BaseService {
 
 
                     if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
-                        //System.out.println("Entrou no if do annotation get value");
+                        //println("Entrou no if do annotation get value");
                         OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
                         //if (val.hasLang("en")) {
                         stdoutLogger.info("PropertyValue: " +
@@ -492,12 +494,12 @@ public class BaseService {
         int status=0;
         String dir = ManageProperties.loadPropertyValue("externalproperties");
 
-        //System.out.println(dir);
-        //System.out.println(dir+File.separator+"OMHT_external_matches_phase_1.cfg");
+        //println(dir);
+        //println(dir+File.separator+"OMHT_external_matches_phase_1.cfg");
 
         try(BufferedReader br = new BufferedReader(new FileReader(dir+File.separator+"OMHT_external_matches_phase_1.cfg"))) {
 
-            //System.out.println("Entrou qui....");
+            //println("Entrou qui....");
 
             String line = br.readLine();
             String[] content = new String[12];
@@ -514,10 +516,10 @@ public class BaseService {
                 }else{
                     property = content[12];
                 }
-                //System.out.println("-->"+line+"<--");
+                //println("-->"+line+"<--");
                 er = new CurationEntity(content[0],content[1],content[2],content[3],0,content[5],content[6],content[7],content[8],content[9],content[10],Integer.parseInt(content[11]),property);
 
-                //System.out.println("CURATED_TARGETS: "+content[0]+" - "+content[1]+" - "+content[2]+" - "+content[3]+" - "+"0"+" - "+content[5]+" - "+content[6]+" - "+content[7]+" - "+content[8]+" - "+content[9]+" - "+content[10]+" - "+content[11]+" - "+property);
+                //println("CURATED_TARGETS: "+content[0]+" - "+content[1]+" - "+content[2]+" - "+content[3]+" - "+"0"+" - "+content[5]+" - "+content[6]+" - "+content[7]+" - "+content[8]+" - "+content[9]+" - "+content[10]+" - "+content[11]+" - "+property);
 
                 if(er.getStatus()>0){
                     er.setCounter(Integer.parseInt(content[4]));
@@ -530,7 +532,7 @@ public class BaseService {
         } catch (IOException e) {
             errorLogger.error("Error trying to load external target references txt file located in: "+dir+" message:"+e.getMessage());
         }
-        System.out.println("External target curated references loaded: "+externalTargetReferenceHashMap.size()+" valid targets");
+        println("External target curated references loaded: "+externalTargetReferenceHashMap.size()+" valid targets");
     }
 
 
@@ -626,14 +628,14 @@ public class BaseService {
 
         Submission submission = null;
 
-        System.out.println("Load and process ontology metadata...");
+        println("Load and process ontology metadata...");
 
         List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
 
         if(ontologiesAgro==null || ontologiesAgro.size()==0){
             errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
             stdoutLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
-            System.out.println("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
+            println("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
             System.exit(0);
         }
 
@@ -655,7 +657,7 @@ public class BaseService {
         if(ontologiesBio==null || ontologiesBio.size()==0){
             errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
             stdoutLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
-            System.out.println("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
+            println("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
             System.exit(0);
         }
 
@@ -693,7 +695,7 @@ public class BaseService {
             Gson gson = new GsonBuilder().create();
             mappingE = gson.fromJson(everything, MappingEntity[].class);
 
-            System.out.println("Tamanho: "+mappingE.length);
+            println("Tamanho: "+mappingE.length);
 
 
         } catch (IOException e) {
@@ -840,7 +842,7 @@ public class BaseService {
 
         for(Ontology ont: out.getOntologies()){
             if(!ont.isObsolete()){
-                //System.out.println("-->"+ont.getId()+" "+ont.getOntologyPurl());
+                //println("-->"+ont.getId()+" "+ont.getOntologyPurl());
                 oboOntologies.put(ont.getId(),ont.getOntologyPurl());
             }
         }
@@ -871,6 +873,17 @@ public class BaseService {
             identifiersList.add(new IdentifierEntity(prefix,synonmyms,url));
         }
 
+    }
+    
+    
+    public void println(String value){
+        if(printToConsole){
+            System.out.println(value);
+        }
+    }
+    
+    public void setPrintToConsole(boolean value){
+        this.printToConsole=value;
     }
 
 

@@ -50,7 +50,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
         try {
 
-            //System.out.println("FileName: "+fileName);
+            //println("FileName: "+fileName);
             currentOntologyName = fileName.substring(fileName.lastIndexOf(File.separator) + 1, fileName.lastIndexOf(".")).toUpperCase();
 
             fileIN = new File(fileName);
@@ -77,13 +77,13 @@ public class HarvestAllFormatsService extends BaseService  {
      */
     public void downloadOntology(String acronym, String address, String dir) throws OWLOntologyCreationException {
 
-        //System.out.println("Acro   : "+acronym);
-        //System.out.println("Address: "+address);
-        //System.out.println("Dir    : "+dir);
+        //println("Acro   : "+acronym);
+        //println("Address: "+address);
+        //println("Dir    : "+dir);
 
         fileIN = new File(dir + File.separator + acronym.toUpperCase() + ".xrdf");
 
-        //System.out.println("FileIn    : "+fileIN);
+        //println("FileIn    : "+fileIN);
         // Agroportal DEMO KEY
 
         String apiKey = ManageProperties.loadPropertyValue("apikey");
@@ -122,7 +122,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
 
         for (OWLClass c : oA.getClassesInSignature()) {
-            //System.out.println(c.toString());
+            //println(c.toString());
             countClasses++;
         }
         stdoutLogger.info("Total of Classes: " + countClasses);
@@ -137,26 +137,26 @@ public class HarvestAllFormatsService extends BaseService  {
             for (OWLClass cls : oA.getClassesInSignature()) {
                 // Get the annotations on the class that use the label property
 
-//                System.out.println("------------------------------------------------------------------------");
-//                System.out.println("Classes: "+cls.getClassesInSignature());
-//                System.out.println("------------------------------------------");
+//                println("------------------------------------------------------------------------");
+//                println("Classes: "+cls.getClassesInSignature());
+//                println("------------------------------------------");
 
                 for (OWLOntology o : oA.getImportsClosure()) {
 
 
-                    //System.out.println("AnnotationAssetationAxioms: "+o.getAnnotationAssertionAxioms(cls.getIRI()));
+                    //println("AnnotationAssetationAxioms: "+o.getAnnotationAssertionAxioms(cls.getIRI()));
 
                     //annotationObjects(o.getAnnotationAssertionAxioms(cls.getIRI()),label)
 
                     for (OWLAnnotationAssertionAxiom annotationAssertionAxiom : o.getAnnotationAssertionAxioms(cls.getIRI())) {
-                        //System.out.println("Entrou no if do assetation");
+                        //println("Entrou no if do assetation");
 
                         aux = annotationAssertionAxiom.toString();
 
-                        //System.out.println(annotationAssertionAxiom.getProperty().toString());
-//                        System.out.println("Subject : " + annotationAssertionAxiom.getSubject());
-//                        System.out.println("Property: " + annotationAssertionAxiom.getProperty());
-//                        System.out.println("Value   : " + annotationAssertionAxiom.getValue());
+                        //println(annotationAssertionAxiom.getProperty().toString());
+//                        println("Subject : " + annotationAssertionAxiom.getSubject());
+//                        println("Property: " + annotationAssertionAxiom.getProperty());
+//                        println("Value   : " + annotationAssertionAxiom.getValue());
 
                         if (aux.indexOf(MATCH[x]) > -1) {
 
@@ -168,7 +168,7 @@ public class HarvestAllFormatsService extends BaseService  {
                             if(annotationAssertionAxiom.getProperty().toString().equalsIgnoreCase("owl:sameas")){
 
                                 if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
-                                    //System.out.println("Entrou no if do annotation get value");
+                                    //println("Entrou no if do annotation get value");
                                     OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
                                     //if (val.hasLang("en")) {
                                     stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
@@ -196,7 +196,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
                                     if (aaa.getProperty().toString().indexOf(MATCH[x]) > -1) {
                                         if (aaa.getValue() instanceof OWLLiteral) {
-                                            //System.out.println("Entrou no if do annotation get value");
+                                            //println("Entrou no if do annotation get value");
                                             OWLLiteral val = (OWLLiteral) aaa.getValue();
                                             //if (val.hasLang("en")) {
                                             stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
@@ -230,7 +230,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
 
                 }
-                //System.out.println("----------------------------------------------------------------------");
+                //println("----------------------------------------------------------------------");
             }
 
             // INDIVIDUALS
@@ -247,7 +247,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
                 Set<? extends OWLAxiom> axioms = oA.getAxioms(ind);
 //                for (OWLAxiom ax : axioms) {
-//                    System.out.println("Axiom " + ax);
+//                    println("Axiom " + ax);
 //                }
                 axioms = oA.getAnnotationAssertionAxioms(ind.getIRI());
 
@@ -256,10 +256,10 @@ public class HarvestAllFormatsService extends BaseService  {
 
                 for (OWLAxiom ax : axioms) {
 
-                    //System.out.println("Axiom " + ax);
+                    //println("Axiom " + ax);
 
-                    //System.out.println("*** INDIVIDUAL AXIOMS *** of Individual: "+ind.getIRI());
-                    //System.out.println("*** INDIVIDUAL AXIOMS :  "+ax);
+                    //println("*** INDIVIDUAL AXIOMS *** of Individual: "+ind.getIRI());
+                    //println("*** INDIVIDUAL AXIOMS :  "+ax);
 
 
                     for (OWLAnnotation owlAnnotation : ax.getAnnotations()) {
@@ -271,13 +271,13 @@ public class HarvestAllFormatsService extends BaseService  {
 
                         if (owlAnnotation.toString().indexOf(MATCH[x]) > -1) {
 
-                            //System.out.println("===IND1: "+ind.toString());
+                            //println("===IND1: "+ind.toString());
 
-                            //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX --->");
+                            //println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX --->");
 
                             // CLI
                             an = getAnnotationAssertationEntity(owlAnnotation, ind.getIRI(), MATCH[x], ++countMatch);
-                            //System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX <---");
+                            //println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX <---");
 
                             // variation 3
                             addToDeduplicationHash(an,3);
@@ -292,7 +292,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
                             //printAndAppend("Assertation: " + ax.getAnnotationPropertiesInSignature());
 
-                            //System.out.println("===IND2: "+ind.toString());
+                            //println("===IND2: "+ind.toString());
 
                             //SKOS
                             an = getAnnotationAssertationEntity(ax.toString(), ind.getIRI(), MATCH[x], ++countMatch);
@@ -317,7 +317,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 for (OWLAxiom ax : axioms2) {
 
                     if(ax.getAxiomType().toString().equalsIgnoreCase(MATCH[x])){
-                        //System.out.println(ax.getAxiomWithoutAnnotations());
+                        //println(ax.getAxiomWithoutAnnotations());
                         an = getAnnotationAssertationEntity(ax.getAxiomWithoutAnnotations().toString(),MATCH[x],++countMatch);
                         // variation 5
                         addToDeduplicationHash(an,5);
@@ -332,12 +332,12 @@ public class HarvestAllFormatsService extends BaseService  {
 
 //                axioms = oA.getDataPropertyAssertionAxioms(ind);
 //                for (OWLAxiom ax : axioms) {
-//                    System.out.println("Data Property Assertion Axiom " + ax);
+//                    println("Data Property Assertion Axiom " + ax);
 //
 //                }
 //                axioms = oA.getObjectPropertyAssertionAxioms(ind);
 //                for (OWLAxiom ax : axioms) {
-//                    System.out.println("Object Property Assertion Axiom " + ax);
+//                    println("Object Property Assertion Axiom " + ax);
 //                }
 
                 if (countIndividualsFlag) {
@@ -378,7 +378,7 @@ public class HarvestAllFormatsService extends BaseService  {
             MapIRI = an.getOntology2();
 
             if(MapIRI.trim().equalsIgnoreCase("")){
-                System.out.println(currentOntologyName+ "-->"+MapIRI+"<-->"+curationEntity.getFoundedIn() + " an: "+an.toString());
+                println(currentOntologyName+ "-->"+MapIRI+"<-->"+curationEntity.getFoundedIn() + " an: "+an.toString());
             }
 
             if(MapIRI.trim().length()!=0) {
@@ -471,7 +471,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 for (Map.Entry<String, Integer> entry2 : maps.entrySet()) {
                     String key2 = entry2.getKey();
                     Integer value2 = entry2.getValue();
-                    //System.out.println("Key2-->"+key2+"<--");
+                    //println("Key2-->"+key2+"<--");
                     info = key2.split(";");
                     stdoutLogger.info("Sub Total Match: " + info[0] + " Ontology: "+info[1]+" --> " + value2);
                     stdoutLogger.info("----------------------------------------------------------");
@@ -614,7 +614,7 @@ public class HarvestAllFormatsService extends BaseService  {
         List<File> files = (List<File>) FileUtils.listFiles(dir, extensions, true);
         ArrayList<String> lista = new ArrayList<>();
         for (File file : files) {
-            //System.out.println("File: "+file);
+            //println("File: "+file);
             lista.add(file.toString());
         }
 
@@ -654,7 +654,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
             aux2 = aux.substring(indexOf1 + 1, indexOf2).toLowerCase();
             //an.setAssertion(aux.substring(indexOf1+1,indexOf2-1));
-            //System.out.println("ENTROUAQUI-->"+aux.substring(indexOf1+1,indexOf2-1));
+            //println("ENTROUAQUI-->"+aux.substring(indexOf1+1,indexOf2-1));
             //aux2 = preClean(aux2);
 
             an.setOntology2(ret);
@@ -852,7 +852,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
         // TODO check the cleanup of the literal type ^^xsd:string)
 
-        //System.out.println("ANTES->"+anot.toString());
+        //println("ANTES->"+anot.toString());
 
         String aux = anot.toString().replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","");
 
@@ -880,7 +880,7 @@ public class HarvestAllFormatsService extends BaseService  {
             an.setAssertion(aux.substring(indexOf1, indexOf2 + 1).replace("<", "").replace(">", ""));
             aux = aux.substring(indexOf2 + 1);
 
-            //System.out.println(aux);
+            //println(aux);
             indexOf1 = aux.indexOf("<");
             indexOf2 = aux.indexOf(">");
 
@@ -897,9 +897,9 @@ public class HarvestAllFormatsService extends BaseService  {
 
             aux = aux.substring(indexOf2 + 1).replace(" ", "").replace("\"", "");
 
-            //System.out.println("DEPOS->"+aux);
+            //println("DEPOS->"+aux);
             count = aux.length() - aux.replace(" ","").length();
-            //System.out.println(aux);
+            //println(aux);
             indexOf1 = aux.indexOf("<");
             indexOf2 = aux.indexOf(">");
 
@@ -1010,7 +1010,7 @@ public class HarvestAllFormatsService extends BaseService  {
             an.setOntologyConcept2(aux.substring(indexOf1+1, indexOf2));
             aux = aux.substring(indexOf2 + 1);
 
-            //System.out.println(aux);
+            //println(aux);
             indexOf1 = aux.indexOf("<");
             indexOf2 = aux.indexOf(">");
 
@@ -1049,7 +1049,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
         }
 
-        //System.out.println(an.toString());
+        //println(an.toString());
 
 
 
@@ -1090,15 +1090,15 @@ public class HarvestAllFormatsService extends BaseService  {
         String aux2="";
         if(value.lastIndexOf("/")>-1){
             aux1 = value.substring(0,value.lastIndexOf("/"));
-            //System.out.println("Aux1: "+aux1);
+            //println("Aux1: "+aux1);
             if(aux1.length()<value.length()){
                 aux2 = value.substring(value.lastIndexOf("/")+1,value.length());
-                //System.out.println("Aux2: "+aux1);
+                //println("Aux2: "+aux1);
                 if(aux1.equalsIgnoreCase("http://purl.obolibrary.org/obo") && isConcept(aux2)){
-                    //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
+                    //println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
                     return aux1+"/"+(aux2.substring(0,getSeparator(aux2)));
                 }else if(aux1.equalsIgnoreCase("http://purl.bioontology.org/ontology") && isConcept(aux2)){
-                    //System.out.println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
+                    //println("RETURN: "+aux1+"/"+(aux2.substring(0,aux2.indexOf("_"))));
                     return aux1+"/"+(aux2.substring(0,aux2.indexOf("_")));
                 }
             }
@@ -1190,7 +1190,7 @@ public class HarvestAllFormatsService extends BaseService  {
         String process;
         CurationEntity er;
 
-        //System.out.println("Tamanho do hash external references: "+externalTargetReferenceHashMap.size());
+        //println("Tamanho do hash external references: "+externalTargetReferenceHashMap.size());
 
         if(value !=null ){
             process = value.replaceAll("\n","").trim().toLowerCase();
@@ -1253,7 +1253,7 @@ public class HarvestAllFormatsService extends BaseService  {
 //        int index2 = searchString.lastIndexOf(":");
 //        if (index2 > index1) {
 //            aux = searchString.substring(index1 + 1, searchString.length());
-//            //System.out.println("*************************************--->>>"+aux);
+//            //println("*************************************--->>>"+aux);
 //
 //        }
 //
@@ -1321,7 +1321,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 }
                 if (result != null) {
 
-                    //System.out.println();
+                    //println();
                     ce.setBaseClassURI(keyLocalPortal);
                     ce.setCuratedTarget(result);
                     ce.setCuredtedBy("OMHT");
@@ -1329,7 +1329,7 @@ public class HarvestAllFormatsService extends BaseService  {
                     ce.setDate(Util.getDateTime());
                     ce.setStatus(status);
                     externalTargetReferenceHashMapOut.put(key.toLowerCase(), ce);
-                    //System.out.println(ce.toString());
+                    //println(ce.toString());
 
                 } else {
 
@@ -1337,7 +1337,7 @@ public class HarvestAllFormatsService extends BaseService  {
                     key = key.toLowerCase();
                     keyLocalPortal = ontologyNameHashMapAgroInverse.get(key);
                     if (keyLocalPortal != null) {
-                        //System.out.println("Ontology: " + currentOntologyName + " Target key: " + key + " TARGET URI: " + keyLocalPortal);
+                        //println("Ontology: " + currentOntologyName + " Target key: " + key + " TARGET URI: " + keyLocalPortal);
                         ce.setBaseClassURI(key);
                         ce.setCuratedTarget(keyLocalPortal);
                         ce.setCuredtedBy("OMHT");
@@ -1351,7 +1351,7 @@ public class HarvestAllFormatsService extends BaseService  {
                         key = key.toLowerCase();
                         //System.out.print("Key: "+key);
                         keyLocalPortal = oboOntologies.get(key);
-                        //System.out.println(" Value: "+keyLocalPortal);
+                        //println(" Value: "+keyLocalPortal);
                         if (keyLocalPortal != null) {
                             ce.setBaseClassURI(keyLocalPortal);
                             ce.setCuratedTarget("ext:" + keyLocalPortal);
@@ -1393,7 +1393,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
 
 
-        //System.out.println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
+        //println("Tamanho do mapa antes do SORT: "+phase1TargetHashMap.size());
 
         int counter = 1;
 
@@ -1408,7 +1408,7 @@ public class HarvestAllFormatsService extends BaseService  {
             if(ce==null){
                 ce = entry1.getValue();
                 externalTargetReferenceHashMapOut.put(key1,ce);
-                //System.out.println("ADD--->"+ce.toString());
+                //println("ADD--->"+ce.toString());
             }
         }
 
@@ -1416,7 +1416,7 @@ public class HarvestAllFormatsService extends BaseService  {
         externalTargetReferenceHashMap = SortMapByValue.sortByValues(externalTargetReferenceHashMapOut,SortMapByValue.DESC);
 
 
-        //System.out.println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
+        //println("Tamanho do mapa DEPOIS do SORT: "+phase1TargetHashMap.size());
 
         stdoutLogger.info("Finished Sorting Targets by number of matches: "+Util.getDateTime());
         phase1Logger.info("NUMBER;TARGET;FOUNDE IN;EXAMPLES;TOTAL COUNT;ONTOLOGY;CURATED TARGET;BASE CLASS URI;CURATED BY;DATE;COMMENTS;STATUS;PROPOSED ADDITION MAPPING PROPERTY");
@@ -1455,7 +1455,7 @@ public class HarvestAllFormatsService extends BaseService  {
         totalizationLogger.info("DATE;SOURCE;SOURCE_ID;RELATION;TARGET;MATCHS_COUNT;");
         summaryLogger.info(Util.getDateTime() + ";-----------------------------");
         summaryLogger.info("Ontology;Total Matches");
-        System.out.println("Total number of files of ontologies founded: " + files.size());
+        println("Total number of files of ontologies founded: " + files.size());
 
         for (String fileName : this.files) {
             man = OWLManager.createOWLOntologyManager();
@@ -1468,7 +1468,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 externalLogger.info("******************************************External References for: " + currentOntologyName + " " + Util.getDateTime());
 
                 setupLogProperties(this.command, currentOntologyName, fileName.substring(0, fileName.lastIndexOf(File.separator)));
-                System.out.println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
+                println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
                 Submission submission = agroportalRestService.getLatestSubmission(command, currentOntologyName);
                 if (submission != null) {
                     for (Contact contact : submission.getContact()) {
@@ -1508,7 +1508,7 @@ public class HarvestAllFormatsService extends BaseService  {
         if(externalTargetReferenceHashMapOut.size()>0){
             generatePhase1Targets();
         }
-        System.out.println(Util.getDateTime() + " Finished processing.");
+        println(Util.getDateTime() + " Finished processing.");
     }
 
 
@@ -1521,7 +1521,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
     public void parse(String command, String dir) {
 
-        //System.out.println("External references size: "+externalReferenceHashMap.size());
+        //println("External references size: "+externalReferenceHashMap.size());
 
         String executionHistory = readExecutionHistory();
         this.command = command;
@@ -1530,7 +1530,7 @@ public class HarvestAllFormatsService extends BaseService  {
         summaryLogger.info(Util.getDateTime() + ";-----------------------------");
         summaryLogger.info("Ontology;Total Matches");
 
-        System.out.println("Total of Ontologies founded: " + ontologies.size());
+        println("Total of Ontologies founded: " + ontologies.size());
 
 
         // run thru ontologies collection
@@ -1551,7 +1551,7 @@ public class HarvestAllFormatsService extends BaseService  {
                         currentOntologyId = ontologyEntity.getId();
                         externalLogger.info("******************************************External References for: " + currentOntologyName + " " + Util.getDateTime());
 
-                        System.out.println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
+                        println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
                         List<Contact> contacts = agroportalRestService.getLatestSubmission(command, currentOntologyName).getContact();
                         if (contacts != null) {
                             for (Contact contact : contacts) {
@@ -1604,7 +1604,7 @@ public class HarvestAllFormatsService extends BaseService  {
         if(externalTargetReferenceHashMapOut.size()>0){
             generatePhase1Targets();
         }
-        System.out.println(Util.getDateTime() + " Finished processings.");
+        println(Util.getDateTime() + " Finished processings.");
     }
 
 
@@ -1615,9 +1615,9 @@ public class HarvestAllFormatsService extends BaseService  {
      * @param dir
      * @param onto
      */
-    public void parse(String command, String dir, String[] onto) {
+    public void parse(String command, String dir, String[] onto, int begin) {
 
-        //System.out.println("External references size: "+externalReferenceHashMap.size());
+        //println("External references size: "+externalReferenceHashMap.size());
 
         String executionHistory = readExecutionHistory();
         this.command = command;
@@ -1626,9 +1626,9 @@ public class HarvestAllFormatsService extends BaseService  {
         summaryLogger.info(Util.getDateTime() + ";-----------------------------");
         summaryLogger.info("Ontology;Total Matches");
 
-        System.out.println("Total of Ontologies founded: " + ontologies.size());
+        println("Total of Ontologies founded: " + ontologies.size());
 
-        for(int n=1;n<onto.length;n++) {
+        for(int n=begin;n<onto.length;n++) {
 
 
             // run thru ontologies collection
@@ -1649,7 +1649,7 @@ public class HarvestAllFormatsService extends BaseService  {
                             currentOntologyId = ontologyEntity.getId();
                             externalLogger.info("******************************************External References for: " + currentOntologyName + " " + Util.getDateTime());
 
-                            System.out.println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
+                            println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
                             List<Contact> contacts = agroportalRestService.getLatestSubmission(command, currentOntologyName).getContact();
                             if (contacts != null) {
                                 for (Contact contact : contacts) {
@@ -1666,7 +1666,7 @@ public class HarvestAllFormatsService extends BaseService  {
                             setupLogProperties(this.command, currentOntologyName, dir + File.separator);
                             downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                             findMatches();
-                            //System.out.println("Tamanho dedplicated: "+deduplicationHash.size());
+                            //println("Tamanho dedplicated: "+deduplicationHash.size());
                             totalizeMappings();
                             saveFile();
                             if (command.indexOf("j") > -1) {
@@ -1704,7 +1704,7 @@ public class HarvestAllFormatsService extends BaseService  {
         if(externalTargetReferenceHashMapOut.size()>0){
             generatePhase1Targets();
         }
-        System.out.println(Util.getDateTime() + " Finished processings.");
+        println(Util.getDateTime() + " Finished processings.");
     }
 
 

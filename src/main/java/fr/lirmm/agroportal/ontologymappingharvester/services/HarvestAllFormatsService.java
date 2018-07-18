@@ -1298,11 +1298,13 @@ public class HarvestAllFormatsService extends BaseService  {
                     if (keyLocalPortal == null) {
                         keyLocalPortal = ontologyNameHashMapAgro.get(key);
                         if (keyLocalPortal != null) {
-                            result = "AGROPORTAL:" + key;
+                            // supresses due mappings validation on API
+                            //result = "agroportal:" + key;
+                            result = key; // must use only the acronym due not founded ontology error on portal API
                             status = 1;
                         }
                     } else {
-                        result = "NCBO:" + key;
+                        result = "ncbo:" + key;
                         status = 2;
                     }
                 } else {
@@ -1311,11 +1313,12 @@ public class HarvestAllFormatsService extends BaseService  {
                     if (keyLocalPortal == null) {
                         keyLocalPortal = ontologyNameHashMapBio.get(key);
                         if (keyLocalPortal != null) {
-                            result = "NCBO:" + key;
+                            result = "ncbo:" + key;
                             status = 2;
                         }
                     } else {
-                        result = "AGROPORTAL:" + key;
+                        //result = "agroportal:" + key;
+                        result = key;
                         status = 1;
                     }
                 }

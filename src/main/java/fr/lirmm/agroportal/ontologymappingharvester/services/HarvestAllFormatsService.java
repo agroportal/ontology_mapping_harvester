@@ -1099,7 +1099,7 @@ public class HarvestAllFormatsService extends BaseService  {
      */
     private String cleanSkosURI(String value){
 
-        String[] itens = {"/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities", "/product", "/material", "/attribute","/step"};
+        String[] itens = {"/class/yago","/resource/umls/id","/countryprofiles/geoinfo/geopolitical/resource","/geopolitical/resource","/taxonomy/term","/concept","/descriptor","/class","/resource","/authorities", "/product", "/material", "/attribute","/step"};
 
         for(int i=0;i<itens.length;i++){
             if(value.indexOf(itens[i])>-1){
@@ -1467,15 +1467,30 @@ public class HarvestAllFormatsService extends BaseService  {
         stdoutLogger.info("Generating phase1 Targets: "+Util.getDateTime());
         stdoutLogger.info("Sorting Targets by number of matches: "+Util.getDateTime());
 
-
+        CurationEntity ceaux = null;
         // transfer targets not on CURATED EXTERNAL REFERENCES to new XLS
         for (Map.Entry<String, CurationEntity> entry1 : externalTargetReferenceHashMap.entrySet()) {
             String key1 = entry1.getKey();
             ce = externalTargetReferenceHashMapOut.get(key1);
             if(ce==null){
-                ce = entry1.getValue();
-                externalTargetReferenceHashMapOut.put(key1,ce);
+                ceaux = entry1.getValue();
+                externalTargetReferenceHashMapOut.put(key1,ceaux);
                 //println("ADD--->"+ce.toString());
+            }else{
+                ceaux = entry1.getValue();
+                if(ceaux.getStatus()==5){
+                    ce.setStatus(5);
+                    ce.setOntology(ceaux.getOntology());
+                    ce.setBaseClassURI(ceaux.getBaseClassURI());
+                    ce.setComments(ceaux.getComments());
+                    ce.setCuratedTarget(ceaux.getCuratedTarget());
+                    ce.setCuredtedBy(ceaux.getCuredtedBy());
+                    ce.setDate(ceaux.getDate());
+                    ce.setExampleList(ceaux.getExampleList());
+                    ce.setFoundedIn(ceaux.getFoundedIn());
+                    ce.setMappingProperty(ceaux.getMappingProperty());
+                    externalTargetReferenceHashMapOut.put(key1,ce);
+                }
             }
         }
 

@@ -46,7 +46,7 @@ public class Parser {
     public List<File> getReferencesForJSONFiles(String dirName){
 
         File dir = new File(dirName);
-        String[] extensions = new String[] { "tmp" };
+        String[] extensions = new String[] { "json" };
 
         List<File> files = (List<File>) FileUtils.listFiles(dir, extensions, true);
         return files;
@@ -68,17 +68,17 @@ public class Parser {
 
         readLangualFile(referenceFileName+".txt");
 
-        System.out.println("Siren   on "+ontologyName     +" internal mappings: "+sirenList.size());
+        //System.out.println("Siren   on "+ontologyName     +" internal mappings: "+sirenList.size());
         System.out.println("Langual on "+ontologyName     +" internal mappings: "+langualList.size());
         System.out.println("Reference  "+referenceFileName+" number of lines  : "+referenceList.size());
 
         generateMappings();
 
 
-        System.out.println(ontologyName +"_siren_"+ referenceFileName+ "_maps: "+sirenOnLangual);
+        //System.out.println(ontologyName +"_siren_"+ referenceFileName+ "_maps: "+sirenOnLangual);
         System.out.println(ontologyName +"_langual_"+ referenceFileName+ "_maps: "+langualOnLangual);
 
-        saveFile(ontologyName +"_siren_"+ referenceFileName+ "_maps.txt",sb1);
+        //saveFile(ontologyName +"_siren_"+ referenceFileName+ "_maps.txt",sb1);
         saveFile(ontologyName +"_langual_"+ referenceFileName+ "_maps.txt",sb2);
 
     }
@@ -88,21 +88,21 @@ public class Parser {
 
         MappingEntity me;
 
-        for(String siren: sirenList){
-            for(String line: referenceList){
-                if(line.indexOf(siren.replace("f","")+"\t")==0){
-                    sirenOnLangual++;
-                    me = mappingRereferece.get(siren);
-                    sb1.append(siren +" - "+ me.getClassesFormated()+ " FOUNDEDIN: "+line+ "\n");
-                }
-            }
-        }
+//        for(String siren: sirenList){
+//            for(String line: referenceList){
+//                if(line.indexOf(siren.replace("f","")+"\t")==0){
+//                    sirenOnLangual++;
+//                    me = mappingRereferece.get(siren);
+//                    sb1.append(siren +" - "+ me.getClassesFormated()+ " FOUNDEDIN: "+line+ "\n");
+//                }
+//            }
+//        }
         for(String langual: langualList){
 
             for(String line: referenceList){
                 if(line.toLowerCase().indexOf(langual)>-1){
                     me = mappingRereferece.get(langual);
-                    sb2.append(langual+" - "+me.getClassesFormated()+ " FOUNDEDIN: "+line+"\n");
+                    sb2.append(langual+";"+me.getClassesFormated()+ ";"+line+"\n");
                     langualOnLangual++;
                 }
             }
@@ -132,11 +132,14 @@ public class Parser {
 
                 if(!value.equalsIgnoreCase(acronym)){
 
-                    if(key.indexOf("subset_siren:")==0){
-                        sirenList.add(key.substring(key.indexOf(":")+1,key.length()));
-                        mappingRereferece.put(key.substring(key.indexOf(":")+1,key.length()),me);
-                        //System.out.println("SIREN   - "+key.substring(key.indexOf(":")+1,key.length()));
-                    }else if(key.indexOf("langual:")==0){
+//                    if(key.indexOf("subset_siren:")==0){
+//                        sirenList.add(key.substring(key.indexOf(":")+1,key.length()));
+//                        mappingRereferece.put(key.substring(key.indexOf(":")+1,key.length()),me);
+//                        //System.out.println("SIREN   - "+key.substring(key.indexOf(":")+1,key.length()));
+//                    }else
+
+
+                        if(key.indexOf("langual:")==0){
                         langualList.add(key.substring(key.indexOf(":")+1,key.length()));
                         mappingRereferece.put(key.substring(key.indexOf(":")+1,key.length()),me);
                         //System.out.println("LANGUAL - "+key.substring(key.indexOf(":")+1,key.length()));
@@ -209,6 +212,8 @@ public class Parser {
         }
 
     }
+
+
 
     private void saveFile(String fileName, StringBuffer js){
 

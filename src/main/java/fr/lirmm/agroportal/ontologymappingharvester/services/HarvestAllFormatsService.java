@@ -497,7 +497,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
             stdoutLogger.info("Total Matches       : " + totalAnnotationAssertationEntities);
             stdoutLogger.info("Total Unique Matches: " + deduplicationHash.size());
-            summaryLogger.info(currentOntologyName+";"+deduplicationHash.size());
+            summaryLogger.info(currentOntologyName+";total maps;"+deduplicationHash.size());
 
 
         } else {
@@ -517,6 +517,8 @@ public class HarvestAllFormatsService extends BaseService  {
 
         MappingEntity me;
 
+        int validJsonCounter=0;
+
         ArrayList<MappingEntity> mappingEntities = new ArrayList<>();
 
         stdoutLogger.info("Begin generation of temporary JSON file");
@@ -529,7 +531,7 @@ public class HarvestAllFormatsService extends BaseService  {
         stdoutLogger.info("-->0% done");
         for (AnnotationAssertationEntity an : deduplicationHash.values()) {
 
-            System.out.println(an.toString());
+            //System.out.println(an.toString());
 
             if(!an.getBaseClassURI().equalsIgnoreCase("")) {
 
@@ -576,9 +578,12 @@ public class HarvestAllFormatsService extends BaseService  {
                 me.setClasses(classes);
 
                 mappingEntities.add(me);
+                validJsonCounter++;
             }
 
         }
+
+        summaryLogger.info(currentOntologyName+";valid maps;"+validJsonCounter);
 
         if (mappingEntities.size() > 0) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();

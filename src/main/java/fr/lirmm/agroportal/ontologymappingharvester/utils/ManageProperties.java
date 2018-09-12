@@ -39,6 +39,7 @@ public class ManageProperties {
 
     public static String loadPropertyValue(String propertyName){
 
+        propertyName = propertyName.replaceAll("-","");
 
         Properties prop = new Properties();
         InputStream input = null;

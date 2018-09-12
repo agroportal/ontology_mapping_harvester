@@ -9,6 +9,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEnt
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
+import fr.lirmm.agroportal.ontologymappingharvester.services.LogService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -19,16 +20,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.util.List;
 
-public class AgroportalRestService {
+public class AgroportalRestService extends LogService {
 
 
-    Logger logger;
     String link;
     String apiKey;
 
-    public AgroportalRestService(){
-        logger = Logger.getLogger(AgroportalRestService.class.getName());
-    }
+
 
 
     /**
@@ -37,6 +35,8 @@ public class AgroportalRestService {
      * @return
      */
     public List<OntologyEntity> getOntologyAnnotation(String command){
+
+        setupLogProperties(command,"", ManageProperties.loadPropertyValue("outputfolder"));
 
         setCredentials(command);
 
@@ -62,7 +62,7 @@ public class AgroportalRestService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+"getOntologyAnnotation() - see havest_tool_error.log for details.");
-            logger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error: "+ e.getStackTrace());
         }
 
         //System.out.println("Size: "+ontologies.size());
@@ -78,6 +78,8 @@ public class AgroportalRestService {
      * @return
      */
     public Submission getLatestSubmission(String command, String acronym){
+
+        setupLogProperties(command,acronym, ManageProperties.loadPropertyValue("outputfolder"));
 
         String link=ManageProperties.loadPropertyValue("restagroportalurl");
         String apiKey = ManageProperties.loadPropertyValue("restagroportalapikey");
@@ -111,7 +113,7 @@ public class AgroportalRestService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+" getLatestSubmission() - see havest_tool_error.log for detais."+" Error: "+ e.getStackTrace().toString());
-            logger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error: "+ e.getStackTrace());
             submission = new Submission();
             submission.setURI("UNKNOW_REFERENCE");
         }
@@ -130,6 +132,8 @@ public class AgroportalRestService {
      * @return
      */
     public ClassQuery getOntologyByConcept(String property, String apikeyProperty, String concept){
+
+        setupLogProperties("jsl","concept_query", ManageProperties.loadPropertyValue("outputfolder"));
 
         String link=ManageProperties.loadPropertyValue(property);
         String apiKey = ManageProperties.loadPropertyValue(apikeyProperty);
@@ -152,7 +156,7 @@ public class AgroportalRestService {
             classQuery = classQueryCall.execute().body();
         } catch (Exception e) {
             System.out.println("Error: "+e.getMessage()+" getOntologyByConcept() - see havest_tool_error.log for detais.");
-            logger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error: "+ e.getStackTrace());
         }
 
 
@@ -165,6 +169,9 @@ public class AgroportalRestService {
      * @return
      */
     public List<Identifier> getIdentifiers(){
+
+        setupLogProperties("jsl","identifiers_query", ManageProperties.loadPropertyValue("outputfolder"));
+
 
         String link=ManageProperties.loadPropertyValue("identifiersaddress");
 
@@ -184,7 +191,7 @@ public class AgroportalRestService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+"getIdentifiers() - see havest_tool_error.log for details.");
-            logger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error: "+ e.getStackTrace());
         }
 
         //System.out.println("Size: "+ontologies.size());
@@ -195,6 +202,9 @@ public class AgroportalRestService {
 
 
     public String postMappings(MappingEntity me, String command){
+
+        setupLogProperties(command,me.getSourceName(), ManageProperties.loadPropertyValue("outputfolder"));
+
 
         String link=ManageProperties.loadPropertyValue(command+"url");
         String key=ManageProperties.loadPropertyValue(command+"apikey");
@@ -228,7 +238,7 @@ public class AgroportalRestService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+"POST");
-            logger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error: "+ e.getStackTrace());
         }
 
         return result;
@@ -249,13 +259,11 @@ public class AgroportalRestService {
      */
     public RestMappingEntity getAllRestMappings(String command, String acronym, int page){
 
+        setupLogProperties(command,acronym, ManageProperties.loadPropertyValue("outputfolder"));
+
+
         String link=ManageProperties.loadPropertyValue(command+"url");
         String key=ManageProperties.loadPropertyValue(command+"apikey");
-
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(link)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -263,9 +271,14 @@ public class AgroportalRestService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(link)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create(getGson()))
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(link)
+//                .client(client)
+//                .addConverterFactory(GsonConverterFactory.create(getGson()))
+//                .build();
 
 
         AgroportalService service = retrofit.create(AgroportalService.class);
@@ -280,13 +293,65 @@ public class AgroportalRestService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+"get rest mappings");
-            logger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error: "+ e.getStackTrace());
         }
 
         return mappings;
 
 
     }
+
+
+    public String deleteMapping(String command, String id){
+
+        setupLogProperties(command,"delete_mappings", ManageProperties.loadPropertyValue("outputfolder"));
+
+        String link=ManageProperties.loadPropertyValue(command+"url");
+
+        String key=ManageProperties.loadPropertyValue(command+"apikey");
+
+
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+        System.out.println("HERE--->"+link);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(link)
+//                .client(client)
+//                .addConverterFactory(GsonConverterFactory.create(getGson()))
+//                .build();
+
+
+        AgroportalService service = retrofit.create(AgroportalService.class);
+
+
+        Call<String> deleteMapping = service.deleteMapping(id,key);
+
+        String message = null;
+
+        try {
+            message = deleteMapping.execute().body();
+            System.out.println("Mapping Deleted: " + id +" Message: "+message);
+
+        } catch (Exception e) {
+            System.out.println("Error: "+e.getMessage()+"delete mapping "+id);
+            errorLogger.error("Error deleting mapping: "+ id + " MESSAGE: "+ e.getStackTrace());
+        }
+
+        return message;
+
+
+    }
+
+
 
     public void setCredentials(String command){
         //System.out.println("Command: "+command);

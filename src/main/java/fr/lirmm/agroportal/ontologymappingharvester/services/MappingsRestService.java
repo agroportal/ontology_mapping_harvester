@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MappingsRestService {
+public class MappingsRestService extends LogService{
 
 
     private String command;
@@ -29,6 +29,7 @@ public class MappingsRestService {
 
         List<File> files;
         //System.out.println(args.length);
+        setupLogProperties(this.command,args[2],ManageProperties.loadPropertyValue("outputfolder"));
 
         if(args.length>=3){
 
@@ -57,9 +58,10 @@ public class MappingsRestService {
 
         List<String> ids = new ArrayList<>();
 
+        setupLogProperties(this.command,args[2],ManageProperties.loadPropertyValue("outputfolder"));
 
         // FASE 1 - Identify mappings created by the script for this ontology
-
+        stdoutLogger.info("Delete Mappings for "+args[2]+" FASE 1 - Identifing Mappings");
 
         if(args.length>=3){
 
@@ -85,9 +87,9 @@ public class MappingsRestService {
                                 ids.add(collections.getId1());
                             }
 
-                            System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
+                            //System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
                         } else {
-                            System.out.println(collections.toString());
+                            //System.out.println(collections.toString());
                         }
 
                     }
@@ -96,7 +98,7 @@ public class MappingsRestService {
                         page = nextPage.intValue();
                     }
                 } else {
-                    System.out.println("Erro: mappings = null");
+                    errorLogger.error("ERROR: Ontology Mappings Identification for : "+args[2]+" page: "+page+ " is missing: Internal Server Error. Page will be igonered.");
                     page++;
                     nextPage = page;
                 }
@@ -110,8 +112,15 @@ public class MappingsRestService {
 
 
             // FASE 2 Intereact over mappings created by this script to delete them.
+            stdoutLogger.info("Delete Mappings for "+args[2]+" FASE 2 - Delete Mappings");
 
-
+            int counter = 0;
+            for(String id: ids){
+                service.deleteMapping(args[0],id);
+                counter++;
+            }
+            System.out.println("Total mappings delete for: "+args[2]+" -->"+ counter);
+            stdoutLogger.info("Total mappings delete for: "+args[2]+" -->"+ counter);
         }
     }
 

@@ -40,5 +40,7 @@ public interface AgroportalService {
     @GET("/ontologies/{acronym}/mappings")
     Call<RestMappingEntity> getRestMappings(@Path("acronym") String acronym, @Query("apikey") String apiKey, @Query("page") int page, @Query("display_links") String displayLink,@Query("display_context") String displayCOntext);
 
+    @DELETE("/mappings/{id}")
+    Call<String> deleteMapping(@Path("id") String id, @Query("apikey") String key);
 
 }

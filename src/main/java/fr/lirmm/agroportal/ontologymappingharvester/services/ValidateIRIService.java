@@ -2,7 +2,6 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.lirmm.agroportal.ontologymappingharvester.entities.AnnotationAssertationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.ClassQuery;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.classquery.Collection;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
@@ -155,7 +154,7 @@ public class ValidateIRIService extends BaseService {
 
     private String isAtAgroportal(String concept){
         String ret = "";
-        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("agroportaladdress","apikey",  concept);
+        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("restagroportalurl", "restagroportalapikey",  concept);
         if(classQuery != null && classQuery.getCollection().size()>0){
             for(Collection c: classQuery.getCollection()){
                 if(!c.getObsolete()){
@@ -170,7 +169,7 @@ public class ValidateIRIService extends BaseService {
 
     private String isAtBioportal(String concept){
         String ret = "";
-        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("bioportaladdress","apikeybio", concept);
+        ClassQuery classQuery = agroportalRestService.getOntologyByConcept("restbioportalurl", "restbioportalapikey", concept);
         if(ret.equalsIgnoreCase("")){
             if(classQuery != null && classQuery.getCollection().size()>0){
                 for(Collection c: classQuery.getCollection()){

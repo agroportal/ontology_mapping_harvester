@@ -13,7 +13,6 @@ import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.SortMapByValue;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
@@ -86,11 +85,20 @@ public class HarvestAllFormatsService extends BaseService  {
         //println("FileIn    : "+fileIN);
         // Agroportal DEMO KEY
 
-        String apiKey = ManageProperties.loadPropertyValue("apikey");
+        String apiKey = ManageProperties.loadPropertyValue("restagroportalapikey");
 
         if (command.indexOf("n") > -1) {
-            apiKey = ManageProperties.loadPropertyValue("apikeybio");
+            apiKey = ManageProperties.loadPropertyValue("restbioportalapikey");
         }
+
+        if (command.indexOf("f") > -1) {
+            apiKey = ManageProperties.loadPropertyValue("reststagebioportalapikey");
+        }
+
+        if (command.indexOf("h") > -1) {
+            apiKey = ManageProperties.loadPropertyValue("reststageagroportalapikey");
+        }
+
 
         IRI iri = IRI.create(address + "?apikey=" + apiKey + "&download_format=rdf");
 
@@ -519,9 +527,20 @@ public class HarvestAllFormatsService extends BaseService  {
 
         int validJsonCounter=0;
 
+        String userIdentifier = ManageProperties.loadPropertyValue("restagroportalurl");
+        if(command.indexOf("n")>0) {
+            userIdentifier = ManageProperties.loadPropertyValue("restbioportalurl")+ManageProperties.loadPropertyValue("restbioportalurl");
+        }
+        if(command.indexOf("f")>0) {
+            userIdentifier = ManageProperties.loadPropertyValue("reststagebioportalurl")+ManageProperties.loadPropertyValue("restbioportalurl");
+        }
+        if(command.indexOf("h")>0) {
+            userIdentifier = ManageProperties.loadPropertyValue("reststageagroportalurl")+ManageProperties.loadPropertyValue("restbioportalurl");
+        }
+
         ArrayList<MappingEntity> mappingEntities = new ArrayList<>();
 
-        stdoutLogger.info("Begin generation of temporary JSON file");
+        stdoutLogger.info("Begin generation of JSON file");
 
         int total = deduplicationHash.size();
         int count = 1;
@@ -529,6 +548,7 @@ public class HarvestAllFormatsService extends BaseService  {
         int last = 0;
 
         stdoutLogger.info("-->0% done");
+
         for (AnnotationAssertationEntity an : deduplicationHash.values()) {
 
             //System.out.println(an.toString());
@@ -545,7 +565,11 @@ public class HarvestAllFormatsService extends BaseService  {
                 }
                 me = new MappingEntity();
                 me.setId(an.getId());
-                me.setCreator("http://data.agroportal.lirmm.fr/users/mappingAdmin");
+
+                //TODO remover usuario provisorio
+                //me.setCreator(userIdentifier+"/users/mappingAdmin");
+                me.setCreator(userIdentifier+"users/elcioabrahao");
+
                 me.setSourceContactInfo(ontologyContactEmail);
                 me.setSource(currentOntologyId);
                 me.setSourceName(currentOntologyName);
@@ -575,6 +599,7 @@ public class HarvestAllFormatsService extends BaseService  {
                     classes.put(an.getBaseClassURI() + cleanShortConcept(an.getOntologyConcept2()), an.getOntology2Curated());
                 }
 
+
                 me.setClasses(classes);
 
                 mappingEntities.add(me);
@@ -583,12 +608,14 @@ public class HarvestAllFormatsService extends BaseService  {
 
         }
 
+
+
         summaryLogger.info(currentOntologyName+";valid maps;"+validJsonCounter);
 
         if (mappingEntities.size() > 0) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
             writeJsonFile(gson.toJson(mappingEntities), false);
-            stdoutLogger.info("Finished generation of temporary JSON file");
+            stdoutLogger.info("Finished generation of JSON file");
         } else {
             stdoutLogger.warn("No matches - JSON file generation skiped!");
         }
@@ -733,7 +760,7 @@ public class HarvestAllFormatsService extends BaseService  {
                     if(aux2.trim().isEmpty()){
                         an.setOntology2("UNKNOW_ONTOLOGY");
                         an.setOntology2Curated("UNKNOW_ONTOLOGY");
-                        an.setBaseClassURI("EMPITY_CONCEPT");
+                        an.setBaseClassURI("");
                         externalLogger.trace("CLI-ELSE-BEFORE: " + aux2);
                         externalLogger.trace("CLI-ELSE-AFTER : " + an.getOntology2());
                     }else {
@@ -1393,7 +1420,7 @@ public class HarvestAllFormatsService extends BaseService  {
             // Loockup for external references only if status = 0 (not curated)
             if (ce.getStatus() == 0) {
 
-                if (command.indexOf("n") > -1) {
+                if (command.indexOf("n") > -1 || command.indexOf("f") > -1) {
                     // LOOKUP ON BIOPORTAL THEN ON AGROPORTAL
                     keyLocalPortal = ontologyNameHashMapBio.get(key);
                     if (keyLocalPortal == null) {

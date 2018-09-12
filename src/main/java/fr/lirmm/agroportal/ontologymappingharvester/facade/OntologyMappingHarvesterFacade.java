@@ -56,7 +56,22 @@ public class OntologyMappingHarvesterFacade {
             }
 
 
-            if(command.indexOf("g")>-1) {
+            if(command.indexOf("rest")>-1){
+
+                MappingsRestService mrs = new MappingsRestService(args[0]);
+
+                if(args[1].equalsIgnoreCase("post")){
+
+                    mrs.postMappings(args);
+
+                }else if(args[1].equalsIgnoreCase("patch")){
+
+                }else if(args[1].equalsIgnoreCase("delete")){
+                    mrs.deleteMappings(args);
+                }
+
+
+            }else if(command.indexOf("g")>-1) {
 
                 GenerateJSService generateJSService = new GenerateJSService();
                 generateJSService.generateJs(args[1], args[2]);
@@ -81,13 +96,13 @@ public class OntologyMappingHarvesterFacade {
 
             }else if(command.indexOf("ka")>-1){
 
-                ManageProperties.setProperty("apikey",args[1]);
+                ManageProperties.setProperty("restagroportalapikey",args[1]);
 
                 System.out.println("New api key for Agroportal associated to this script is "+args[1]);
 
             }else if(command.indexOf("kb")>-1){
 
-                ManageProperties.setProperty("apikeybio",args[1]);
+                ManageProperties.setProperty("restbioportalapikey",args[1]);
 
                 System.out.println("New api key for Bioportal associated to this script is "+args[1]);
 
@@ -99,42 +114,27 @@ public class OntologyMappingHarvesterFacade {
 
             }else if(command.indexOf("aas")>-1){
 
-                ManageProperties.setProperty("stageagroportaladdress",args[1]);
+                ManageProperties.setProperty("reststageagroportalurl",args[1]);
 
                 System.out.println("New address to STAGEAGROPORTAL: "+args[1]);
 
             }else if(command.indexOf("abs")>-1){
 
-                ManageProperties.setProperty("stagebioportaladdress",args[1]);
+                ManageProperties.setProperty("reststagebioportalurl",args[1]);
 
                 System.out.println("New address to STAGEBIOPORTAL: "+args[1]);
 
             }else if(command.indexOf("aa")>-1){
 
-                ManageProperties.setProperty("agroportaladdress",args[1]);
+                ManageProperties.setProperty("restagroportalurl",args[1]);
 
                 System.out.println("New address to AGROPORTAL: "+args[1]);
 
             }else if(command.indexOf("ab")>-1){
 
-                ManageProperties.setProperty("bioportaladdress",args[1]);
+                ManageProperties.setProperty("restbioportalurl",args[1]);
 
                 System.out.println("New address to BIOPORTAL: "+args[1]);
-
-            }else if(command.indexOf("rest")>-1){
-
-                MappingsRestService mrs = new MappingsRestService();
-
-                if(args[1].equalsIgnoreCase("post")){
-
-                    mrs.postMappings(args);
-
-                }else if(args[1].equalsIgnoreCase("patch")){
-
-                }else if(args[1].equalsIgnoreCase("delete")){
-
-                }
-
 
             }else{
 
@@ -184,8 +184,10 @@ public class OntologyMappingHarvesterFacade {
         System.out.println("-p print LOG on screen");
         System.out.println("-b bulk load files from folder");
         System.out.println("-g Generate javascript for Graph representation of matches");
-        System.out.println("-d Download ontologies from Agroportal");
+        System.out.println("-d Download ontologies from AGROPORTAL");
         System.out.println("-n dowload ontologies from BIOPORTAL");
+        System.out.println("-h Download ontologies from STAGE AGROPORTAL");
+        System.out.println("-f dowload ontologies from STAGE BIOPORTAL");
         System.out.println("-u Download an unique ontology (require destination folder and acronym)");
         System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");
         System.out.println("-r Setup location folder for configuration files (.cfg)");
@@ -196,7 +198,7 @@ public class OntologyMappingHarvesterFacade {
         System.out.println("-ab Setup BIOPORTAL API ADDRESS");
         System.out.println("-aas Setup STAGE AGROPORTAL API ADDRESS");
         System.out.println("-abs Setup STAGE BIOPORTAL API ADDRESS");
-        System.out.println("-rest [post,patch,delete] ONTOLOGY_ACRONYMS_LIST to manage matches on Agroportal");
+        System.out.println("-rest[agroportal,stageagroportal,bioportal,stagebioportal] [post,patch,delete] ONTOLOGY_ACRONYMS_LIST to manage matches on Agroportal");
         System.out.println("-c Clean execution history for the current script execution");
         System.out.println("Examples of usage:");
         System.out.println("/.MappingHarvest -jlsp path1/onto1.ref path2/onto2.ref pathn/onto3.ref");

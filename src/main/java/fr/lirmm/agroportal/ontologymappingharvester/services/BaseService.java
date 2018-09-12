@@ -14,7 +14,6 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEn
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
-import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -36,7 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class BaseService {
+public class BaseService extends LogService {
 
 
     OWLOntologyManager man;
@@ -62,13 +61,6 @@ public class BaseService {
     HashMap<String,String> ontologyNameHashMapBio;
     HashMap<String,String> ontologyNameHashMapBioInverse;
     HashMap<String, String> oboOntologies;
-    Logger stdoutLogger;
-    Logger errorLogger;
-    Logger statisticsLogger;
-    Logger externalLogger;
-    Logger totalizationLogger;
-    Logger summaryLogger;
-    Logger phase1Logger;
     List<OntologyEntity> ontologies;
     AgroportalRestService agroportalRestService;
     CurationEntity curationEntity;
@@ -536,92 +528,7 @@ public class BaseService {
     }
 
 
-    /**
-     * Initialize LOGGERS and APPENDERS
-     * @param command
-     * @param currentOntologyName
-     * @param repositoryPath
-     */
-    public void setupLogProperties(String command, String currentOntologyName, String repositoryPath){
 
-        Properties logProperties =  new Properties();
-
-        String path = ManageProperties.loadPropertyValue("externalproperties");
-
-        logProperties.setProperty("log4j.rootLogger","TRACE");
-        logProperties.setProperty("log4j.logger.error","TRACE,error");
-        logProperties.setProperty("log4j.logger.statistics","TRACE,statistics");
-        logProperties.setProperty("log4j.logger.stdout","TRACE, file, console");
-        logProperties.setProperty("log4j.logger.external","TRACE, external_reference");
-        logProperties.setProperty("log4j.logger.totals","TRACE, tots");
-        logProperties.setProperty("log4j.logger.summary","TRACE, sum");
-        logProperties.setProperty("log4j.logger.cleaning","TRACE, phase1");
-
-        logProperties.setProperty("log4j.appender.file", "org.apache.log4j.varia.NullAppender");
-        logProperties.setProperty("log4j.appender.console", "org.apache.log4j.varia.NullAppender");
-        logProperties.setProperty("log4j.appender.statistics", "org.apache.log4j.varia.NullAppender");
-
-        logProperties.setProperty("log4j.appender.error.File", path+"/OMHT_harvest_tool_error.log");
-        logProperties.setProperty("log4j.appender.error", "org.apache.log4j.RollingFileAppender");
-        logProperties.setProperty("log4j.appender.error.MaxFileSize", "10MB");
-        logProperties.setProperty("log4j.appender.error.Threshold", "ERROR");
-        logProperties.setProperty("log4j.appender.error.layout",  "org.apache.log4j.PatternLayout");
-        logProperties.setProperty("log4j.appender.error.layout.ConversionPattern","%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t (%F) - %m%n");
-
-        logProperties.setProperty("log4j.appender.external_reference.File", path+"/OMHT_external_references.log");
-        logProperties.setProperty("log4j.appender.external_reference", "org.apache.log4j.FileAppender");
-        logProperties.setProperty("log4j.appender.external_reference.layout",  "org.apache.log4j.PatternLayout");
-        logProperties.setProperty("log4j.appender.external_reference.layout.ConversionPattern","%m%n");
-
-        logProperties.setProperty("log4j.appender.tots.File", path+"/OMHT_matchs_totalization.xls");
-        logProperties.setProperty("log4j.appender.tots", "org.apache.log4j.FileAppender");
-        logProperties.setProperty("log4j.appender.tots.layout",  "org.apache.log4j.PatternLayout");
-        logProperties.setProperty("log4j.appender.tots.layout.ConversionPattern","%m%n");
-
-        logProperties.setProperty("log4j.appender.sum.File", path+"/OMHT_summary_matchs.xls");
-        logProperties.setProperty("log4j.appender.sum", "org.apache.log4j.FileAppender");
-        logProperties.setProperty("log4j.appender.sum.layout",  "org.apache.log4j.PatternLayout");
-        logProperties.setProperty("log4j.appender.sum.layout.ConversionPattern","%m%n");
-
-        logProperties.setProperty("log4j.appender.phase1.File", path+"/OMHT_external_matches_phase_1_to_be_curated.xls");
-        logProperties.setProperty("log4j.appender.phase1", "org.apache.log4j.FileAppender");
-        logProperties.setProperty("log4j.appender.phase1.layout",  "org.apache.log4j.PatternLayout");
-        logProperties.setProperty("log4j.appender.phase1.layout.ConversionPattern","%m%n");
-
-
-        if(command.indexOf("p")>-1) {
-            logProperties.setProperty("log4j.appender.console", "org.apache.log4j.ConsoleAppender");
-            logProperties.setProperty("log4j.appender.console.layout",  "org.apache.log4j.PatternLayout");
-            logProperties.setProperty("log4j.appender.console.layout.ConversionPattern", "%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] %t - %m%n");
-        }
-
-//teste again
-        if(command.indexOf("l")>-1){
-            logProperties.setProperty("log4j.appender.file.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".log");
-            logProperties.setProperty("log4j.appender.file", "org.apache.log4j.FileAppender");
-            logProperties.setProperty("log4j.appender.file.layout",  "org.apache.log4j.PatternLayout");
-            logProperties.setProperty("log4j.appender.file.layout.ConversionPattern","%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] - %m%n");
-        }
-
-        if(command.indexOf("s")>-1){
-            logProperties.setProperty("log4j.appender.statistics.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".sts");
-            logProperties.setProperty("log4j.appender.statistics", "org.apache.log4j.FileAppender");
-            logProperties.setProperty("log4j.appender.statistics.layout",  "org.apache.log4j.PatternLayout");
-            logProperties.setProperty("log4j.appender.statistics.layout.ConversionPattern","%m%n");
-        }
-
-
-        PropertyConfigurator.configure(logProperties);
-
-        stdoutLogger = Logger.getLogger("stdout");
-        errorLogger = Logger.getLogger("error");
-        statisticsLogger = Logger.getLogger("statistics");
-        externalLogger = Logger.getLogger("external");
-        totalizationLogger = Logger.getLogger("totals");
-        summaryLogger = Logger.getLogger("summary");
-        phase1Logger = Logger.getLogger("cleaning");
-
-    }
 
 
     public void loadAndProcessOntologiesMetadata(String command){
@@ -630,23 +537,28 @@ public class BaseService {
 
         println("Load and process ontology metadata...");
 
-        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
+        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation(command.indexOf("h")>-1?"h":"x");
 
         if(ontologiesAgro==null || ontologiesAgro.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key" );
             stdoutLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
             println("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
             System.exit(0);
         }
 
         for(OntologyEntity oe: ontologiesAgro){
-            submission = agroportalRestService.getLatestSubmission("",oe.getAcronym());
-            if(submission.getURI()!=null){
+            submission = agroportalRestService.getLatestSubmission(command.indexOf("h")>-1?"h":"x",oe.getAcronym());
+            System.out.println(oe.getAcronym()+" --> "+submission.getURI());
+            if(submission.getURI()!=null && submission.getURI().length()>1){
                 if((submission.getURI().length()-1)==submission.getURI().lastIndexOf("/")){
                     submission.setURI(submission.getURI().substring(0,submission.getURI().length()-1));
                 }
             }
-            ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+
+            //TODO take out the prefix
+            //ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+            ontologyNameHashMapAgroInverse.put(submission.getURI(),oe.getAcronym());
+
             ontologyNameHashMapAgro.put(oe.getAcronym(),submission.getURI());
             externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+submission.getURI());
         }
@@ -655,7 +567,7 @@ public class BaseService {
         List<OntologyEntity> ontologiesBio =  agroportalRestService.getOntologyAnnotation("n");
 
         if(ontologiesBio==null || ontologiesBio.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("restagroportalapikey") );
             stdoutLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
             println("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
             System.exit(0);
@@ -668,7 +580,7 @@ public class BaseService {
         }
 
 
-        if(command.indexOf("n")>-1){
+        if(command.indexOf("n")>-1 || command.indexOf("f")>-1){
             ontologies = ontologiesBio;
         }else{
             ontologies = ontologiesAgro;

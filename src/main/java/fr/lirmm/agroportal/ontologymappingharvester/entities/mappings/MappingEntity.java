@@ -102,6 +102,7 @@ public class MappingEntity implements Serializable {
         this.classes = classes;
     }
 
+
     @Override
     public String toString() {
         return "MappingEntity{" +

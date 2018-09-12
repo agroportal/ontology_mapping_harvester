@@ -59,8 +59,9 @@ public class AnnotationAssertationEntity {
         return ontologyConcept1;
     }
 
+    // must be on lower case due URI integrity
     public void setOntologyConcept1(String ontologyConcept1) {
-        this.ontologyConcept1 = ontologyConcept1.toLowerCase();
+        this.ontologyConcept1 = ontologyConcept1;
     }
 
     public String getOntologyConcept2() {

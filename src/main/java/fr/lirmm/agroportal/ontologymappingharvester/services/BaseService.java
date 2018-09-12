@@ -14,7 +14,6 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEn
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
-import fr.lirmm.agroportal.ontologymappingharvester.utils.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -630,23 +629,28 @@ public class BaseService {
 
         println("Load and process ontology metadata...");
 
-        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation("x");
+        List<OntologyEntity> ontologiesAgro =  agroportalRestService.getOntologyAnnotation(command.indexOf("h")>-1?"h":"x");
 
         if(ontologiesAgro==null || ontologiesAgro.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            errorLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key" );
             stdoutLogger.error("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
             println("Error: could not load ontologies metadata from Agroportal - Please verify API Key");
             System.exit(0);
         }
 
         for(OntologyEntity oe: ontologiesAgro){
-            submission = agroportalRestService.getLatestSubmission("",oe.getAcronym());
-            if(submission.getURI()!=null){
+            submission = agroportalRestService.getLatestSubmission(command.indexOf("h")>-1?"h":"x",oe.getAcronym());
+            System.out.println(oe.getAcronym()+" --> "+submission.getURI());
+            if(submission.getURI()!=null && submission.getURI().length()>1){
                 if((submission.getURI().length()-1)==submission.getURI().lastIndexOf("/")){
                     submission.setURI(submission.getURI().substring(0,submission.getURI().length()-1));
                 }
             }
-            ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+
+            //TODO take out the prefix
+            //ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+            ontologyNameHashMapAgroInverse.put(submission.getURI(),oe.getAcronym());
+
             ontologyNameHashMapAgro.put(oe.getAcronym(),submission.getURI());
             externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+submission.getURI());
         }
@@ -655,7 +659,7 @@ public class BaseService {
         List<OntologyEntity> ontologiesBio =  agroportalRestService.getOntologyAnnotation("n");
 
         if(ontologiesBio==null || ontologiesBio.size()==0){
-            errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("apikey") );
+            errorLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key - Current key: "+ManageProperties.loadPropertyValue("restagroportalapikey") );
             stdoutLogger.error("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
             println("Error: could not load ontologies metadata from Bioportal - Please verify API Key");
             System.exit(0);
@@ -668,7 +672,7 @@ public class BaseService {
         }
 
 
-        if(command.indexOf("n")>-1){
+        if(command.indexOf("n")>-1 || command.indexOf("f")>-1){
             ontologies = ontologiesBio;
         }else{
             ontologies = ontologiesAgro;

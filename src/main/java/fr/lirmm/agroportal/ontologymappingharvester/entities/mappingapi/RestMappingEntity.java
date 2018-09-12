@@ -1,10 +1,10 @@
-package fr.lirmm.agroportal.ontologymappingharvester.entities.classquery;
+package fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ClassQuery {
+public class RestMappingEntity {
 
     @SerializedName("page")
     @Expose
@@ -17,10 +17,10 @@ public class ClassQuery {
     private Integer totalCount;
     @SerializedName("prevPage")
     @Expose
-    private Object prevPage;
+    private Integer prevPage;
     @SerializedName("nextPage")
     @Expose
-    private Object nextPage;
+    private Integer nextPage;
     @SerializedName("links")
     @Expose
     private Links links;
@@ -52,19 +52,19 @@ public class ClassQuery {
         this.totalCount = totalCount;
     }
 
-    public Object getPrevPage() {
+    public Integer getPrevPage() {
         return prevPage;
     }
 
-    public void setPrevPage(Object prevPage) {
+    public void setPrevPage(Integer prevPage) {
         this.prevPage = prevPage;
     }
 
-    public Object getNextPage() {
+    public Integer getNextPage() {
         return nextPage;
     }
 
-    public void setNextPage(Object nextPage) {
+    public void setNextPage(Integer nextPage) {
         this.nextPage = nextPage;
     }
 
@@ -84,10 +84,9 @@ public class ClassQuery {
         this.collection = collection;
     }
 
-
     @Override
     public String toString() {
-        return "ClassQuery{" +
+        return "RestMappingEntity{" +
                 "page=" + page +
                 ", pageCount=" + pageCount +
                 ", totalCount=" + totalCount +
@@ -98,3 +97,5 @@ public class ClassQuery {
                 '}';
     }
 }
+
+

@@ -2,24 +2,42 @@ package fr.lirmm.agroportal.ontologymappingharvester.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi.Collection;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi.RestMappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MappingsRestService {
 
+
+    private String command;
+
+    public MappingsRestService(String command) {
+        this.command = command;
+    }
+
     public void postMappings(String[] args){
 
-        if(args.length>=4){
+        List<File> files;
+        //System.out.println(args.length);
 
-            if(args[4].equalsIgnoreCase("all")){
+        if(args.length>=3){
 
+            System.out.println("-->"+args[0]+" "+args[1]+" "+args[2]);
+            if(args[2].equalsIgnoreCase("all")){
+                files = getReferencesForJSONFiles(ManageProperties.loadPropertyValue("outputfolder"));
+                for(File file: files){
+                    doPost(file);
+                }
             }else{
                 for(int i = 3;i<args.length;i++){
                     doPost(args[i]);
@@ -36,15 +54,89 @@ public class MappingsRestService {
 
     public void deleteMappings(String[] args){
 
+
+        List<String> ids = new ArrayList<>();
+
+
+        // FASE 1 - Identify mappings created by the script for this ontology
+
+
+        if(args.length>=3){
+
+            AgroportalRestService service = new AgroportalRestService();
+
+            System.out.println("Arg: "+args[0].replaceAll("-",""));
+            String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
+            System.out.println("User: "+user);
+
+            int page = 1;
+            Integer nextPage = null;
+
+            do {
+
+
+                RestMappingEntity mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
+
+                if (mappings != null) {
+                    for (Collection collections : mappings.getCollection()) {
+                        if (collections.getId1() != null && collections.getProcess().getCreator() != null) {
+
+                            if (collections.getProcess().getCreator().indexOf(user) > -1) {
+                                ids.add(collections.getId1());
+                            }
+
+                            System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
+                        } else {
+                            System.out.println(collections.toString());
+                        }
+
+                    }
+                    nextPage = mappings.getNextPage();
+                    if(nextPage!=null){
+                        page = nextPage.intValue();
+                    }
+                } else {
+                    System.out.println("Erro: mappings = null");
+                    page++;
+                    nextPage = page;
+                }
+                System.out.println("Page: "+page);
+//                try {
+//                    Thread.sleep(10000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+            }while(nextPage!=null);
+
+
+            // FASE 2 Intereact over mappings created by this script to delete them.
+
+
+        }
+    }
+
+
+    public List<File> getReferencesForJSONFiles(String dirName){
+
+        File dir = new File(dirName);
+        String[] extensions = new String[] { "json" };
+
+        List<File> files = (List<File>) FileUtils.listFiles(dir, extensions, false);
+        return files;
     }
 
 
     private void doPost(String acronym){
 
-        AgroportalRestService ars = new AgroportalRestService();
+        String folder = ManageProperties.loadPropertyValue("outputfolder");
+        File file = new File(folder+File.separator+acronym+".json");
+        doPost(file);
 
-        String folder = ManageProperties.loadPropertyValue("stageagroportaladdress");
-        File file = new File(folder+File.separator+acronym);
+    }
+
+    private void doPost(File file){
+
+        AgroportalRestService ars = new AgroportalRestService();
 
         MappingEntity[] maps = loadJSONFile(file);
 
@@ -52,18 +144,17 @@ public class MappingsRestService {
 
         int counter=0;
         for(MappingEntity me: maps){
-            result = ars.postMappings(me);
+            result = ars.postMappings(me, this.command);
             System.out.println("Retorno: "+result);
             counter++;
             if(counter%5==0){
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(4000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
-
     }
 
 

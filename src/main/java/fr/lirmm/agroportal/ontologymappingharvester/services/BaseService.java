@@ -516,7 +516,7 @@ public class BaseService extends LogService {
                 if(er.getStatus()>0){
                     er.setCounter(Integer.parseInt(content[4]));
                 }
-
+                // TODO ATTENTION TO THIS LOWERCASE
                 externalTargetReferenceHashMap.put(content[1].toLowerCase(),er);
                 line = br.readLine();
             }
@@ -548,7 +548,7 @@ public class BaseService extends LogService {
 
         for(OntologyEntity oe: ontologiesAgro){
             submission = agroportalRestService.getLatestSubmission(command.indexOf("h")>-1?"h":"x",oe.getAcronym());
-            System.out.println(oe.getAcronym()+" --> "+submission.getURI());
+            //System.out.println(oe.getAcronym()+" --> "+submission.getURI());
             if(submission.getURI()!=null && submission.getURI().length()>1){
                 if((submission.getURI().length()-1)==submission.getURI().lastIndexOf("/")){
                     submission.setURI(submission.getURI().substring(0,submission.getURI().length()-1));

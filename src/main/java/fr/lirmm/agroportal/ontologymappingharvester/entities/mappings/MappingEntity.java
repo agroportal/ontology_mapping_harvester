@@ -128,13 +128,13 @@ public class MappingEntity implements Serializable {
             key = entry.getKey();
             value = entry.getValue();
             if(value.equalsIgnoreCase(sourceName)){
-                begin = key+";";
+                begin = key;
             }else{
-                end = key + ";";
+                end = key;
             }
         }
 
-        return begin + end;
+        return begin +";"+ end;
     }
 
 }

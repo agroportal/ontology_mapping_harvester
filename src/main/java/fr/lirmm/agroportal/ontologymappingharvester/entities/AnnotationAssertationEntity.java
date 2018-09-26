@@ -69,7 +69,9 @@ public class AnnotationAssertationEntity {
     }
 
     public void setOntologyConcept2(String ontologyConcept2) {
-        this.ontologyConcept2 = ontologyConcept2.toLowerCase();
+        this.ontologyConcept2 = ontologyConcept2;
+        // TODO take out to prevent wrong concept on JSON file  VERIFIY IF IT IS OK
+        //this.ontologyConcept2 = ontologyConcept2.toLowerCase();
     }
 
     public String getOntologyIdPortal() {

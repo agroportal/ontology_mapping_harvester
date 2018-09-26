@@ -97,12 +97,16 @@ public class Parser {
 //                }
 //            }
 //        }
+
+        int idCounter=0;
+        sb2.append("id;faccet;concept;map;ciqual_id;description_french;description_english;obs;faccet_list;complete\n");
         for(String langual: langualList){
 
             for(String line: referenceList){
                 if(line.toLowerCase().indexOf(langual)>-1){
+                    idCounter++;
                     me = mappingRereferece.get(langual);
-                    sb2.append(langual+";"+me.getClassesFormated()+ ";"+line+"\n");
+                    sb2.append(""+idCounter+";"+langual.toUpperCase()+";"+me.getClassesFormated()+ ";"+line+"\n");
                     langualOnLangual++;
                 }
             }
@@ -139,9 +143,9 @@ public class Parser {
 //                    }else
 
 
-                        if(key.indexOf("langual:")==0){
-                        langualList.add(key.substring(key.indexOf(":")+1,key.length()));
-                        mappingRereferece.put(key.substring(key.indexOf(":")+1,key.length()),me);
+                        if(key.indexOf("http://www.langual.org/xml/LanguaL2017.XML/")==0){
+                        langualList.add(key.substring(key.lastIndexOf("/")+1,key.length()));
+                        mappingRereferece.put(key.substring(key.lastIndexOf("/")+1,key.length()),me);
                         //System.out.println("LANGUAL - "+key.substring(key.indexOf(":")+1,key.length()));
                     }
 
@@ -194,7 +198,7 @@ public class Parser {
 
     public void readLangualFile(String fileName){
 
-        File file = new File("/home/abrahao/data/meatlab/"+fileName);
+        File file = new File("/home/abrahao/data/meatylab/"+fileName);
 
 
 
@@ -217,7 +221,7 @@ public class Parser {
 
     private void saveFile(String fileName, StringBuffer js){
 
-        File f = new File("/home/abrahao/data/meatlab/"+fileName);
+        File f = new File("/home/abrahao/data/meatylab/"+fileName);
         try {
             FileUtils.writeStringToFile(f, js.toString(), "UTF-8");
         } catch (IOException e) {

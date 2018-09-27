@@ -555,6 +555,14 @@ public class BaseService extends LogService {
                 }
             }
 
+            // get the number of classes to put on the visualization javscript latter
+            if(submission.getNumberOfClasses()!=null && submission.getNumberOfClasses()>0){
+                oe.setNumberOfClasses(submission.getNumberOfClasses());
+            }else{
+                // In case there is no information about the number of classes on the submission
+                oe.setNumberOfClasses(1);
+            }
+
             //TODO take out the prefix
             //ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
             ontologyNameHashMapAgroInverse.put(submission.getURI(),oe.getAcronym());

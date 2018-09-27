@@ -129,10 +129,6 @@ public class HarvestAllFormatsService extends BaseService  {
         String auxProperty = "";
 
 
-        for (OWLClass c : oA.getClassesInSignature()) {
-            //println(c.toString());
-            countClasses++;
-        }
         stdoutLogger.info("Total of Classes: " + countClasses);
 
         stdoutLogger.info("Begin search for matchs on class anntations...");
@@ -400,13 +396,15 @@ public class HarvestAllFormatsService extends BaseService  {
                 } else {
                     mappings.put(MapIRI, 1);
                 }
-                if (totalMappings.containsKey(MapIRI)) {
-                    counter = totalMappings.get(MapIRI);
-                    counter++;
-                    totalMappings.put(MapIRI, counter);
-                } else {
-                    totalMappings.put(MapIRI, 1);
-                }
+
+                // Move this to the json build method
+//                if (totalMappings.containsKey(MapIRI)) {
+//                    counter = totalMappings.get(MapIRI);
+//                    counter++;
+//                    totalMappings.put(MapIRI, counter);
+//                } else {
+//                    totalMappings.put(MapIRI, 1);
+//                }
 
 
 
@@ -547,6 +545,7 @@ public class HarvestAllFormatsService extends BaseService  {
         int count = 1;
         int current = 0;
         int last = 0;
+        int counter=0;
 
         stdoutLogger.info("-->0% done");
 
@@ -601,6 +600,16 @@ public class HarvestAllFormatsService extends BaseService  {
                     //TODO verificar montagem disso
                     //System.out.println("Assetation: "+ an.getAssertion()+"  -  CONCEPT--> "+an.getOntologyConcept2()+"   CLEAR--> "+cleanShortConcept(an.getOntologyConcept2()));
                     classes.put(an.getBaseClassURI() + cleanShortConcept(an.getOntologyConcept2()), an.getOntology2Curated());
+                }
+
+
+                // Here are generated the statistics for visualization javascript
+                if (totalMappings.containsKey(an.getOntology2())) {
+                    counter = totalMappings.get(an.getOntology2());
+                    counter++;
+                    totalMappings.put(an.getOntology2(), counter);
+                } else {
+                    totalMappings.put(an.getOntology2(), 1);
                 }
 
 
@@ -710,7 +719,7 @@ public class HarvestAllFormatsService extends BaseService  {
         String aux = "";
         //System.out.println("TotalMappings-->"+totalMappings.size());
         if(totalMappings.size()>0) {
-            addStat("rootnode;" + currentOntologyName + ";" + countIndividuals + ";" + currentOntologyName);
+            addStat("rootnode;" + currentOntologyName + ";" + countClasses + ";" + currentOntologyName);
 
             for (Map.Entry<String, Integer> entry2 : totalMappings.entrySet()) {
                 String key2 = entry2.getKey().replaceAll("'", "").replaceAll(";", "");
@@ -1708,20 +1717,23 @@ public class HarvestAllFormatsService extends BaseService  {
                     }
                     ontologyContactEmail = ontologyContactEmail.substring(0, ontologyContactEmail.length() - 1);
                     currentOntologyId = submission.getId();
+                    countClasses = submission.getNumberOfClasses();
                 } else {
                     ontologyContactEmail = "Ontology not on Agroportal or Bioportal";
                     currentOntologyId = "External Ontology";
+                    // in case there is no ontology founded
+                    countClasses = 1;
                 }
                 loadOntology(fileName);
                 findMatches();
                 totalizeMappings();
-                saveFile();
                 if (command.indexOf("j") > -1) {
                     buildJson();
                 }
                 if (command.indexOf("s") > -1) {
                     generateStatistics();
                 }
+                saveFile();
 
                 mappings = new HashMap<>();
                 maps = new HashMap<>();
@@ -1782,6 +1794,7 @@ public class HarvestAllFormatsService extends BaseService  {
                         ontologyContactEmail="";
                         currentOntologyName = ontologyEntity.getAcronym();
                         currentOntologyId = ontologyEntity.getId();
+                        countClasses = ontologyEntity.getNumberOfClasses();
                         externalLogger.info("******************************************External References for: " + currentOntologyName + " " + Util.getDateTime());
 
                         println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
@@ -1802,13 +1815,15 @@ public class HarvestAllFormatsService extends BaseService  {
                         downloadOntology(ontologyEntity.getAcronym(), ontologyEntity.getLinks().getDownload(), dir);
                         findMatches();
                         totalizeMappings();
-                        saveFile();
+
                         if (command.indexOf("j") > -1) {
                             buildJson();
                         }
                         if (command.indexOf("s") > -1) {
                             generateStatistics();
                         }
+                        saveFile();
+
                     } catch (OWLOntologyCreationException e) {
                         errorLogger.error("Error trying to download ontology from file" + e.getMessage());
                         saveFile();
@@ -1826,6 +1841,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 } else {
                     errorLogger.error("Ontology: " + ontologyEntity.getAcronym() + " is summary only ! Processing skiped !");
                     externalLogger.warn("Ontology: " + ontologyEntity.getAcronym() + " is summary only ! Processing skiped !");
+                    countClasses=1;
                 }
                 appendExecutionHistory(ontologyEntity.getAcronym().toUpperCase());
             } else {
@@ -1880,6 +1896,7 @@ public class HarvestAllFormatsService extends BaseService  {
                         try {
                             currentOntologyName = ontologyEntity.getAcronym();
                             currentOntologyId = ontologyEntity.getId();
+                            countClasses = ontologyEntity.getNumberOfClasses();
                             externalLogger.info("******************************************External References for: " + currentOntologyName + " " + Util.getDateTime());
 
                             println(Util.getDateTime() + " Processing: " + (++countOntologies) + ") " + currentOntologyName);
@@ -1901,16 +1918,19 @@ public class HarvestAllFormatsService extends BaseService  {
                             findMatches();
                             //println("Tamanho dedplicated: "+deduplicationHash.size());
                             totalizeMappings();
-                            saveFile();
+
                             if (command.indexOf("j") > -1) {
                                 buildJson();
                             }
                             if (command.indexOf("s") > -1) {
                                 generateStatistics();
                             }
+                            saveFile();
                         } catch (OWLOntologyCreationException e) {
                             errorLogger.error("Error trying to download ontology from file" + e.getMessage());
+                            countClasses=1;
                             saveFile();
+
                         }
 
 

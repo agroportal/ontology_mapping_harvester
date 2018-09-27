@@ -52,6 +52,16 @@ public class OntologyEntity {
     @Expose
     private Links links;
 
+    private Integer numberOfClasses;
+
+    public Integer getNumberOfClasses() {
+        return numberOfClasses;
+    }
+
+    public void setNumberOfClasses(Integer numberOfClasses) {
+        this.numberOfClasses = numberOfClasses;
+    }
+
     public List<String> getAdministeredBy() {
         return administeredBy;
     }

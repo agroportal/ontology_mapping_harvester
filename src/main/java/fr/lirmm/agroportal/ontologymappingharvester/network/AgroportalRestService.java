@@ -239,7 +239,7 @@ public class AgroportalRestService extends LogService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+"POST");
-            errorLogger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error REST POST MAPPINGS: "+ e.getMessage());
         }
 
         return result;
@@ -294,7 +294,7 @@ public class AgroportalRestService extends LogService {
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+"get rest mappings");
-            errorLogger.error("Error: "+ e.getStackTrace());
+            errorLogger.error("Error REST MAPPINGS: "+ e.getMessage());
         }
 
         return mappings;
@@ -317,18 +317,18 @@ public class AgroportalRestService extends LogService {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        System.out.println("HERE--->"+link);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(link)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        //System.out.println("HERE--->"+link);
 
 //        Retrofit retrofit = new Retrofit.Builder()
 //                .baseUrl(link)
-//                .client(client)
-//                .addConverterFactory(GsonConverterFactory.create(getGson()))
+//                .addConverterFactory(GsonConverterFactory.create())
 //                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(getGson()))
+                .build();
 
 
         AgroportalService service = retrofit.create(AgroportalService.class);
@@ -344,7 +344,7 @@ public class AgroportalRestService extends LogService {
 
         } catch (Exception e) {
             System.out.println("Error: "+e.getMessage()+"delete mapping "+id);
-            errorLogger.error("Error deleting mapping: "+ id + " MESSAGE: "+ e.getStackTrace());
+            errorLogger.error("Error deleting mapping: "+ id + " MESSAGE: "+ e.getMessage());
         }
 
         return message;

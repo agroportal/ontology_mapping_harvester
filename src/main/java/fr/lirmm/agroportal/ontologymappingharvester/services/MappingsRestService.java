@@ -72,14 +72,22 @@ public class MappingsRestService extends LogService{
             System.out.println("User: "+user);
 
             int page = 1;
-            Integer nextPage = null;
+            Integer nextPage = 0;
+            Integer totalPages = null;
 
             do {
 
 
                 RestMappingEntity mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
 
+
+
                 if (mappings != null) {
+
+                    if(mappings.getPageCount()!=null){
+                        totalPages = mappings.getPageCount();
+                    }
+
                     for (Collection collections : mappings.getCollection()) {
                         if (collections.getId1() != null && collections.getProcess().getCreator() != null) {
 
@@ -87,9 +95,9 @@ public class MappingsRestService extends LogService{
                                 ids.add(collections.getId1());
                             }
 
-                            //System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
+                           // System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
                         } else {
-                            //System.out.println(collections.toString());
+                           // System.out.println(collections.toString());
                         }
 
                     }
@@ -102,7 +110,7 @@ public class MappingsRestService extends LogService{
                     page++;
                     nextPage = page;
                 }
-                System.out.println("Page: "+page);
+                System.out.println("Pages/Page: "+totalPages+"/"+page);
 //                try {
 //                    Thread.sleep(10000);
 //                } catch (InterruptedException e) {

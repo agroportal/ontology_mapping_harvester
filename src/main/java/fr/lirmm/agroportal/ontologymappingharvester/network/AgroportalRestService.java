@@ -228,7 +228,7 @@ public class AgroportalRestService extends LogService {
 
         AgroportalService service = retrofit.create(AgroportalService.class);
 
-        System.out.println("apikey token="+key + "  "+ me.toString()     );
+        //System.out.println("apikey token="+key + "  "+ me.toString()     );
 
         Call<String> postMapping = service.postMapping("apikey token="+key,"application/json", me);
 
@@ -238,7 +238,7 @@ public class AgroportalRestService extends LogService {
             result = postMapping.execute().message();
 
         } catch (Exception e) {
-            System.out.println("Erro: "+e.getMessage()+"POST");
+            System.out.println("Error on POST: "+e.getMessage());
             errorLogger.error("Error REST POST MAPPINGS: "+ e.getMessage());
         }
 
@@ -270,16 +270,16 @@ public class AgroportalRestService extends LogService {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(link)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
 //        Retrofit retrofit = new Retrofit.Builder()
 //                .baseUrl(link)
-//                .client(client)
-//                .addConverterFactory(GsonConverterFactory.create(getGson()))
+//                .addConverterFactory(GsonConverterFactory.create())
 //                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(getGson()))
+                .build();
 
 
         AgroportalService service = retrofit.create(AgroportalService.class);
@@ -303,9 +303,9 @@ public class AgroportalRestService extends LogService {
     }
 
 
-    public String deleteMapping(String command, String id){
+    public String deleteMapping(String command, String id, String ontologyName){
 
-        setupLogProperties(command,"delete_mappings", ManageProperties.loadPropertyValue("outputfolder"));
+        setupLogProperties(command,ontologyName, ManageProperties.loadPropertyValue("outputfolder"));
 
         String link=ManageProperties.loadPropertyValue(command+"url");
 
@@ -319,16 +319,16 @@ public class AgroportalRestService extends LogService {
 
         //System.out.println("HERE--->"+link);
 
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(link)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(link)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create(getGson()))
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(link)
+//                .client(client)
+//                .addConverterFactory(GsonConverterFactory.create(getGson()))
+//                .build();
 
 
         AgroportalService service = retrofit.create(AgroportalService.class);
@@ -340,11 +340,11 @@ public class AgroportalRestService extends LogService {
 
         try {
             message = deleteMapping.execute().body();
-            System.out.println("Mapping Deleted: " + id +" Message: "+message);
+            stdoutLogger.info("Mapping Deleted: " + id +" Message: "+message);
 
         } catch (Exception e) {
-            System.out.println("Error: "+e.getMessage()+"delete mapping "+id);
-            errorLogger.error("Error deleting mapping: "+ id + " MESSAGE: "+ e.getMessage());
+            stdoutLogger.error("Ontology: "+ontologyName+" Error Deleting Mapping: "+id+ "Message: "+e.getMessage());
+            errorLogger.error("Ontology: "+ontologyName+" Error deleting mapping: "+ id + " MESSAGE: "+ e.getMessage());
         }
 
         return message;

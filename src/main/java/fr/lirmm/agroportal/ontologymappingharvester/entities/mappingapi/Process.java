@@ -3,12 +3,13 @@ package fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Process {
 
-    @SerializedName("id3")
+    @SerializedName("id")
     @Expose
-    private String id3;
+    private String id2;
     @SerializedName("name")
     @Expose
     private String name;
@@ -23,7 +24,7 @@ public class Process {
     private List<String> relation = null;
     @SerializedName("source_contact_info")
     @Expose
-    private Object sourceContactInfo;
+    private String sourceContactInfo;
     @SerializedName("source_name")
     @Expose
     private String sourceName;
@@ -34,12 +35,12 @@ public class Process {
     @Expose
     private String date;
 
-    public String getId3() {
-        return id3;
+    public String getId2() {
+        return id2;
     }
 
-    public void setId3(String id3) {
-        this.id3 = id3;
+    public void setId2(String id2) {
+        this.id2 = id2;
     }
 
     public String getName() {
@@ -74,11 +75,11 @@ public class Process {
         this.relation = relation;
     }
 
-    public Object getSourceContactInfo() {
+    public String getSourceContactInfo() {
         return sourceContactInfo;
     }
 
-    public void setSourceContactInfo(Object sourceContactInfo) {
+    public void setSourceContactInfo(String sourceContactInfo) {
         this.sourceContactInfo = sourceContactInfo;
     }
 
@@ -108,16 +109,7 @@ public class Process {
 
     @Override
     public String toString() {
-        return "Process{" +
-                "id3='" + id3 + '\'' +
-                ", name='" + name + '\'' +
-                ", creator='" + creator + '\'' +
-                ", source='" + source + '\'' +
-                ", relation=" + relation +
-                ", sourceContactInfo=" + sourceContactInfo +
-                ", sourceName='" + sourceName + '\'' +
-                ", comment='" + comment + '\'' +
-                ", date='" + date + '\'' +
-                '}';
+        return new ToStringBuilder(this).append("id2", id2).append("name", name).append("creator", creator).append("source", source).append("relation", relation).append("sourceContactInfo", sourceContactInfo).append("sourceName", sourceName).append("comment", comment).append("date", date).toString();
     }
+
 }

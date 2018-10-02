@@ -38,6 +38,16 @@ public class MappingEntity implements Serializable {
     @SerializedName("classes")
     private HashMap<String,String> classes;
 
+    private String mapId;
+
+    public String getMapId() {
+        return mapId;
+    }
+
+    public void setMapId(String mapId) {
+        this.mapId = mapId;
+    }
+
     public int getId() {
         return id;
     }
@@ -114,6 +124,7 @@ public class MappingEntity implements Serializable {
                 ", sourceName='" + sourceName + '\'' +
                 ", comment='" + comment + '\'' +
                 ", classes=" + classes +
+                ", mapId='" + mapId + '\'' +
                 '}';
     }
 
@@ -136,5 +147,27 @@ public class MappingEntity implements Serializable {
 
         return begin +";"+ end;
     }
+
+    public MapReturn getIdentifier(){
+        int counter=0;
+        String key="";
+        String value="";
+        MapReturn mr = new MapReturn();
+        mr.setRelation(relation[0]);
+
+        for (Map.Entry<String, String> entry : classes.entrySet()) {
+            key = entry.getKey();
+            value = entry.getValue();
+            if(counter==0){
+                mr.setId1(key);
+                counter++;
+            }else{
+                mr.setId2(key);
+            }
+        }
+     return mr;
+    }
+
+
 
 }

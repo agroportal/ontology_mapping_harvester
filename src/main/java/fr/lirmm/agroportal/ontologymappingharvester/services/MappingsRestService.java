@@ -69,7 +69,7 @@ public class MappingsRestService extends LogService{
             String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
             System.out.println("User: "+user);
 
-            list = getInternalMappings(args,user);
+            list = getInternalMappings(args,user, false);
 
 
             // FASE 2 Intereact over mappings created by this script to delete them.
@@ -94,7 +94,7 @@ public class MappingsRestService extends LogService{
     }
 
 
-    private HashMap<String,MappingEntity> getInternalMappings(String[] args, String user){
+    private HashMap<String,MappingEntity> getInternalMappings(String[] args, String user, boolean getAllKeys){
 
         HashMap<String,MappingEntity> list = new HashMap<String,MappingEntity>();
         MappingEntity me = null;
@@ -107,72 +107,81 @@ public class MappingsRestService extends LogService{
 
         AgroportalRestService service = new AgroportalRestService();
 
+        RestMappingEntity mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
+
         do {
 
-
-            RestMappingEntity mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
-
-
+            System.out.println("Page: "+page);
 
             if (mappings != null) {
 
-                if(mappings.getPageCount()!=null){
-                    totalPages = mappings.getPageCount();
-                }
-
-                for (Collection collections : mappings.getCollection()) {
-                    if (collections.getId() != null && collections.getProcess()!=null && collections.getProcess().getCreator() != null) {
+                if(mappings.getCollection().size()>0) {
 
 
-                        if (collections.getProcess().getCreator().indexOf(user) > -1) {
+                    for (Collection collections : mappings.getCollection()) {
+                        if (collections.getId() != null && collections.getProcess() != null && collections.getProcess().getCreator() != null) {
 
-                            classes = new HashMap<>();
-                            me = new MappingEntity();
-                            me.setMapId(collections.getId());
-                            me.setSourceName(collections.getProcess().getSourceName());
-                            me.setCreator(collections.getProcess().getCreator());
+                            if (collections.getProcess().getCreator().indexOf(user) > -1) {
+
+                                classes = new HashMap<>();
+                                me = new MappingEntity();
+                                me.setMapId(collections.getId());
+                                me.setSourceName(collections.getProcess().getSourceName());
+                                me.setCreator(collections.getProcess().getCreator());
 //                            System.out.println("Colection : "+collections.toString());
 //
 //                            System.out.println("Classe   1: "+collections.getClasses().get(1).toString());
 //                            System.out.println("Process   : "+collections.getProcess().toString());
 
 
-                            classes.put(collections.getClasses().get(0).getId1(),collections.getClasses().get(0).getType1());
-                            classes.put(collections.getClasses().get(1).getId1(),collections.getClasses().get(1).getType1());
-                            me.setClasses(classes);
+                                classes.put(collections.getClasses().get(0).getId1(), collections.getClasses().get(0).getType1());
+                                classes.put(collections.getClasses().get(1).getId1(), collections.getClasses().get(1).getType1());
+                                me.setClasses(classes);
 
-                            relations[0]=collections.getProcess().getRelation().get(0);
-                            me.setRelation(relations);
-                            System.out.println("ID1: "+me.getIdentifier().getId1());
-                            System.out.println("ID2: "+me.getIdentifier().getId2());
-                            //list.put(me.getClassesFormated()+me.getRelation(),me);
+                                relations[0] = collections.getProcess().getRelation().get(0);
+                                me.setRelation(relations);
+//                                System.out.println("ID1: " + me.getIdentifier().getId1() + " " + collections.getId());
+//                                System.out.println("ID2: " + me.getIdentifier().getId2() + " " + collections.getId());
+                                if (getAllKeys) {
+                                    list.put(me.getIdentifier().getId1(), me);
+                                    list.put(me.getIdentifier().getId2(), me);
+                                } else {
+                                    list.put(me.getClassesFormated() + me.getRelation(), me);
+                                }
 
 
+                            }
+
+                            // System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
+                        } else {
+                            // System.out.println(collections.toString());
                         }
 
-                        // System.out.println("id: " + collections.getId1() + " Creator: " + collections.getProcess().getCreator());
-                    } else {
-                        // System.out.println(collections.toString());
                     }
 
-                }
-                nextPage = mappings.getNextPage();
-                if(nextPage!=null){
-                    page = nextPage.intValue();
+
                 }
             } else {
                 errorLogger.error("ERROR: Ontology Mappings Identification for : "+args[2]+" page: "+page+ " is missing: Internal Server Error. Page will be igonered.");
                 stdoutLogger.error("Ontology: "+args[2]+" Missing page: "+page+ " Internal server error.");
-                page++;
-                nextPage = page;
+
             }
-            System.out.println("Pages/Page: "+totalPages+"/"+page);
+
+            do {
+                page++;
+                mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
+            } while(mappings==null);
+
+
+
 //                try {
 //                    Thread.sleep(10000);
 //                } catch (InterruptedException e) {
 //                    e.printStackTrace();
 //                }
-        }while(nextPage!=null);
+        }while(mappings.getCollection().size()>0);
+
+        //System.exit(0);
 
         return list;
     }
@@ -201,38 +210,78 @@ public class MappingsRestService extends LogService{
 
         AgroportalRestService ars = new AgroportalRestService();
         String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
-        HashMap<String,MappingEntity> list = getInternalMappings(args,user);
+
 
         MappingEntity[] maps = loadJSONFile(file);
 
-        HashMap<String,MappingEntity> map = getInternalMappings(args,user);
+        HashMap<String,MappingEntity> map = getInternalMappings(args,user, true);
+
+        String key="";
+        System.out.println("List size: "+map.size());
+        for (Map.Entry<String, MappingEntity> entry : map.entrySet()) {
+            key = entry.getKey();
+            System.out.println("Chave: "+key);
+        }
+
+        //System.exit(0);
 
         String result="";
 
         int counter=0;
+        int cc=0;
         for(MappingEntity me: maps){
 
+            //System.out.println("ID1----->"+me.getIdentifier().getId1()+" --> "+map.get(me.getIdentifier().getId1()));
+            //System.out.println("ID2----->"+me.getIdentifier().getId2()+" --> "+map.get(me.getIdentifier().getId2()));
+
             if(map.get(me.getIdentifier().getId1())==null && map.get(me.getIdentifier().getId2())==null){
-                stdoutLogger.info("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
-                System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
+
+                //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
+
                 result = ars.postMappings(me, this.command);
-                stdoutLogger.info("Response: "+result);
+                stdoutLogger.info("MAPPINF NOT EXISTIS, INSERTED-->: "+me.toString()+" "+result);
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
                 counter++;
-                if(counter%5==0){
+                if(counter%30==0){
                     // Problems on the server with 0(zero) and 2 (two) seconds interval
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
 
             }else{
-                stdoutLogger.info("Mapping already exists, skiping insert for--> "+me.toString());
-                System.out.println("Mapping already exists, skiping insert for--> "+me.toString());
+                stdoutLogger.info("MAPPING ALREADY EXISTIS, skiping insert for--> "+me.toString());
             }
 
+
+//            if(map.get(me.getIdentifier().getId1())!=null || map.get(me.getIdentifier().getId2())!=null){
+//
+//                //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
+//                cc++;
+//                stdoutLogger.info("EXISTS--> "+me.toString());
+//
+//            }
+
+
+//            if(map.get(me.getIdentifier().getId1())==null || map.get(me.getIdentifier().getId2())==null){
+//
+//                //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
+//
+//                stdoutLogger.info("--> "+me.toString());
+//
+//            }
+
         }
+        System.out.println("Mapas que ja existem: "+cc);
     }
 
 

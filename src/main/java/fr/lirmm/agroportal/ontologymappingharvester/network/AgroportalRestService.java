@@ -232,17 +232,17 @@ public class AgroportalRestService extends LogService {
 
         Call<String> postMapping = service.postMapping("apikey token="+key,"application/json", me);
 
-        String result = "";
+        int result = 0;
 
         try {
-            result = postMapping.execute().message();
+            result = postMapping.execute().code();
 
         } catch (Exception e) {
-            System.out.println("Error on POST: "+e.getMessage());
-            errorLogger.error("Error REST POST MAPPINGS: "+ e.getMessage());
+            System.out.println("Error on POST Mapping: "+me.toString()+"\nError REST POST MAPPINGS: "+ e.getMessage());
+            errorLogger.error("Error on POST Mapping: "+me.toString()+"\nError REST POST MAPPINGS: "+ e.getMessage());
         }
 
-        return result;
+        return "Result Code:"+ result;
 
 
     }

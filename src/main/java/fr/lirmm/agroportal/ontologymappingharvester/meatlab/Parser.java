@@ -102,6 +102,8 @@ public class Parser {
         sb2.append("id;faccet;concept;map;ciqual_id;description_french;description_english;obs;faccet_list;complete\n");
         for(String langual: langualList){
 
+            System.out.println("LANGUAL-->"+langual+"<--");
+
             for(String line: referenceList){
                 if(line.toLowerCase().indexOf(langual)>-1){
                     idCounter++;

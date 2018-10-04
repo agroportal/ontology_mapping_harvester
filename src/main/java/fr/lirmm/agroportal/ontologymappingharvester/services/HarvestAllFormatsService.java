@@ -129,6 +129,7 @@ public class HarvestAllFormatsService extends BaseService  {
         String auxProperty = "";
 
 
+
         stdoutLogger.info("Total of Classes: " + countClasses);
 
         stdoutLogger.info("Begin search for matchs on class anntations...");
@@ -169,6 +170,34 @@ public class HarvestAllFormatsService extends BaseService  {
                             stdoutLogger.info("Property: " + annotationAssertionAxiom.getProperty());
                             stdoutLogger.info("Value   : " + annotationAssertionAxiom.getValue());
 
+
+                            // CL0 - In case that the class it self has the mapping
+                            if(annotationAssertionAxiom.getProperty().toString().indexOf(MATCH[x])>-1){
+
+                                if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
+                                    //println("Entrou no if do annotation get value");
+                                    OWLLiteral val = (OWLLiteral) annotationAssertionAxiom.getValue();
+                                    //if (val.hasLang("en")) {
+                                    stdoutLogger.info("PropertyValueLiteral: " + val.getLiteral());
+                                    auxProperty = val.getLiteral();
+                                    isIRI = false;
+                                    //}
+                                } else if (annotationAssertionAxiom.getValue() instanceof IRI) {
+                                    stdoutLogger.info("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
+                                    auxProperty = annotationAssertionAxiom.getValue().toString();
+                                    isIRI = true;
+                                    //}
+                                }
+
+                                an = getAnnotationAssertationEntity(currentOntologyId, annotationAssertionAxiom.getSubject().toString(), annotationAssertionAxiom.getProperty().toString(), auxProperty, isIRI, ++countMatch);
+                                // Variation zero
+                                addToDeduplicationHash(an,1);
+                            }
+
+
+
+
+
                             if(annotationAssertionAxiom.getProperty().toString().equalsIgnoreCase("owl:sameas")){
 
                                 if (annotationAssertionAxiom.getValue() instanceof OWLLiteral) {
@@ -199,7 +228,10 @@ public class HarvestAllFormatsService extends BaseService  {
                                 for (OWLAnnotation aaa : annotationAssertionAxiom.getAnnotations()) {
 
                                     if (aaa.getProperty().toString().indexOf(MATCH[x]) > -1) {
+
                                         if (aaa.getValue() instanceof OWLLiteral) {
+
+
                                             //println("Entrou no if do annotation get value");
                                             OWLLiteral val = (OWLLiteral) aaa.getValue();
                                             //if (val.hasLang("en")) {
@@ -208,6 +240,8 @@ public class HarvestAllFormatsService extends BaseService  {
                                             isIRI = false;
                                             //}
                                         } else if (aaa.getValue() instanceof IRI) {
+
+
                                             stdoutLogger.info("PropertyValueIRI: " + annotationAssertionAxiom.getValue());
                                             auxProperty = aaa.getValue().toString();
                                             isIRI = true;
@@ -243,6 +277,9 @@ public class HarvestAllFormatsService extends BaseService  {
             stdoutLogger.info("Begin search for individuals...");
 
             boolean assertationLookup = true;
+
+
+
 
             for (OWLNamedIndividual ind : oA.getIndividualsInSignature()) {
 

@@ -2,6 +2,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Context {
 
@@ -30,9 +31,7 @@ public class Context {
 
     @Override
     public String toString() {
-        return "Context{" +
-                "vocab='" + vocab + '\'' +
-                ", prefLabel='" + prefLabel + '\'' +
-                '}';
+        return new ToStringBuilder(this).append("vocab", vocab).append("prefLabel", prefLabel).toString();
     }
+
 }

@@ -548,7 +548,11 @@ public class BaseService extends LogService {
 
         for(OntologyEntity oe: ontologiesAgro){
             submission = agroportalRestService.getLatestSubmission(command.indexOf("h")>-1?"h":"x",oe.getAcronym());
+
+            //System.out.println(oe.getAcronym()+" ########################################################");
             //System.out.println(oe.getAcronym()+" --> "+submission.getURI());
+
+
             if(submission.getURI()!=null && submission.getURI().length()>1){
                 if((submission.getURI().length()-1)==submission.getURI().lastIndexOf("/")){
                     submission.setURI(submission.getURI().substring(0,submission.getURI().length()-1));
@@ -565,6 +569,7 @@ public class BaseService extends LogService {
 
             //TODO take out the prefix
             //ontologyNameHashMapAgroInverse.put(submission.getURI(),"AGROPORTAL:"+oe.getAcronym());
+
             ontologyNameHashMapAgroInverse.put(submission.getURI(),oe.getAcronym());
 
             ontologyNameHashMapAgro.put(oe.getAcronym(),submission.getURI());
@@ -582,7 +587,7 @@ public class BaseService extends LogService {
         }
 
         for(OntologyEntity oe: ontologiesBio){
-            ontologyNameHashMapBioInverse.put(oe.getId(),"NCBO:"+oe.getAcronym());
+            ontologyNameHashMapBioInverse.put(oe.getId(),"ncbo:"+oe.getAcronym());
             ontologyNameHashMapBio.put(oe.getAcronym(),oe.getId());
             externalLogger.info("Get IRI for "+oe.getAcronym()+" --> "+oe.getId());
         }

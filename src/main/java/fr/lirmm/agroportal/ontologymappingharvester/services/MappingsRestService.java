@@ -7,8 +7,10 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi.RestMapp
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.reference.CurationEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.network.AgroportalRestService;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.CustomRetrofitResponse;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.commons.io.FileUtils;
+import retrofit2.Response;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,15 +30,18 @@ public class MappingsRestService extends LogService{
     public void postMappings(String[] args){
 
         List<File> files;
-        //System.out.println(args.length);
-        setupLogProperties(this.command+ "pl",args[2],ManageProperties.loadPropertyValue("outputfolder"));
+        System.out.println(args.length);
+
 
         if(args.length>=3){
 
-            System.out.println("-->"+args[0]+" "+args[1]+" "+args[2]);
-            if(args[2].equalsIgnoreCase("all")){
+
+            if(args[2].toLowerCase().indexOf("all")>-1){
+
+
                 files = getReferencesForJSONFiles(ManageProperties.loadPropertyValue("outputfolder"));
                 for(File file: files){
+
                     doPost(file, args);
                 }
             }else{
@@ -53,7 +58,7 @@ public class MappingsRestService extends LogService{
 
     public void deleteMappings(String[] args){
 
-
+        CustomRetrofitResponse mm=null;
         HashMap<String,MappingEntity> list = new HashMap<>();
 
         setupLogProperties(this.command,args[2],ManageProperties.loadPropertyValue("outputfolder"));
@@ -69,7 +74,7 @@ public class MappingsRestService extends LogService{
             String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
             System.out.println("User: "+user);
 
-            list = getInternalMappings(args,user, false);
+            list = getInternalMappings(args,user, false, args[2]);
 
 
             // FASE 2 Intereact over mappings created by this script to delete them.
@@ -82,8 +87,14 @@ public class MappingsRestService extends LogService{
             for (Map.Entry<String, MappingEntity> entry : list.entrySet()) {
                 key = entry.getKey();
                 me = entry.getValue();
-                service.deleteMapping(args[0],me.getMapId(),args[2]);
-                counter++;
+                mm = service.deleteMapping(args[0],me.getMapId(),args[2]);
+                if(mm.getResponse().code()>=400){
+                    stdoutLogger.error("TRYING TO DELETE MAPPING ID: " + me.toString()+ " DELETE WITH SUCSSES: "+mm.getResponse().isSuccessful());
+                    stdoutLogger.error("ERROR MESSAGE: "+mm.getErrorMessage());
+                }else{
+                    stdoutLogger.info("MAPPING DELETED WITH SUCSSES: " + me.toString());
+                    counter++;
+                }
 
             }
 
@@ -94,7 +105,7 @@ public class MappingsRestService extends LogService{
     }
 
 
-    private HashMap<String,MappingEntity> getInternalMappings(String[] args, String user, boolean getAllKeys){
+    private HashMap<String,MappingEntity> getInternalMappings(String[] args, String user, boolean getAllKeys, String ontology){
 
         HashMap<String,MappingEntity> list = new HashMap<String,MappingEntity>();
         MappingEntity me = null;
@@ -107,7 +118,7 @@ public class MappingsRestService extends LogService{
 
         AgroportalRestService service = new AgroportalRestService();
 
-        RestMappingEntity mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
+        RestMappingEntity mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), ontology, page);
 
         do {
 
@@ -162,14 +173,14 @@ public class MappingsRestService extends LogService{
 
                 }
             } else {
-                errorLogger.error("ERROR: Ontology Mappings Identification for : "+args[2]+" page: "+page+ " is missing: Internal Server Error. Page will be igonered.");
-                stdoutLogger.error("Ontology: "+args[2]+" Missing page: "+page+ " Internal server error.");
+                errorLogger.error("ERROR: Ontology Mappings Identification for : "+ontology+" page: "+page+ " is missing: Internal Server Error. Page will be igonered.");
+                stdoutLogger.error("Ontology: "+ontology+" Missing page: "+page+ " Internal server error.");
 
             }
 
             do {
                 page++;
-                mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), args[2], page);
+                mappings = service.getAllRestMappings(args[0].replaceAll("-", ""), ontology, page);
             } while(mappings==null);
 
 
@@ -208,13 +219,16 @@ public class MappingsRestService extends LogService{
 
     private void doPost(File file, String[] args){
 
+        setupLogProperties(this.command+ "pl",file.getName().toUpperCase().replace(".JSON",""),ManageProperties.loadPropertyValue("outputfolder"));
+
+
         AgroportalRestService ars = new AgroportalRestService();
         String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
 
 
         MappingEntity[] maps = loadJSONFile(file);
 
-        HashMap<String,MappingEntity> map = getInternalMappings(args,user, true);
+        HashMap<String,MappingEntity> map = getInternalMappings(args,user, true, file.getName().toUpperCase().replace(".JSON",""));
 
         String key="";
         System.out.println("List size: "+map.size());
@@ -225,7 +239,7 @@ public class MappingsRestService extends LogService{
 
         //System.exit(0);
 
-        String result="";
+        CustomRetrofitResponse response =null;
 
         int counter=0;
         int cc=0;
@@ -238,8 +252,28 @@ public class MappingsRestService extends LogService{
 
                 //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
 
-                result = ars.postMappings(me, this.command);
-                stdoutLogger.info("MAPPINF NOT EXISTIS, INSERTED-->: "+me.toString()+" "+result);
+                response = ars.postMappings(me, this.command);
+
+                if(response != null && response.getResponse() !=null){
+
+                    stdoutLogger.info("######### CODE-->: "+response.getResponse().code());
+
+                    if(response.getResponse().isSuccessful()){
+                        stdoutLogger.info("MAPPING NOT EXISTIS, INSERTED-->: "+me.toString());
+                    }else{
+                        try {
+                            stdoutLogger.error("ERROR INSERTTING MAPPING: " + me.toString() + " Code: " + response.getResponse().code() + " Message: " + response.getResponse().message() + " - Description: " + response.getErrorMessage());
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+
+                }else{
+                    stdoutLogger.error("ERROR:"+response.getErrorMessage()+" - NULL RESPONSE FROM SERVER FOR MAPPING: "+me.toString());
+                }
+
+
+
 
                 try {
                     Thread.sleep(500);

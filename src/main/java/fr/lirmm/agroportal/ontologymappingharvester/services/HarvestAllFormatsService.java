@@ -986,6 +986,12 @@ public class HarvestAllFormatsService extends BaseService  {
 
             // Enter here if it is not an IRI
 
+            if(aux.indexOf("GO:0000090")>-1){
+                System.out.println("############### MAPA  ---> "+aux);
+                System.out.println("############### VALID ---> "+isValidMap(aux));
+            }
+
+
             if(isValidMap(aux)) {
 
                 if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
@@ -1091,7 +1097,11 @@ public class HarvestAllFormatsService extends BaseService  {
             //TODO verificar depois
             //an.setOntology1(an.getOntologyConcept1().substring(0, an.getOntologyConcept1().lastIndexOf("/")));
 
-            aux = aux.substring(indexOf2 + 1).replace(" ", "").replace("\"", "");
+
+            //TODO aqui verifiar espacos
+
+
+            aux = aux.substring(indexOf2 + 1).replace("\"", "");
 
             //println("DEPOS->"+aux);
             count = aux.length() - aux.replace(" ","").length();

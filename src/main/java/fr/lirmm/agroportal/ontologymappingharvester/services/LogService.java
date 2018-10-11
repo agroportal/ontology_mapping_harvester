@@ -4,6 +4,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import java.io.File;
 import java.util.Properties;
 
 public class LogService {
@@ -24,6 +25,11 @@ public class LogService {
      * @param repositoryPath
      */
     public void setupLogProperties(String command, String currentOntologyName, String repositoryPath){
+
+
+        if(repositoryPath.lastIndexOf(File.separator)!=repositoryPath.length()-1){
+            repositoryPath = repositoryPath+File.separator;
+        }
 
         Properties logProperties =  new Properties();
 

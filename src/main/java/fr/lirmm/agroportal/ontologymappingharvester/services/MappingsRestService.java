@@ -88,8 +88,8 @@ public class MappingsRestService extends LogService{
                 key = entry.getKey();
                 me = entry.getValue();
                 mm = service.deleteMapping(args[0],me.getMapId(),args[2]);
-                if(mm.getResponse().code()>=400){
-                    stdoutLogger.error("TRYING TO DELETE MAPPING ID: " + me.toString()+ " DELETE WITH SUCSSES: "+mm.getResponse().isSuccessful());
+                if(mm.getResponseDelete().code()>=400){
+                    stdoutLogger.error("TRYING TO DELETE MAPPING ID: " + me.toString()+ " DELETE WITH SUCSSES: "+mm.getResponseDelete().isSuccessful());
                     stdoutLogger.error("ERROR MESSAGE: "+mm.getErrorMessage());
                 }else{
                     stdoutLogger.info("MAPPING DELETED WITH SUCSSES: " + me.toString());
@@ -242,6 +242,7 @@ public class MappingsRestService extends LogService{
         CustomRetrofitResponse response =null;
 
         int counter=0;
+        int sucess = 0;
         int cc=0;
         for(MappingEntity me: maps){
 
@@ -254,12 +255,12 @@ public class MappingsRestService extends LogService{
 
                 response = ars.postMappings(me, this.command);
 
+
                 if(response != null && response.getResponse() !=null){
 
-                    stdoutLogger.info("######### CODE-->: "+response.getResponse().code());
-
                     if(response.getResponse().isSuccessful()){
-                        stdoutLogger.info("MAPPING NOT EXISTIS, INSERTED-->: "+me.toString());
+                        stdoutLogger.info("MAPPING POSTED WITH SUCESS-->: "+me.toString());
+                        sucess++;
                     }else{
                         try {
                             stdoutLogger.error("ERROR INSERTTING MAPPING: " + me.toString() + " Code: " + response.getResponse().code() + " Message: " + response.getResponse().message() + " - Description: " + response.getErrorMessage());
@@ -315,7 +316,9 @@ public class MappingsRestService extends LogService{
 //            }
 
         }
-        System.out.println("Mapas que ja existem: "+cc);
+        System.out.println("Already exsitent mappings: "+cc);
+        System.out.println("UPLOADED WITH SUCESS FOR : "+(file.getName().toUpperCase().replace(".JSON",""))+" --> "+sucess);
+        summaryLogger.info(""+(file.getName().toUpperCase().replace(".JSON","")+";uploaded maps;"+sucess));
     }
 
 

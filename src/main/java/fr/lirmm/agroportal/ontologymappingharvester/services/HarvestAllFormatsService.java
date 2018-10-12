@@ -1494,6 +1494,13 @@ public class HarvestAllFormatsService extends BaseService  {
             }else{
 
                 if(value.indexOf(" ")>-1){
+
+                    // Add due this on EDAM: VT_1.1 Mathematics
+                    if(value.indexOf("vt:")>-1 && value.indexOf(" ")>-1){
+                        return false;
+                    }
+
+
                     for (int i = 0; i < INVALIDCHARACTERS.length - 1; i = i + 2) {
 
                         if (value.matches("(.*" + INVALIDCHARACTERS[i + 1] + ".*){" + INVALIDCHARACTERS[i] + ",}")) {

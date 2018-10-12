@@ -8,6 +8,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi.RestMapp
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
 
+import fr.lirmm.agroportal.ontologymappingharvester.entities.postmappingapi.PostApiResponse;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.services.LogService;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.CustomRetrofitResponse;
@@ -236,22 +237,19 @@ public class AgroportalRestService extends LogService {
 
         //System.out.println("apikey token="+key + "  "+ me.toString()     );
 
-        Call<String> postMapping = service.postMapping("apikey token="+key,"application/json", me);
+        Call<PostApiResponse> postMapping = service.postMapping("apikey token="+key,"application/json", me);
 
 
 
         int result = 0;
         CustomRetrofitResponse resp = new  CustomRetrofitResponse();
 
-        Response<String> response = null;
+        Response<PostApiResponse> response = null;
+
 
         try {
 
-            System.out.println("ANTESDISSO");
-
             response = postMapping.execute();
-
-            System.out.println("RESPONSE------------------->"+ response.isSuccessful());
 
             resp.setResponse(response);
             if(response.isSuccessful()){
@@ -265,7 +263,6 @@ public class AgroportalRestService extends LogService {
 
             resp.setResponse(null);
             resp.setErrorMessage(e.getMessage());
-
             System.out.println("Error on POST Mapping: "+me.toString()+"\nError REST POST MAPPINGS: "+ e.getMessage());
             errorLogger.error("Error on POST Mapping: "+me.toString()+"\nError REST POST MAPPINGS: "+ e.getMessage());
         }
@@ -370,12 +367,16 @@ public class AgroportalRestService extends LogService {
         try {
             message = deleteMapping.execute();
 
-            mm.setResponse(message);
-            mm.setErrorMessage(message.errorBody().string());
+            mm.setResponseDelete(message);
+            if(message.errorBody() != null && message.errorBody().string()!=null){
+                mm.setErrorMessage(message.errorBody().string());
+            }else{
+                mm.setErrorMessage("");
+            }
 
         } catch (Exception e) {
-            stdoutLogger.error("Ontology: "+ontologyName+" Error Deleting Mapping: "+id+ "Message: "+e.getMessage());
-            errorLogger.error("Ontology: "+ontologyName+" Error deleting mapping: "+ id + " MESSAGE: "+ e.getMessage());
+            stdoutLogger.error("Ontology: "+ontologyName+" Error TRY BLOCK: "+e.getMessage());
+
         }
 
         return mm;

@@ -5,6 +5,7 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.identifiers.Identif
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappingapi.RestMappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEntity;
+import fr.lirmm.agroportal.ontologymappingharvester.entities.postmappingapi.PostApiResponse;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -31,7 +32,7 @@ public interface AgroportalService {
 
 
     @POST("/mappings")
-    Call<String> postMapping(@Header("Authorization") String key,@Header("Content-Type") String key2,@Body MappingEntity me);
+    Call<PostApiResponse> postMapping(@Header("Authorization") String key, @Header("Content-Type") String key2, @Body MappingEntity me);
 
     @FormUrlEncoded
     @POST("/mappings")

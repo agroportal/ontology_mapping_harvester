@@ -102,10 +102,10 @@ public class Parser {
         sb2.append("id;faccet;concept;map;ciqual_id;description_french;description_english;obs;faccet_list;complete\n");
         for(String langual: langualList){
 
-            System.out.println("LANGUAL-->"+langual+"<--");
+            //System.out.println("LANGUAL-->"+langual+"<--");
 
             for(String line: referenceList){
-                if(line.toLowerCase().indexOf(langual)>-1){
+                if(line.toUpperCase().indexOf(langual)>-1){
                     idCounter++;
                     me = mappingRereferece.get(langual);
                     sb2.append(""+idCounter+";"+langual.toUpperCase()+";"+me.getClassesFormated()+ ";"+line+"\n");
@@ -146,8 +146,8 @@ public class Parser {
 
 
                         if(key.indexOf("http://www.langual.org/xml/LanguaL2017.XML/")==0){
-                        langualList.add(key.substring(key.lastIndexOf("/")+1,key.length()));
-                        mappingRereferece.put(key.substring(key.lastIndexOf("/")+1,key.length()),me);
+                        langualList.add(key.substring(key.lastIndexOf("/")+1));
+                        mappingRereferece.put(key.substring(key.lastIndexOf("/")+1),me);
                         //System.out.println("LANGUAL - "+key.substring(key.indexOf(":")+1,key.length()));
                     }
 

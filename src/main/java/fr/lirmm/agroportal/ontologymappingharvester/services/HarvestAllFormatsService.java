@@ -985,7 +985,6 @@ public class HarvestAllFormatsService extends BaseService  {
         } else {
 
             // Enter here if it is not an IRI
-
             if(isValidMap(aux)) {
 
                 if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
@@ -1091,7 +1090,11 @@ public class HarvestAllFormatsService extends BaseService  {
             //TODO verificar depois
             //an.setOntology1(an.getOntologyConcept1().substring(0, an.getOntologyConcept1().lastIndexOf("/")));
 
-            aux = aux.substring(indexOf2 + 1).replace(" ", "").replace("\"", "");
+
+            //TODO aqui verifiar espacos
+
+
+            aux = aux.substring(indexOf2 + 1).replace("\"", "");
 
             //println("DEPOS->"+aux);
             count = aux.length() - aux.replace(" ","").length();
@@ -1467,8 +1470,6 @@ public class HarvestAllFormatsService extends BaseService  {
 
     private boolean isValidMap(String value){
 
-
-        //TODO ATTENTION
         value = value.toLowerCase();
 
         int length = value.length();
@@ -1490,6 +1491,22 @@ public class HarvestAllFormatsService extends BaseService  {
                         return false;
                     }
                 }
+            }else{
+
+                if(value.indexOf(" ")>-1){
+                    for (int i = 0; i < INVALIDCHARACTERS.length - 1; i = i + 2) {
+
+                        if (value.matches("(.*" + INVALIDCHARACTERS[i + 1] + ".*){" + INVALIDCHARACTERS[i] + ",}")) {
+                            externalLogger.warn("INVALID CONCEPT FOUNDED - Ontology: " + currentOntologyName + " Concept: " + value);
+                            return false;
+                        }
+
+                        if(length-count>=3){
+                            return false;
+                        }
+                    }
+                }
+
             }
 
         }

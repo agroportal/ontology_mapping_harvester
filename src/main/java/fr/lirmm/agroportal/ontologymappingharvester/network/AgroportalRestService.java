@@ -10,11 +10,13 @@ import fr.lirmm.agroportal.ontologymappingharvester.entities.ontology.OntologyEn
 
 import fr.lirmm.agroportal.ontologymappingharvester.entities.submission.Submission;
 import fr.lirmm.agroportal.ontologymappingharvester.services.LogService;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.CustomRetrofitResponse;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.log4j.Logger;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -111,6 +113,10 @@ public class AgroportalRestService extends LogService {
 
         try {
             submission = latestSubmissionCall.execute().body();
+            if(submission==null){
+                submission = new Submission();
+                submission.setURI("UNKNOW_REFERENCE");
+            }
 
         } catch (Exception e) {
             System.out.println("Erro: "+e.getMessage()+" getLatestSubmission() - see havest_tool_error.log for detais."+" Error: "+ e.getStackTrace().toString());
@@ -202,7 +208,7 @@ public class AgroportalRestService extends LogService {
     }
 
 
-    public String postMappings(MappingEntity me, String command){
+    public CustomRetrofitResponse postMappings(MappingEntity me, String command){
 
         setupLogProperties(command,me.getSourceName(), ManageProperties.loadPropertyValue("outputfolder"));
 
@@ -232,17 +238,39 @@ public class AgroportalRestService extends LogService {
 
         Call<String> postMapping = service.postMapping("apikey token="+key,"application/json", me);
 
+
+
         int result = 0;
+        CustomRetrofitResponse resp = new  CustomRetrofitResponse();
+
+        Response<String> response = null;
 
         try {
-            result = postMapping.execute().code();
+
+            System.out.println("ANTESDISSO");
+
+            response = postMapping.execute();
+
+            System.out.println("RESPONSE------------------->"+ response.isSuccessful());
+
+            resp.setResponse(response);
+            if(response.isSuccessful()){
+                resp.setErrorMessage("");
+            }else{
+                resp.setErrorMessage(response.errorBody().string());
+            }
+
 
         } catch (Exception e) {
+
+            resp.setResponse(null);
+            resp.setErrorMessage(e.getMessage());
+
             System.out.println("Error on POST Mapping: "+me.toString()+"\nError REST POST MAPPINGS: "+ e.getMessage());
             errorLogger.error("Error on POST Mapping: "+me.toString()+"\nError REST POST MAPPINGS: "+ e.getMessage());
         }
 
-        return "Result Code:"+ result;
+        return resp;
 
 
     }
@@ -303,7 +331,7 @@ public class AgroportalRestService extends LogService {
     }
 
 
-    public String deleteMapping(String command, String id, String ontologyName){
+    public CustomRetrofitResponse deleteMapping(String command, String id, String ontologyName){
 
         setupLogProperties(command,ontologyName, ManageProperties.loadPropertyValue("outputfolder"));
 
@@ -336,18 +364,21 @@ public class AgroportalRestService extends LogService {
 
         Call<String> deleteMapping = service.deleteMapping(id,key);
 
-        String message = null;
+        Response<String> message = null;
+        CustomRetrofitResponse mm= new CustomRetrofitResponse();
 
         try {
-            message = deleteMapping.execute().body();
-            stdoutLogger.info("Mapping Deleted: " + id +" Message: "+message);
+            message = deleteMapping.execute();
+
+            mm.setResponse(message);
+            mm.setErrorMessage(message.errorBody().string());
 
         } catch (Exception e) {
             stdoutLogger.error("Ontology: "+ontologyName+" Error Deleting Mapping: "+id+ "Message: "+e.getMessage());
             errorLogger.error("Ontology: "+ontologyName+" Error deleting mapping: "+ id + " MESSAGE: "+ e.getMessage());
         }
 
-        return message;
+        return mm;
 
 
     }

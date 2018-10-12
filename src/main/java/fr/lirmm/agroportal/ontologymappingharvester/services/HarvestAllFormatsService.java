@@ -985,13 +985,6 @@ public class HarvestAllFormatsService extends BaseService  {
         } else {
 
             // Enter here if it is not an IRI
-
-            if(aux.indexOf("GO:0000090")>-1){
-                System.out.println("############### MAPA  ---> "+aux);
-                System.out.println("############### VALID ---> "+isValidMap(aux));
-            }
-
-
             if(isValidMap(aux)) {
 
                 if(aux.indexOf("http")==0 || aux.indexOf("smtp")==0 || aux.indexOf("ftp")==0){
@@ -1477,8 +1470,6 @@ public class HarvestAllFormatsService extends BaseService  {
 
     private boolean isValidMap(String value){
 
-
-        //TODO ATTENTION
         value = value.toLowerCase();
 
         int length = value.length();
@@ -1500,6 +1491,22 @@ public class HarvestAllFormatsService extends BaseService  {
                         return false;
                     }
                 }
+            }else{
+
+                if(value.indexOf(" ")>-1){
+                    for (int i = 0; i < INVALIDCHARACTERS.length - 1; i = i + 2) {
+
+                        if (value.matches("(.*" + INVALIDCHARACTERS[i + 1] + ".*){" + INVALIDCHARACTERS[i] + ",}")) {
+                            externalLogger.warn("INVALID CONCEPT FOUNDED - Ontology: " + currentOntologyName + " Concept: " + value);
+                            return false;
+                        }
+
+                        if(length-count>=3){
+                            return false;
+                        }
+                    }
+                }
+
             }
 
         }

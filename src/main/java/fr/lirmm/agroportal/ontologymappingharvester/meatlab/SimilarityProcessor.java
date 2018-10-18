@@ -219,6 +219,25 @@ public class SimilarityProcessor {
 
     }
 
+    public void calculateDistanceBetweenProducts(String p1, String p2, double alpha, double beta){
+
+        Mapping map = new Mapping();
+        map.setFaccet_list(p1);
+        map.calcSimilarityScore(p2,alpha,beta);
+
+        System.out.println();
+        System.out.println("Distance between Products");
+        System.out.println();
+        System.out.println("N3 P1 Faccets                        : " + map.getOriginSize());
+        System.out.println("N3 P2 Faccets                        : " + map.getTargetSize());
+        System.out.println("Minimal number of same faccets       : "+  map.getSameFaccetCount());
+        System.out.println("Minimal number of same branch faccets: "+map.getSameBranchFaccetCount());
+        System.out.println("Alpha/Beta                           : "+alpha+" / "+beta);
+        System.out.println("Score                                : "+map.getScore());
+        System.out.println();
+
+    }
+
 
 
     }

@@ -23,5 +23,8 @@ public class Main {
         sp.findFoodOnCandidateConcepts(targetFaccets,sameFaccetMinimalCount,sameBranchFaccetMinimalCount, alphaWeight,betaWeight);
 
 
+        sp.calculateDistanceBetweenProducts(targetFaccets,targetFaccets,0.7,0.3);
+
+
     }
 }

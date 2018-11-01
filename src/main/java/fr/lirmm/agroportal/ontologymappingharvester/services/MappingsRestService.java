@@ -228,7 +228,10 @@ public class MappingsRestService extends LogService{
 
         MappingEntity[] maps = loadJSONFile(file);
 
-        HashMap<String,MappingEntity> map = getInternalMappings(args,user, true, file.getName().toUpperCase().replace(".JSON",""));
+        // TODO retirar isso...
+        //HashMap<String,MappingEntity> map = getInternalMappings(args,user, true, file.getName().toUpperCase().replace(".JSON",""));
+
+        HashMap<String,MappingEntity> map =  new HashMap<>();
 
         String key="";
         System.out.println("List size: "+map.size());
@@ -241,6 +244,7 @@ public class MappingsRestService extends LogService{
 
         CustomRetrofitResponse response =null;
 
+        int total = maps.length;
         int counter=0;
         int sucess = 0;
         int cc=0;
@@ -277,7 +281,7 @@ public class MappingsRestService extends LogService{
 
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -286,12 +290,15 @@ public class MappingsRestService extends LogService{
                 counter++;
                 if(counter%30==0){
                     // Problems on the server with 0(zero) and 2 (two) seconds interval
+                    stdoutLogger.info("Waiting....");
                     try {
                         Thread.sleep(30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+
+                stdoutLogger.info("XXXXXXXXX --->"+total+" / "+counter+" / "+sucess);
 
             }else{
                 stdoutLogger.info("MAPPING ALREADY EXISTIS, skiping insert for--> "+me.toString());

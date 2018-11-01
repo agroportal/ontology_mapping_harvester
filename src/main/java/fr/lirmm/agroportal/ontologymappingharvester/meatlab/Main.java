@@ -14,7 +14,7 @@ public class Main {
 
         //sp.generateSimilarityScore();
 
-        String targetFaccets = "A0273 A0810 B1457 C0253 E0119 F0001 G0003 H0001 J0001 K0003 M0001 N0001 P0024 R0001 Z0001";
+        String targetFaccets = "A0273 A0810 B1457 C0253 E0119 F0001 G0003 H0001 J0001 K0003 M0001 N0001 P0024 R0001 Z0002";
         int sameFaccetMinimalCount = 10;
         int sameBranchFaccetMinimalCount = 0;
         double alphaWeight = 0.7d;

@@ -19,6 +19,8 @@ public class SimilarityProcessor {
 
 
     private String inputFileName;
+    private HashMap<String, Hierarchy> hierarchyHashMap;
+    private Hierarchy hh;
 
     public void setInputFile(String inputFileName){
         this.inputFileName = inputFileName;
@@ -46,17 +48,8 @@ public class SimilarityProcessor {
 
                 System.out.println("Faccet letter: "+record.get("faccet").substring(0,1));
 
-                 map = new Mapping();
-                 map.setId(record.get("id"));
-                 map.setFaccet(record.get("faccet"));
-                 map.setConcept(record.get("concept"));
-                 map.setMap(record.get("map"));
-                 map.setCiqual_id(record.get("ciqual_id"));
-                 map.setDescription_french(record.get("description_french"));
-                 map.setDescription_english(record.get("description_english"));
-                 map.setObs(record.get("obs"));
-                 map.setFaccet_list(record.get("faccet_list"));
-                 map.setComplete(record.get("complete"));
+                 hierarchyHashMap = new HashMap<>();
+
                  maps.add(map);
                  mm = uniqueConcept.get(map.getConcept());
                  if (mm != null) {
@@ -219,6 +212,8 @@ public class SimilarityProcessor {
 
     }
 
+
+
     public void calculateDistanceBetweenProducts(String p1, String p2, double alpha, double beta){
 
         Mapping map = new Mapping();
@@ -237,6 +232,10 @@ public class SimilarityProcessor {
         System.out.println();
 
     }
+
+
+
+
 
 
 

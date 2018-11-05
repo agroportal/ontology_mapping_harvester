@@ -5,6 +5,9 @@ import com.google.gson.GsonBuilder;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.TargetReference;
 import fr.lirmm.agroportal.ontologymappingharvester.entities.mappings.MappingEntity;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -23,23 +26,21 @@ public class Parser {
 
     private HashMap<String, MappingEntity> mappingRereferece;
     private List<String> sirenList;
-    private List<String> langualList;
     private List<String> referenceList;
-    private int sirenOnLangual;
-    private int langualOnLangual;
+    private int sirenOnFoodON;
     private StringBuffer sb1;
-    private StringBuffer sb2;
+    private Hierarchy hh;
+    HashMap<String, Hierarchy> hierarchyHashMap;
 
 
     public Parser(){
         mappingRereferece = new HashMap<>();
         sirenList =  new ArrayList();
-        langualList = new ArrayList();
         referenceList = new ArrayList();
-        sirenOnLangual=0;
-        langualOnLangual=0;
+        sirenOnFoodON=0;
         sb1 = new StringBuffer();
-        sb2 = new StringBuffer();
+        hierarchyHashMap = new HashMap<>();
+
     }
 
 
@@ -57,6 +58,9 @@ public class Parser {
         File file = null;
         List<File> files = getReferencesForJSONFiles(ManageProperties.loadPropertyValue("outputfolder"));
 
+
+        loadFoodMaterialHiearchy("/home/abrahao/data/meatylab/phase2/FOODON_MEATLAB.log");
+
         for (File arq: files){
 
             if(arq.getName().equalsIgnoreCase(ontologyMapsFileName)){
@@ -66,20 +70,26 @@ public class Parser {
             }
         }
 
-        readLangualFile(referenceFileName+".txt");
+        //readLangualFile(referenceFileName+".txt");
+
+        readSirenFile("/home/abrahao/data/meatylab/phase2/"+referenceFileName+".txt");
+
 
         //System.out.println("Siren   on "+ontologyName     +" internal mappings: "+sirenList.size());
-        System.out.println("Langual on "+ontologyName     +" internal mappings: "+langualList.size());
+        System.out.println("Siren on "+ontologyName     +" internal mappings  : "+sirenList.size());
         System.out.println("Reference  "+referenceFileName+" number of lines  : "+referenceList.size());
+        System.out.println("Food Material Hierarchy concetps number           : "+hierarchyHashMap.size());
+
+
 
         generateMappings();
 
 
         //System.out.println(ontologyName +"_siren_"+ referenceFileName+ "_maps: "+sirenOnLangual);
-        System.out.println(ontologyName +"_langual_"+ referenceFileName+ "_maps: "+langualOnLangual);
+        System.out.println(ontologyName +"_siren_"+ referenceFileName+ "_maps: "+sirenOnFoodON);
 
         //saveFile(ontologyName +"_siren_"+ referenceFileName+ "_maps.txt",sb1);
-        saveFile(ontologyName +"_langual_"+ referenceFileName+ "_maps.txt",sb2);
+        saveFile(ontologyName +"_siren_"+ referenceFileName+ "_maps.txt",sb1);
 
     }
 
@@ -87,32 +97,23 @@ public class Parser {
     public void generateMappings(){
 
         MappingEntity me;
-
-//        for(String siren: sirenList){
-//            for(String line: referenceList){
-//                if(line.indexOf(siren.replace("f","")+"\t")==0){
-//                    sirenOnLangual++;
-//                    me = mappingRereferece.get(siren);
-//                    sb1.append(siren +" - "+ me.getClassesFormated()+ " FOUNDEDIN: "+line+ "\n");
-//                }
-//            }
-//        }
-
         int idCounter=0;
-        sb2.append("id;faccet;concept;map;ciqual_id;description_french;description_english;obs;faccet_list;complete\n");
-        for(String langual: langualList){
 
-            //System.out.println("LANGUAL-->"+langual+"<--");
+        sb1.append("id;faccet;concept;map;foodid;origfdnam;engfdnam;langualcodes;remarks\n");
 
+
+        for(String siren: sirenList){
             for(String line: referenceList){
-                if(line.toUpperCase().indexOf(langual)>-1){
+                if(line.indexOf(siren)==0){
                     idCounter++;
-                    me = mappingRereferece.get(langual);
-                    sb2.append(""+idCounter+";"+langual.toUpperCase()+";"+me.getClassesFormated()+ ";"+line+"\n");
-                    langualOnLangual++;
+                    sirenOnFoodON++;
+                    me = mappingRereferece.get(siren);
+                    //sb1.append(siren +" - "+ me.getClassesFormated()+ " FOUNDEDIN: "+line+ "\n");
+                    sb1.append(""+idCounter+";"+siren.toUpperCase()+";"+me.getClassesFormated()+ ";"+line+"\n");
                 }
             }
         }
+
 
     }
 
@@ -123,38 +124,42 @@ public class Parser {
         String key="";
         String value="";
         String target="";
+        String concept = "";
         int count=1;
 
         for(MappingEntity me: mappingEntity){
             classesSource = me.getClasses();
             //System.out.println(me.toString());
-            count = 1;
+
+
+
             for (Map.Entry<String, String> entry : classesSource.entrySet()) {
                 key = entry.getKey();
                 value = entry.getValue();
-
-                //System.out.println(""+count+") key--> "+key+" value-->"+value);
-                count++;
-
-                if(!value.equalsIgnoreCase(acronym)){
-
-//                    if(key.indexOf("subset_siren:")==0){
-//                        sirenList.add(key.substring(key.indexOf(":")+1,key.length()));
-//                        mappingRereferece.put(key.substring(key.indexOf(":")+1,key.length()),me);
-//                        //System.out.println("SIREN   - "+key.substring(key.indexOf(":")+1,key.length()));
-//                    }else
-
-
-                        if(key.indexOf("http://www.langual.org/xml/LanguaL2017.XML/")==0){
-                        langualList.add(key.substring(key.lastIndexOf("/")+1));
-                        mappingRereferece.put(key.substring(key.lastIndexOf("/")+1),me);
-                        //System.out.println("LANGUAL - "+key.substring(key.indexOf(":")+1,key.length()));
-                    }
-
-
+                if(value.equalsIgnoreCase(acronym)){
+                    concept = key.substring(key.lastIndexOf("/")+1);
+                    System.out.println("Concept   : "+concept);
+                    System.out.println("hierarquia: "+hierarchyHashMap.get(concept));
                 }
+            }
 
-
+            // verify if the concept is on the food material hierarchy
+            if(hierarchyHashMap.get(concept)!=null) {
+                count = 1;
+                for (Map.Entry<String, String> entry : classesSource.entrySet()) {
+                    key = entry.getKey();
+                    value = entry.getValue();
+                    //System.out.println(""+count+") key--> "+key+" value-->"+value);
+                    count++;
+                    if (!value.equalsIgnoreCase(acronym)) {
+                        if (key.indexOf("http://www.langual.org/download/IndexedDatasets/FDA/SIREN/") == 0) {
+                            target = key.substring(key.lastIndexOf("/") + 1);
+                            sirenList.add(target);
+                            mappingRereferece.put(target, me);
+                            System.out.println("SIREN   - " + target);
+                        }
+                    }
+                }
             }
 
 
@@ -162,9 +167,6 @@ public class Parser {
 
         System.out.println("");
 
-//        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
-//
-//        writeJsonFile(gson.toJson(mappingEntity),true);
 
 
     }
@@ -198,9 +200,9 @@ public class Parser {
     }
 
 
-    public void readLangualFile(String fileName){
+    public void readSirenFile(String fileName){
 
-        File file = new File("/home/abrahao/data/meatylab/"+fileName);
+        File file = new File(fileName);
 
 
 
@@ -223,7 +225,7 @@ public class Parser {
 
     private void saveFile(String fileName, StringBuffer js){
 
-        File f = new File("/home/abrahao/data/meatylab/"+fileName);
+        File f = new File("/home/abrahao/data/meatylab/phase2/"+fileName);
         try {
             FileUtils.writeStringToFile(f, js.toString(), "UTF-8");
         } catch (IOException e) {
@@ -231,6 +233,35 @@ public class Parser {
         }
 
 
+    }
+
+    public void loadFoodMaterialHiearchy(String inputFileName){
+
+        try {
+            //Create the CSVFormat object
+            CSVFormat format = CSVFormat.RFC4180.withHeader().withDelimiter(';');
+
+            //initialize the CSVParser object
+            CSVParser parser = new CSVParser(new FileReader(inputFileName), format);
+
+            for (CSVRecord record : parser) {
+
+                hh = new Hierarchy();
+
+                hh.setConcept(record.get("concept"));
+                hh.setDepth(Integer.parseInt(record.get("depth")));
+                hh.setParents(record.get("parents"));
+                //System.out.println("CCC: "+hh.getConcept());
+
+                hierarchyHashMap.put(hh.getConcept(),hh);
+
+            }
+
+            parser.close();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

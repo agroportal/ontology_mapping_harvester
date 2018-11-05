@@ -90,6 +90,15 @@ public class LogService {
             logProperties.setProperty("log4j.appender.file.layout.ConversionPattern","%d{yyyy/MM/dd HH:mm:ss.SSS} [%5p] - %m%n");
         }
 
+        if(command.indexOf("m")>-1){
+            System.out.println("Entrou-->"+repositoryPath + " "+currentOntologyName);
+            logProperties.setProperty("log4j.appender.file.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".log");
+            logProperties.setProperty("log4j.appender.file", "org.apache.log4j.FileAppender");
+            logProperties.setProperty("log4j.appender.file.layout",  "org.apache.log4j.PatternLayout");
+            logProperties.setProperty("log4j.appender.file.layout.ConversionPattern","%m%n");
+        }
+
+
         if(command.indexOf("s")>-1){
             logProperties.setProperty("log4j.appender.statistics.File", ""+repositoryPath+currentOntologyName.toUpperCase()+".sts");
             logProperties.setProperty("log4j.appender.statistics", "org.apache.log4j.FileAppender");

@@ -247,6 +247,7 @@ public class BaseService extends LogService {
 
     public void addToDeduplicationHash(AnnotationAssertationEntity an, int variation){
 
+
         AnnotationAssertationEntity aaa = deduplicationHash.get(an.getOntology1()+an.getOntologyConcept1()+an.getAssertion()+an.getOntologyConcept2());
         if(aaa!=null){
             externalLogger.info("Duplicated: "+aaa.getOntology2()+" - "+aaa.getId()+" - "+aaa.getOntologyConcept1()+" "+aaa.getAssertion()+" "+aaa.getOntologyConcept2()+" with: "+an.getId()+" - "+an.getOntologyConcept1()+" "+an.getAssertion()+" "+an.getOntologyConcept2());

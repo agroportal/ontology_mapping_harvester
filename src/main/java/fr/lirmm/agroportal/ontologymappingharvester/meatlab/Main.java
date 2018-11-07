@@ -4,13 +4,12 @@ public class Main {
 
     public static void main(String[] args){
 
-        Parser parser = new Parser();
-        parser.execute("FOODON.json", "foodon","siren");
-        //parser.execute("FOODON.json", "foodon","USDA_Standard_Reference_8");
+        //Parser parser = new Parser();
+        //parser.execute("FOODON.json", "foodon","siren");
 
-        //SimilarityProcessor sp = new SimilarityProcessor();
+        SimilarityProcessor sp = new SimilarityProcessor();
 
-        //sp.setInputFile("/home/abrahao/data/meatylab/foodon_langual_CIQUAL_2017_EuroFIR_2018_04_18_LanguaL_maps.txt");
+        sp.setInputFile("/home/abrahao/data/meatylab/phase2/foodon_siren_siren_maps.txt");
 
         //sp.generateSimilarityScore();
 
@@ -20,10 +19,10 @@ public class Main {
         double alphaWeight = 0.7d;
         double betaWeight = 0.3d;
 
-        //sp.findFoodOnCandidateConcepts(targetFaccets,sameFaccetMinimalCount,sameBranchFaccetMinimalCount, alphaWeight,betaWeight);
+        sp.findFoodOnCandidateConcepts(targetFaccets,sameFaccetMinimalCount,sameBranchFaccetMinimalCount, alphaWeight,betaWeight);
 
 
-        //sp.calculateDistanceBetweenProducts(targetFaccets,targetFaccets,0.7,0.3);
+        sp.calculateDistanceBetweenProducts(targetFaccets,targetFaccets,0.7,0.3);
 
 
     }

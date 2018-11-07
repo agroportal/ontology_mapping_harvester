@@ -9,12 +9,11 @@ public class Mapping {
    String faccet;
    String concept;
    String map;
-   String ciqual_id;
-   String description_french;
-   String description_english;
-   String obs;
-   String faccet_list;
-   String complete;
+   String foodid;
+   String origfdnam;
+   String engfdnam;
+   String langualcodes;
+   String remarks;
    int originSize;
    int targetSize;
    int sameFaccetCount;
@@ -89,60 +88,52 @@ public class Mapping {
         this.map = map;
     }
 
-    public String getCiqual_id() {
-        return ciqual_id;
+    public String getFoodid() {
+        return foodid;
     }
 
-    public void setCiqual_id(String ciqual_id) {
-        this.ciqual_id = ciqual_id;
+    public void setFoodid(String foodid) {
+        this.foodid = foodid;
     }
 
-    public String getDescription_french() {
-        return description_french;
+    public String getOrigfdnam() {
+        return origfdnam;
     }
 
-    public void setDescription_french(String description_french) {
-        this.description_french = description_french;
+    public void setOrigfdnam(String origfdnam) {
+        this.origfdnam = origfdnam;
     }
 
-    public String getDescription_english() {
-        return description_english;
+    public String getEngfdnam() {
+        return engfdnam;
     }
 
-    public void setDescription_english(String description_english) {
-        this.description_english = description_english;
+    public void setEngfdnam(String engfdnam) {
+        this.engfdnam = engfdnam;
     }
 
-    public String getObs() {
-        return obs;
+    public String getLangualcodes() {
+        return langualcodes;
     }
 
-    public void setObs(String obs) {
-        this.obs = obs;
+    public void setLangualcodes(String langualcodes) {
+        this.langualcodes = langualcodes;
     }
 
-    public String getFaccet_list() {
-        return faccet_list;
+    public String getRemarks() {
+        return remarks;
     }
 
-    public void setFaccet_list(String faccet_list) {
-        this.faccet_list = faccet_list;
-    }
-
-    public String getComplete() {
-        return complete;
-    }
-
-    public void setComplete(String complete) {
-        this.complete = complete;
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     public void calcSimilarityScore(String targetId, double alpha, double beta){
 
         // Phase 1 - Calculate count of identhical faccets
         int count = 0;
-        String[] origin =  getFaccet_list().split(" ");
-        String originClean = getFaccet_list();
+        String[] origin =  getLangualcodes().split(" ");
+        String originClean = getLangualcodes();
         originSize = origin.length;
         String[] target = targetId.split(" ");
         String targetClean = targetId;
@@ -192,14 +183,20 @@ public class Mapping {
     @Override
     public String toString() {
         return "Mapping{" +
-                "concept='" + concept + '\'' +
-                ", ciqual_id='" + ciqual_id + '\'' +
-                ", faccet_list='" + faccet_list + '\'' +
+                "id='" + id + '\'' +
+                ", faccet='" + faccet + '\'' +
+                ", concept='" + concept + '\'' +
+                ", map='" + map + '\'' +
+                ", foodid='" + foodid + '\'' +
+                ", origfdnam='" + origfdnam + '\'' +
+                ", engfdnam='" + engfdnam + '\'' +
+                ", langualcodes='" + langualcodes + '\'' +
+                ", remarks='" + remarks + '\'' +
                 ", originSize=" + originSize +
                 ", targetSize=" + targetSize +
                 ", sameFaccetCount=" + sameFaccetCount +
                 ", sameBranchFaccetCount=" + sameBranchFaccetCount +
-                ", score=" + new BigDecimal(score).setScale(2, RoundingMode.HALF_DOWN) +
+                ", score=" + score +
                 '}';
     }
 }

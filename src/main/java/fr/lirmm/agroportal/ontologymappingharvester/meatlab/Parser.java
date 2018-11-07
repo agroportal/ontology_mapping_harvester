@@ -104,7 +104,9 @@ public class Parser {
 
         for(String siren: sirenList){
             for(String line: referenceList){
-                if(line.indexOf(siren)==0){
+
+
+                if(line.indexOf(siren+";")==0){
                     idCounter++;
                     sirenOnFoodON++;
                     me = mappingRereferece.get(siren);
@@ -138,8 +140,8 @@ public class Parser {
                 value = entry.getValue();
                 if(value.equalsIgnoreCase(acronym)){
                     concept = key.substring(key.lastIndexOf("/")+1);
-                    System.out.println("Concept   : "+concept);
-                    System.out.println("hierarquia: "+hierarchyHashMap.get(concept));
+                    //System.out.println("Concept   : "+concept);
+                    //System.out.println("hierarquia: "+hierarchyHashMap.get(concept));
                 }
             }
 

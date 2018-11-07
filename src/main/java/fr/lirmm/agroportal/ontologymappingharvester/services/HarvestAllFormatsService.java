@@ -1049,7 +1049,7 @@ public class HarvestAllFormatsService extends BaseService  {
 
         //println("ANTES->"+anot.toString());
 
-        String aux = anot.toString().replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","");
+        String aux = anot.toString().replace("\n", "").trim().replace("^^xsd:string)","").replace("(","").replace(")","").trim();
 
 
         String aux2 = "";
@@ -1094,7 +1094,7 @@ public class HarvestAllFormatsService extends BaseService  {
             //TODO aqui verifiar espacos
 
 
-            aux = aux.substring(indexOf2 + 1).replace("\"", "");
+            aux = aux.substring(indexOf2 + 1).replace("\"", "").trim();
 
             //println("DEPOS->"+aux);
             count = aux.length() - aux.replace(" ","").length();

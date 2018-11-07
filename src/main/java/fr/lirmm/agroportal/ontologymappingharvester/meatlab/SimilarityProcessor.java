@@ -19,8 +19,6 @@ public class SimilarityProcessor {
 
 
     private String inputFileName;
-    private HashMap<String, Hierarchy> hierarchyHashMap;
-    private Hierarchy hh;
 
     public void setInputFile(String inputFileName){
         this.inputFileName = inputFileName;
@@ -44,22 +42,30 @@ public class SimilarityProcessor {
             List<Mapping> maps = new ArrayList<Mapping>();
             for (CSVRecord record : parser) {
 
-             if(record.get("faccet").substring(0,1).equalsIgnoreCase("a")|| record.get("faccet").substring(0,1).equalsIgnoreCase("b")) {
+             //if(record.get("faccet").substring(0,1).equalsIgnoreCase("a")|| record.get("faccet").substring(0,1).equalsIgnoreCase("b")) {
 
-                System.out.println("Faccet letter: "+record.get("faccet").substring(0,1));
+                System.out.println("Faccet letter: "+record.get("faccet"));
 
-                 hierarchyHashMap = new HashMap<>();
-
-                 maps.add(map);
-                 mm = uniqueConcept.get(map.getConcept());
-                 if (mm != null) {
-                     mm.add(map);
-                 } else {
-                     mm = new ArrayList<>();
-                     mm.add(map);
-                 }
-                 uniqueConcept.put(map.getConcept(), mm);
-             }
+                map = new Mapping();
+                map.setId(record.get("id"));
+                map.setFaccet(record.get("faccet"));
+                map.setConcept(record.get("concept"));
+                map.setMap(record.get("map"));
+                map.setFoodid(record.get("foodid"));
+                map.setOrigfdnam(record.get("origfdnam"));
+                map.setEngfdnam(record.get("engfdnam"));
+                map.setLangualcodes(record.get("langualcodes"));
+                map.setRemarks(record.get("remarks"));
+                maps.add(map);
+                mm = uniqueConcept.get(map.getConcept());
+                if (mm != null) {
+                    mm.add(map);
+                } else {
+                    mm = new ArrayList<>();
+                    mm.add(map);
+                }
+                uniqueConcept.put(map.getConcept(), mm);
+             //}
             }
             //close the parser
             parser.close();
@@ -86,13 +92,13 @@ public class SimilarityProcessor {
                             List<String> outData = new ArrayList<String>();
                             outData.add(""+counter++);
                             outData.add(m.getConcept());
-                            outData.add(m.getCiqual_id());
-                            outData.add(value.get(i).getCiqual_id());
-                            outData.add(m.getFaccet_list());
-                            outData.add(value.get(i).getFaccet_list());
-                            outData.add(m.getDescription_french());
-                            outData.add(value.get(i).getDescription_french());
-                            m.calcSimilarityScore(value.get(i).getFaccet_list(),1.0,1.0);
+                            outData.add(m.getFoodid());
+                            outData.add(value.get(i).getFoodid());
+                            outData.add(m.getLangualcodes());
+                            outData.add(value.get(i).getLangualcodes());
+                            outData.add(m.getOrigfdnam());
+                            outData.add(value.get(i).getOrigfdnam());
+                            m.calcSimilarityScore(value.get(i).getLangualcodes(),1.0,1.0);
                             outData.add(""+m.getOriginSize());
                             outData.add(""+m.getTargetSize());
                             outData.add(""+m.getSameFaccetCount());
@@ -106,7 +112,7 @@ public class SimilarityProcessor {
             printer.flush();
             printer.close();
 
-            System.out.println("Similarity SIze: "+counter);
+            System.out.println("Similarity Size: "+counter);
 
 
 
@@ -134,7 +140,7 @@ public class SimilarityProcessor {
             List<Mapping> maps = new ArrayList<Mapping>();
             for (CSVRecord record : parser) {
 
-                if (record.get("faccet").substring(0, 1).equalsIgnoreCase("a") || record.get("faccet").substring(0, 1).equalsIgnoreCase("b")) {
+                //if (record.get("faccet").substring(0, 1).equalsIgnoreCase("a") || record.get("faccet").substring(0, 1).equalsIgnoreCase("b")) {
 
 
                     map = new Mapping();
@@ -142,12 +148,11 @@ public class SimilarityProcessor {
                     map.setFaccet(record.get("faccet"));
                     map.setConcept(record.get("concept"));
                     map.setMap(record.get("map"));
-                    map.setCiqual_id(record.get("ciqual_id"));
-                    map.setDescription_french(record.get("description_french"));
-                    map.setDescription_english(record.get("description_english"));
-                    map.setObs(record.get("obs"));
-                    map.setFaccet_list(record.get("faccet_list"));
-                    map.setComplete(record.get("complete"));
+                    map.setFoodid(record.get("foodid"));
+                    map.setOrigfdnam(record.get("origfdnam"));
+                    map.setEngfdnam(record.get("engfdnam"));
+                    map.setLangualcodes(record.get("langualcodes"));
+                    map.setRemarks(record.get("remarks"));
                     map.calcSimilarityScore(targetFaccets,alpha,beta);
 
                     if(map.getSameFaccetCount()>=sameFaccetMinimalCount && map.getSameBranchFaccetCount()>=sameBranchFaccetMinimalCount ){
@@ -169,7 +174,7 @@ public class SimilarityProcessor {
                         }
                     }
 
-                }
+                //}
             }
             //close the parser
             parser.close();
@@ -217,14 +222,14 @@ public class SimilarityProcessor {
     public void calculateDistanceBetweenProducts(String p1, String p2, double alpha, double beta){
 
         Mapping map = new Mapping();
-        map.setFaccet_list(p1);
+        map.setLangualcodes(p1);
         map.calcSimilarityScore(p2,alpha,beta);
 
         System.out.println();
         System.out.println("Distance between Products");
         System.out.println();
-        System.out.println("N3 P1 Faccets                        : " + map.getOriginSize());
-        System.out.println("N3 P2 Faccets                        : " + map.getTargetSize());
+        System.out.println("Number of P1 Faccets                 : " + map.getOriginSize());
+        System.out.println("Number of P2 Faccets                 : " + map.getTargetSize());
         System.out.println("Minimal number of same faccets       : "+  map.getSameFaccetCount());
         System.out.println("Minimal number of same branch faccets: "+map.getSameBranchFaccetCount());
         System.out.println("Alpha/Beta                           : "+alpha+" / "+beta);

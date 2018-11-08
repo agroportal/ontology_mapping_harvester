@@ -147,15 +147,19 @@ public class FindHierarchy extends LogService {
 //        for (OWLNamedIndividual i : oA.getIndividualsInSignature()) {
 //            for (OWLObjectProperty p : oA.getObjectPropertiesInSignature()) {
 //                NodeSet<OWLNamedIndividual> individualValues = reasoner.getObjectPropertyValues(i, p);
-//                System.out.println("Vazio: "+individualValues.isEmpty());
-//                Set<OWLNamedIndividual> values = individualValues.getFlattened();
-//                System.out.println("The property values for "+p+" for individual "+i+" are: ");
-//                for (OWLNamedIndividual ind : values) {
-//                    System.out.println(" " + ind);
+//                //System.out.println("Vazio: "+individualValues.isEmpty());
+//                if(!individualValues.isEmpty()){
+//                    Set<OWLNamedIndividual> values = individualValues.getFlattened();
+//                    System.out.println("The property values for "+p+" for individual "+i+" are: ");
+//                    for (OWLNamedIndividual ind : values) {
+//                        System.out.println(" " + ind);
+//                    }
+//
 //                }
 //            }
 //        }
         // Finally, let's print out the class hierarchy.
+
         Node<OWLClass> topNode = reasoner.getTopClassNode();
         print(topNode, reasoner, 0, false);
 
@@ -225,17 +229,16 @@ public class FindHierarchy extends LogService {
         // For real ontologies, choose a meaningful prefix - the best
         // choice depends on the actual ontology.
 
+        //System.out.println(node.getRepresentativeElement().getSignature().iterator().next().getDataPropertiesInSignature());
+
         // Print out a node as a list of class names in curly brackets
         for (Iterator<OWLClass> it = node.getEntities().iterator(); it.hasNext();) {
             OWLClass cls = it.next();
+
             // User a prefix manager to provide a slightly nicer shorter name
             String shortForm = pm.getShortForm(cls).replace(":","");
-
             stdoutLogger.info(""+shortForm + ";"+depth+";"+ st.toString());
             //assertNotNull(shortForm);
-
-
-
 
         }
     }

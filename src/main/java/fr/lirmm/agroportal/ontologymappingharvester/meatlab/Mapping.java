@@ -180,6 +180,19 @@ public class Mapping {
         return this.sameFaccetCount;
     }
 
+
+    public String getLIneFormatedHeader(){
+        return "id+;faccet;concept;map;foodid;origfdnam;engfdnam;langualcodes;remarks;originSize;targetSize;sameFaccetCount;sameBranchFaccetCount;score";
+    }
+
+    public String getLIneFormated(){
+        return ""+id+";"+faccet+";"+concept+";"+map+";"+foodid+";"+origfdnam+";"+engfdnam+";"+langualcodes+";"+remarks+";"+originSize+";"+targetSize+";"+sameFaccetCount+";"+sameBranchFaccetCount+";"+getScoreFormated()+ "\n";
+    }
+
+    public BigDecimal getScoreFormated(){
+        return new BigDecimal(score).setScale(2, RoundingMode.HALF_DOWN);
+    }
+
     @Override
     public String toString() {
         return "Mapping{" +
@@ -196,7 +209,7 @@ public class Mapping {
                 ", targetSize=" + targetSize +
                 ", sameFaccetCount=" + sameFaccetCount +
                 ", sameBranchFaccetCount=" + sameBranchFaccetCount +
-                ", score=" + score +
+                ", score=" + getScoreFormated() +
                 '}';
     }
 }

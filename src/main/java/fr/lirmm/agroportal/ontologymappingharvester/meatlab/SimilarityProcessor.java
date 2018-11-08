@@ -4,8 +4,10 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +21,8 @@ public class SimilarityProcessor {
 
 
     private String inputFileName;
+    private Hierarchy hh;
+    HashMap<String, Hierarchy> hierarchyHashMap;
 
     public void setInputFile(String inputFileName){
         this.inputFileName = inputFileName;
@@ -122,7 +126,14 @@ public class SimilarityProcessor {
     }
 
 
-    public void findFoodOnCandidateConcepts(String targetFaccets, int sameFaccetMinimalCount, int sameBranchFaccetMinimalCount, double alpha, double beta ){
+    public void findFoodOnCandidateConcepts(String outputFileName, String targetFaccets, String targetDescription, int sameFaccetMinimalCount, int sameBranchFaccetMinimalCount, double alpha, double beta ){
+
+        hierarchyHashMap = new HashMap<>();
+        loadFoodMaterialHiearchy("/home/abrahao/data/meatylab/phase2/FOODON_MEATLAB.log");
+
+        StringBuffer sb1 = new StringBuffer();
+        StringBuffer sb2 = new StringBuffer();
+
 
         try {
             //Create the CSVFormat object
@@ -165,7 +176,7 @@ public class SimilarityProcessor {
                             score.addScore(map.getScore().doubleValue());
                             concetpCount.put(map.getConcept(),score);
                         }else{
-                            score = new Score(map.getConcept());
+                            score = new Score(map.getConcept(),map.getOrigfdnam(),map.getLangualcodes());
                             score.setConceptCount(1);
                             score.addSameFaccetCount(map.getSameFaccetCount());
                             score.addSameBranchCount(map.getSameBranchFaccetCount());
@@ -183,15 +194,32 @@ public class SimilarityProcessor {
             System.out.println();
             System.out.println("Similarity Report");
             System.out.println();
+            System.out.println("Desciption: " + targetDescription);
+            System.out.println();
             System.out.println("New Product Faccets: " + targetFaccets);
+            System.out.println();
             System.out.println("Minimal number of same faccets: "+  sameFaccetMinimalCount);
             System.out.println("Minimal number of same branch faccets: "+sameBranchFaccetMinimalCount);
             System.out.println("Alpha: "+alpha+" Beta: "+beta);
             System.out.println();
 
+            sb1.append("id;faccet;concept;map;foodid;origfdnam;engfdnam;langualcodes;remarks;originSize;targetSize;sameFaccetCount;sameBranchFaccetCount;score\n");
+
             for(Mapping m: maps){
+                sb1.append(m.getLIneFormated());
                 System.out.println(m.toString());
             }
+
+            sb1.append("\n");
+            sb1.append("Similarity Report\n");
+            sb1.append("\n");
+            sb1.append("Desciption: " + targetDescription+"\n\n");
+            sb1.append("New Product Faccets: " + targetFaccets+"\n");
+            sb1.append("\n");
+            sb1.append("Minimal number of same faccets: "+  sameFaccetMinimalCount+"\n");
+            sb1.append("Minimal number of same branch faccets: "+sameBranchFaccetMinimalCount+"\n");
+            sb1.append("Alpha: "+alpha+" Beta: "+beta+ "\n");
+
 
             String key = "";
             Score ss =  null;
@@ -200,13 +228,31 @@ public class SimilarityProcessor {
             System.out.println("Legend: NP=Number of Products, SFA=Same Faccets Count Average, SBA=Sabe Branch Count Average, SA=Score Average");
             System.out.println();
 
+            String concept="";
+
+            sb2.append("concept;description;count;SameFaccetCountAverage;SameBranchCountAvarege;SocreAverage;concept;depth;parents;faccetList\n");
+
             for (Map.Entry<String, Score> entry : concetpCount.entrySet()) {
                 key = entry.getKey();
                 ss = entry.getValue();
-                System.out.println("Concept: "+key+" NP: "+ss.getConceptCount()+" SFA: "+ss.getSameFaccetCountAverage()+" SBA: "+ss.getSameBranchCountAverage()+ " SA: "+ss.getScoreAverage());
+                concept = key.substring(key.lastIndexOf("/")+1);
+                hh = hierarchyHashMap.get(concept);
+                sb2.append(key+";"+ss.getConceptDescription()+";"+ss.getConceptCount()+";"+ss.getSameFaccetCountAverage()+";"+ss.getSameBranchCountAverage()+";"+ss.getScoreAverage()+";"+hh.getLineFormated()+";" +ss.getFaccetList()+"\n");
+                System.out.println("Concept: "+key+" NP: "+ss.getConceptCount()+" SFA: "+ss.getSameFaccetCountAverage()+" SBA: "+ss.getSameBranchCountAverage()+ " SA: "+ss.getScoreAverage()+" "+hh.toString()+" Faccets: " +ss.getFaccetList());
             }
 
+            sb2.append("\n");
+            sb2.append("Similarity Report\n");
+            sb2.append("\n");
+            sb2.append("Desciption: " + targetDescription+"\n\n");
+            sb2.append("New Product Faccets: " + targetFaccets+"\n");
+            sb2.append("\n");
+            sb2.append("Minimal number of same faccets: "+  sameFaccetMinimalCount+"\n");
+            sb2.append("Minimal number of same branch faccets: "+sameBranchFaccetMinimalCount+"\n");
+            sb2.append("Alpha: "+alpha+" Beta: "+beta+ "\n");
 
+            saveFile(outputFileName+".xls",sb1);
+            saveFile(outputFileName+"_summary.xls",sb2);
 
         }catch(IOException e){
             e.printStackTrace();
@@ -240,8 +286,47 @@ public class SimilarityProcessor {
 
 
 
+    public void loadFoodMaterialHiearchy(String inputFileName){
+
+        try {
+            //Create the CSVFormat object
+            CSVFormat format = CSVFormat.RFC4180.withHeader().withDelimiter(';');
+
+            //initialize the CSVParser object
+            CSVParser parser = new CSVParser(new FileReader(inputFileName), format);
+
+            for (CSVRecord record : parser) {
+
+                hh = new Hierarchy();
+
+                hh.setConcept(record.get("concept"));
+                hh.setDepth(Integer.parseInt(record.get("depth")));
+                hh.setParents(record.get("parents"));
+                //System.out.println("CCC: "+hh.getConcept());
+
+                hierarchyHashMap.put(hh.getConcept(),hh);
+
+            }
+
+            parser.close();
+
+        }catch(Exception e){
+            //e.printStackTrace();
+        }
+    }
 
 
+    private void saveFile(String fileName, StringBuffer js){
+
+        File f = new File("/home/abrahao/data/meatylab/phase2/"+fileName);
+        try {
+            FileUtils.writeStringToFile(f, js.toString(), "UTF-8");
+        } catch (IOException e) {
+            e.getMessage();
+        }
+
+
+    }
 
 
     }

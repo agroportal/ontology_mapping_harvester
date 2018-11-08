@@ -13,16 +13,33 @@ public class Main {
 
         //sp.generateSimilarityScore();
 
-        String targetFaccets = "A0273 A0810 B1457 C0253 E0119 F0001 G0003 H0001 J0001 K0003 M0001 N0001 P0024 R0001 Z0002";
+
         int sameFaccetMinimalCount = 10;
         int sameBranchFaccetMinimalCount = 0;
         double alphaWeight = 0.7d;
         double betaWeight = 0.3d;
 
-        sp.findFoodOnCandidateConcepts(targetFaccets,sameFaccetMinimalCount,sameBranchFaccetMinimalCount, alphaWeight,betaWeight);
+
+        //String outFileName = "ex_boeuf";
+        //String description = "Boeuf, steak ou bifteck, cru";
+        //String targetFaccets = "A0150 A0794 B1161 C0268 E0124 F0003 G0003 H0003 J0001 K0003 M0001 N0001 P0024 R0001 Z0018";
+
+        //String outFileName = "ex_veau";
+        //String description = "Veau, escalope, cuite";
+        //String targetFaccets = "A0150 A0794 B1349 C0268 E0152 F0014 G0001 H0001 J0001 K0003 M0001 N0001 P0024 Z0136";
+
+        String outFileName = "ex_cheval";
+        String description = "Cheval, entrecôte, grillée/poêlée";
+        String targetFaccets = "A0150 A0794 B1229 C0268 E0152 F0014 G0004 H0001 J0001 K0003 M0001 N0001 P0024 R0001 Z0027 Z0142";
 
 
-        sp.calculateDistanceBetweenProducts(targetFaccets,targetFaccets,0.7,0.3);
+
+
+
+        sp.findFoodOnCandidateConcepts(outFileName,targetFaccets,description,sameFaccetMinimalCount,sameBranchFaccetMinimalCount, alphaWeight,betaWeight);
+
+
+        //sp.calculateDistanceBetweenProducts(targetFaccets,targetFaccets,0.7,0.3);
 
 
     }

@@ -6,16 +6,37 @@ import java.math.RoundingMode;
 public class Score {
 
     private String concept;
+    private String conceptDescription;
+    private String faccetList;
     int sameFaccetCountSum;
     int sameBranchCountSum;
     double scoreSum;
     int conceptCount;
 
-    public Score(String concept) {
+    public Score(String concept, String conceptDescription, String faccetList) {
+        this.concept=concept;
+        this.conceptDescription = conceptDescription;
+        this.faccetList = faccetList;
         this.sameFaccetCountSum = 0;
         this.sameBranchCountSum = 0;
         this.scoreSum = 0.0;
         this.conceptCount = 0;
+    }
+
+    public String getFaccetList() {
+        return faccetList;
+    }
+
+    public void setFaccetList(String faccetList) {
+        this.faccetList = faccetList;
+    }
+
+    public String getConceptDescription() {
+        return conceptDescription;
+    }
+
+    public void setConceptDescription(String conceptDescription) {
+        this.conceptDescription = conceptDescription;
     }
 
     public String getConcept() {

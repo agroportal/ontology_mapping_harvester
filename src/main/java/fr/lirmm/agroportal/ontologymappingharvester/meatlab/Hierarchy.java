@@ -3,8 +3,17 @@ package fr.lirmm.agroportal.ontologymappingharvester.meatlab;
 public class Hierarchy {
 
     private String concept;
+    private String descriptionFoodon;
     private int depth;
     private String parents;
+
+    public String getDescriptionFoodon() {
+        return descriptionFoodon;
+    }
+
+    public void setDescriptionFoodon(String descriptionFoodon) {
+        this.descriptionFoodon = descriptionFoodon;
+    }
 
     public String getConcept() {
         return concept;
@@ -30,12 +39,12 @@ public class Hierarchy {
         this.parents = parents;
     }
 
+    public String getLineFormated() {
+        return  concept + ";" + depth +";" + parents;
+    }
+
     @Override
     public String toString() {
-        return "Hierarchy{" +
-                "concept='" + concept + '\'' +
-                ", depth=" + depth +
-                ", parents='" + parents + '\'' +
-                '}';
+        return  "concept: " + concept + " depth: " + depth +" parents: " + parents;
     }
 }

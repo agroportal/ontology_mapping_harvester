@@ -102,7 +102,7 @@ public class SimilarityProcessor {
                             outData.add(value.get(i).getLangualcodes());
                             outData.add(m.getOrigfdnam());
                             outData.add(value.get(i).getOrigfdnam());
-                            m.calcSimilarityScore(value.get(i).getLangualcodes(),1.0,1.0);
+                            m.calcSimilarityScore(value.get(i).getLangualcodes(),1.0,1.0,"");
                             outData.add(""+m.getOriginSize());
                             outData.add(""+m.getTargetSize());
                             outData.add(""+m.getSameFaccetCount());
@@ -164,7 +164,7 @@ public class SimilarityProcessor {
                     map.setEngfdnam(record.get("engfdnam"));
                     map.setLangualcodes(record.get("langualcodes"));
                     map.setRemarks(record.get("remarks"));
-                    map.calcSimilarityScore(targetFaccets,alpha,beta);
+                    map.calcSimilarityScore(targetFaccets,alpha,beta,targetDescription);
 
                     if(map.getSameFaccetCount()>=sameFaccetMinimalCount && map.getSameBranchFaccetCount()>=sameBranchFaccetMinimalCount ){
                         maps.add(map);
@@ -176,7 +176,7 @@ public class SimilarityProcessor {
                             score.addScore(map.getScore().doubleValue());
                             concetpCount.put(map.getConcept(),score);
                         }else{
-                            score = new Score(map.getConcept(),map.getOrigfdnam(),map.getLangualcodes());
+                            score = new Score(map.getConcept(),map.getOrigfdnam(),map.getLangualcodes(),map.getGama());
                             score.setConceptCount(1);
                             score.addSameFaccetCount(map.getSameFaccetCount());
                             score.addSameBranchCount(map.getSameBranchFaccetCount());
@@ -225,20 +225,20 @@ public class SimilarityProcessor {
             Score ss =  null;
 
             System.out.println();
-            System.out.println("Legend: NP=Number of Products, SFA=Same Faccets Count Average, SBA=Sabe Branch Count Average, SA=Score Average");
+            System.out.println("Legend: NP=Number of Products, SF=Same Faccets Count , SB=Sabe Branch Count , G=Gama Label Words Count, S=Score ");
             System.out.println();
 
             String concept="";
 
-            sb2.append("concept;description;count;SameFaccetCountAverage;SameBranchCountAvarege;SocreAverage;concept;depth;parents;faccetList\n");
+            sb2.append("concept;description;count;SameFaccetCount;SameBranchCount;Gama;Score;concept;depth;parents;faccetList\n");
 
             for (Map.Entry<String, Score> entry : concetpCount.entrySet()) {
                 key = entry.getKey();
                 ss = entry.getValue();
                 concept = key.substring(key.lastIndexOf("/")+1);
                 hh = hierarchyHashMap.get(concept);
-                sb2.append(key+";"+ss.getConceptDescription()+";"+ss.getConceptCount()+";"+ss.getSameFaccetCountAverage()+";"+ss.getSameBranchCountAverage()+";"+ss.getScoreAverage()+";"+hh.getLineFormated()+";" +ss.getFaccetList()+"\n");
-                System.out.println("Concept: "+key+" NP: "+ss.getConceptCount()+" SFA: "+ss.getSameFaccetCountAverage()+" SBA: "+ss.getSameBranchCountAverage()+ " SA: "+ss.getScoreAverage()+" "+hh.toString()+" Faccets: " +ss.getFaccetList());
+                sb2.append(key+";"+ss.getConceptDescription()+";"+ss.getConceptCount()+";"+ss.getSameFaccetCountAverage()+";"+ss.getSameBranchCountAverage()+";"+ss.getGama()+";"+ss.getScoreAverage()+";"+hh.getLineFormated()+";" +ss.getFaccetList()+"\n");
+                System.out.println("Concept: "+key+" NP: "+ss.getConceptCount()+" SF: "+ss.getSameFaccetCountAverage()+" SB: "+ss.getSameBranchCountAverage()+ " G: "+ss.getGama()+" S: "+ss.getScoreAverage()+" "+hh.toString()+" Faccets: " +ss.getFaccetList());
             }
 
             sb2.append("\n");
@@ -269,7 +269,7 @@ public class SimilarityProcessor {
 
         Mapping map = new Mapping();
         map.setLangualcodes(p1);
-        map.calcSimilarityScore(p2,alpha,beta);
+        map.calcSimilarityScore(p2,alpha,beta,"");
 
         System.out.println();
         System.out.println("Distance between Products");

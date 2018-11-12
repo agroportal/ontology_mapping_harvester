@@ -19,6 +19,15 @@ public class Mapping {
    int sameFaccetCount;
    int sameBranchFaccetCount;
    double score;
+   double gama;
+
+    public double getGama() {
+        return gama;
+    }
+
+    public void setGama(double gama) {
+        this.gama = gama;
+    }
 
     public BigDecimal getScore() {
         return new BigDecimal(score).setScale(2, RoundingMode.HALF_DOWN);
@@ -128,7 +137,7 @@ public class Mapping {
         this.remarks = remarks;
     }
 
-    public void calcSimilarityScore(String targetId, double alpha, double beta){
+    public void calcSimilarityScore(String targetId, double alpha, double beta, String targetDescription){
 
         // Phase 1 - Calculate count of identhical faccets
         int count = 0;
@@ -170,9 +179,28 @@ public class Mapping {
             }
         }
 
+        // Phase 3 - Calculate description label similarity
+        double gama = 1.0;
+        String[] words = targetDescription.replaceAll(",","").split(" ");
+        String[] localWords = origfdnam.replaceAll(",","").split(" ");
+        for(int i =0;i<words.length;i++){
+            if(words[i].length()>0){
+                for(int j=0;j<localWords.length;j++){
+                    if(words[i].equalsIgnoreCase(localWords[j])){
+                        gama+=0.1;
+                        // to assure each word counts only one time
+                        localWords[j]="";
+                    }
+                }
+
+            }
+        }
+        setGama(gama);
+
+
         sameBranchFaccetCount = countSameBranch;
 
-        score = ((alpha * sameFaccetCount) + (beta * sameBranchFaccetCount)) / (alpha+beta);
+        score = (((alpha * sameFaccetCount) + (beta * sameBranchFaccetCount)) / (alpha+beta))*gama;
 
     }
 
@@ -182,11 +210,11 @@ public class Mapping {
 
 
     public String getLIneFormatedHeader(){
-        return "id+;faccet;concept;map;foodid;origfdnam;engfdnam;langualcodes;remarks;originSize;targetSize;sameFaccetCount;sameBranchFaccetCount;score";
+        return "id+;faccet;concept;map;foodid;origfdnam;engfdnam;langualcodes;remarks;originSize;targetSize;sameFaccetCount;sameBranchFaccetCount;gamaFactor;score";
     }
 
     public String getLIneFormated(){
-        return ""+id+";"+faccet+";"+concept+";"+map+";"+foodid+";"+origfdnam+";"+engfdnam+";"+langualcodes+";"+remarks+";"+originSize+";"+targetSize+";"+sameFaccetCount+";"+sameBranchFaccetCount+";"+getScoreFormated()+ "\n";
+        return ""+id+";"+faccet+";"+concept+";"+map+";"+foodid+";"+origfdnam+";"+engfdnam+";"+langualcodes+";"+remarks+";"+originSize+";"+targetSize+";"+sameFaccetCount+";"+sameBranchFaccetCount+";"+gama+";"+getScoreFormated()+ "\n";
     }
 
     public BigDecimal getScoreFormated(){
@@ -209,6 +237,7 @@ public class Mapping {
                 ", targetSize=" + targetSize +
                 ", sameFaccetCount=" + sameFaccetCount +
                 ", sameBranchFaccetCount=" + sameBranchFaccetCount +
+                ", gama=" + gama +
                 ", score=" + getScoreFormated() +
                 '}';
     }

@@ -12,15 +12,22 @@ public class Score {
     int sameBranchCountSum;
     double scoreSum;
     int conceptCount;
+    double gama;
 
-    public Score(String concept, String conceptDescription, String faccetList) {
+    public Score(String concept, String conceptDescription, String faccetList, double gama) {
         this.concept=concept;
         this.conceptDescription = conceptDescription;
         this.faccetList = faccetList;
+        this.gama = gama;
         this.sameFaccetCountSum = 0;
         this.sameBranchCountSum = 0;
         this.scoreSum = 0.0;
         this.conceptCount = 0;
+    }
+
+
+    public void setGama(double gama) {
+        this.gama = gama;
     }
 
     public String getFaccetList() {
@@ -89,6 +96,10 @@ public class Score {
 
     public BigDecimal getScoreAverage(){
         return new BigDecimal(scoreSum/conceptCount).setScale(2, RoundingMode.HALF_DOWN);
+    }
+
+    public BigDecimal getGama(){
+        return new BigDecimal(gama).setScale(2, RoundingMode.HALF_DOWN);
     }
 
     public void addSameFaccetCount(int c){

@@ -217,20 +217,20 @@ public class AgroportalRestService extends LogService {
         String link=ManageProperties.loadPropertyValue(command+"url");
         String key=ManageProperties.loadPropertyValue(command+"apikey");
 
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(link)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(link)
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create(getGson()))
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+//        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(link)
+//                .client(client)
+//                .addConverterFactory(GsonConverterFactory.create(getGson()))
+//                .build();
 
 
         AgroportalService service = retrofit.create(AgroportalService.class);

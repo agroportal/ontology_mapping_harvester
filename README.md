@@ -82,10 +82,12 @@ note: to be posted on AGROPORTAL the mappings must be inside the `omht_output` f
 
 `java -jar omht.jar -help [enter]`
 
-----------------
-      HELP
-----------------
-Basic Operation:
+**----------------**
+      **HELP**
+**----------------**
+
+**Basic Operation:**
+
 1) Show this help information:
 
 java -jar omht.jar -help

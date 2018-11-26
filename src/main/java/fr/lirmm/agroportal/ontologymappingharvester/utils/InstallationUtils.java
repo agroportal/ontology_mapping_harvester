@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Scanner;
 
 public class InstallationUtils {
 
@@ -34,7 +35,11 @@ public class InstallationUtils {
                 System.exit(0);
             }else{
                 ManageProperties.setProperty("externalproperties",folder);
-
+                try {
+                    FileUtils.copyURLToFile(getResource("OMHT_external_matches_phase_1.cfg"), new File(folder+File.separator+"OMHT_external_matches_phase_1.cfg"));
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -49,18 +54,11 @@ public class InstallationUtils {
             }
         }
 
-        createProperties();
-
-        try {
-            FileUtils.copyURLToFile(getResource("OMHT_external_matches_phase_1.cfg"), new File(folder+File.separator+"OMHT_external_matches_phase_1.cfg"));
-        }catch(IOException e){
-            e.printStackTrace();
+        if(ManageProperties.loadPropertyValue("outputfolder")==null){
+            createProperties();
+            System.out.println("Application properties file created with success. Please setup the API keys and User names.");
+            System.out.println();
         }
-
-        System.out.println("Application properties file created with success. Please setup the API keys and User names.");
-        System.out.println();
-        printHelp();
-
 
 
     }
@@ -113,50 +111,27 @@ public class InstallationUtils {
      */
     public void printHelp(){
 
-        System.out.println("Parameters:");
-        System.out.println("./MappingHarvest [parameters] FILE1 FILE2 FILE3");
-        System.out.println("-j Generate JSON files");
-        System.out.println("-l Generate LOG files");
-        System.out.println("-s Gerate Statistics");
-        System.out.println("-p print LOG on screen");
-        System.out.println("-b bulk load files from folder");
-        System.out.println("-g Generate javascript for Graph representation of matches");
-        System.out.println("-d Download ontologies from AGROPORTAL");
-        System.out.println("-n dowload ontologies from BIOPORTAL");
-        System.out.println("-h Download ontologies from STAGE AGROPORTAL");
-        System.out.println("-f dowload ontologies from STAGE BIOPORTAL");
-        System.out.println("-u Download an unique ontology (require destination folder and acronym)");
-        System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");
-        System.out.println("-r Setup location folder for configuration files (.cfg)");
-        System.out.println("-ka Setup api key to acess Agroportal from this script");
-        System.out.println("-kb Setup api key to acess Bioportal from this script");
-        System.out.println("-f Setup output folder");
-        System.out.println("-aa Setup AGROPORTAL API ADDRESS");
-        System.out.println("-ab Setup BIOPORTAL API ADDRESS");
-        System.out.println("-aas Setup STAGE AGROPORTAL API ADDRESS");
-        System.out.println("-abs Setup STAGE BIOPORTAL API ADDRESS");
-        System.out.println("-rest[agroportal,stageagroportal,bioportal,stagebioportal] [post,patch,delete] ONTOLOGY_ACRONYMS_LIST to manage matches on Agroportal");
-        System.out.println("-c Clean execution history for the current script execution");
-        System.out.println("Examples of usage:");
-        System.out.println("/.MappingHarvest -jlsp path1/onto1.ref path2/onto2.ref pathn/onto3.ref");
-        System.out.println("/.MappingHarvest -bjlsp path_to_folder_of_xrdf_files");
-        System.out.println("/.MappingHarvest -g path_to_sts_files");
-        System.out.println("/.MappingHarvest -djslp path_to_output_files");
-        System.out.println("/.MappingHarvest -dnjslp");
-        System.out.println("/.MappingHarvest -ujslp ACRONYM");
-        System.out.println("/.MappingHarvest -vj (list of files) if not informed process all files on folder");
-        System.out.println("/.MappingHarvest -r path_to_external_reference_file");
-        System.out.println("/.MappingHarvest -ka api_key");
-        System.out.println("/.MappingHarvest -f path_to_output_folder");
-        System.out.println("/.MappingHarvest -aa http://data.agroportal.lirmm.fr");
-        System.out.println("/.MappingHarvest -ab http://data.bioontology.org");
-        System.out.println("The output files will have the same names as the input files and the");
-        System.out.println("follow sufixes:");
-        System.out.println(".json - JSON file for upload back on the portals");
-        System.out.println(".log  - LOG file of mapping process");
-        System.out.println(".sts  - text file with mapping statistics");
-        System.out.println("-------------------------------------------------------------------------------------");
-        System.out.println("");
+        StringBuilder result = new StringBuilder("");
+
+        //Get file from resources folder
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("help.txt").getFile());
+
+        try (Scanner scanner = new Scanner(file)) {
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                result.append(line).append("\n");
+            }
+
+            scanner.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(result.toString());
+
     }
 
 

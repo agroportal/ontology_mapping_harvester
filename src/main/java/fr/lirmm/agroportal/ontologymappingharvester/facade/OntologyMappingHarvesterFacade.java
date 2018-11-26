@@ -27,9 +27,11 @@ public class OntologyMappingHarvesterFacade {
     public void promptCall(String[] args){
 
         System.out.println();
-        System.out.println("-------------------------------------------------------------------------------------");
-        System.out.println("Ontology Mapping Harvest Tool - v.1.3 - Agroportal Project - LIRMM - Montpellier - FR");
-        System.out.println("-------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------");
+        System.out.println("Ontology Mapping Harvest Tool - v.1.4");
+        System.out.println("Agroportal Project - LIRMM - Montpellier - FR");
+
+        System.out.println("------------------------------------------------");
         System.out.println();
 
 
@@ -48,17 +50,15 @@ public class OntologyMappingHarvesterFacade {
 
         }else{
 
+            if(args[0].trim().equalsIgnoreCase("-")){
+                iu.printHelp();
+                System.exit(0);
+            }
             command = args[0].replaceAll("-","");
-            if(args.length==0){
-                if(command.indexOf("-")==-1){
-                    System.out.println();
-                    System.out.println("Attention: No parameters provided! Nothing to do!");
-                    iu.printHelp();
-                    System.exit(0);
-                }
+
+            if(args.length==1){
                 System.out.println();
                 System.out.println("Attention: You must provide, at least, one input file to be processed!");
-                iu.printHelp();
                 System.exit(0);
             }else{
                 for(int i=1;i<args.length;i++){
@@ -99,11 +99,11 @@ public class OntologyMappingHarvesterFacade {
                 validadeTargetReferenceService.loadAndProcessOntologiesMetadata(command);
                 validadeTargetReferenceService.validateTargetReferences(command,files);
 
-            }else if(command.indexOf("r")>-1){
+            }else if(command.indexOf("configfolder")>-1){
 
                 ManageProperties.setProperty("externalproperties",args[1]);
 
-                System.out.println("New folder for external_references.json file is "+args[1]);
+                System.out.println("New folder forconfiguration files is "+args[1]);
 
             }else if(command.indexOf("restagroportalapikey")>-1){
 
@@ -117,19 +117,19 @@ public class OntologyMappingHarvesterFacade {
 
                 System.out.println("New api key for Bioportal associated to this script is "+args[1]);
 
-            }else if(command.indexOf("f")>-1){
+            }else if(command.indexOf("outputfolder")>-1){
 
                 ManageProperties.setProperty("outputfolder",args[1]);
 
                 System.out.println("New output folder associated to this script is "+args[1]);
 
-            }else if(command.indexOf("aas")>-1){
+            }else if(command.indexOf("reststageagroportalurl")>-1){
 
                 ManageProperties.setProperty("reststageagroportalurl",args[1]);
 
                 System.out.println("New address to STAGEAGROPORTAL: "+args[1]);
 
-            }else if(command.indexOf("abs")>-1){
+            }else if(command.indexOf("reststagebioportalurl")>-1){
 
                 ManageProperties.setProperty("reststagebioportalurl",args[1]);
 
@@ -151,11 +151,11 @@ public class OntologyMappingHarvesterFacade {
 
                 ManageProperties.setProperty("restagroportaluser",args[1]);
 
-                System.out.println("New user to AGROPORTAL: "+args[1]);
+                System.out.println("New user to AGROPORTAL: "+"/user/"+args[1]);
 
             }else if(command.indexOf("restbioportaluser")>-1){
 
-                ManageProperties.setProperty("restbioportaluser",args[1]);
+                ManageProperties.setProperty("restbioportaluser","/user/"+args[1]);
 
                 System.out.println("New user to BIOPORTAL: "+args[1]);
 

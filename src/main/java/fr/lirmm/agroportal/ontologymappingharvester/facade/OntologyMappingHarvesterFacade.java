@@ -4,8 +4,13 @@ import fr.lirmm.agroportal.ontologymappingharvester.services.GenerateJSService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.HarvestAllFormatsService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.MappingsRestService;
 import fr.lirmm.agroportal.ontologymappingharvester.services.ValidadeTargetReferenceService;
+import fr.lirmm.agroportal.ontologymappingharvester.utils.InstallationUtils;
 import fr.lirmm.agroportal.ontologymappingharvester.utils.ManageProperties;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class OntologyMappingHarvesterFacade {
@@ -22,32 +27,38 @@ public class OntologyMappingHarvesterFacade {
     public void promptCall(String[] args){
 
         System.out.println();
-        System.out.println("-------------------------------------------------------------------------------------");
-        System.out.println("Ontology Mapping Harvest Tool - v.1.3 - Agroportal Project - LIRMM - Montpellier - FR");
-        System.out.println("-------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------");
+        System.out.println("Ontology Mapping Harvest Tool - v.1.4");
+        System.out.println("Agroportal Project - LIRMM - Montpellier - FR");
+
+        System.out.println("------------------------------------------------");
         System.out.println();
+
+
+        InstallationUtils iu = new InstallationUtils();
+
+        iu.checkInstalationFolder();
+
 
         String command="";
         ArrayList<String> files = new ArrayList<>();
         if(args.length==0 || args[0].equalsIgnoreCase("-help")){
 
-            printHelp();
+            iu.printHelp();
             System.exit(0);
 
 
         }else{
 
+            if(args[0].trim().equalsIgnoreCase("-")){
+                iu.printHelp();
+                System.exit(0);
+            }
             command = args[0].replaceAll("-","");
-            if(args.length==0){
-                if(command.indexOf("-")==-1){
-                    System.out.println();
-                    System.out.println("Attention: No parameters provided! Nothing to do!");
-                    printHelp();
-                    System.exit(0);
-                }
+
+            if(args.length==1){
                 System.out.println();
                 System.out.println("Attention: You must provide, at least, one input file to be processed!");
-                printHelp();
                 System.exit(0);
             }else{
                 for(int i=1;i<args.length;i++){
@@ -88,53 +99,65 @@ public class OntologyMappingHarvesterFacade {
                 validadeTargetReferenceService.loadAndProcessOntologiesMetadata(command);
                 validadeTargetReferenceService.validateTargetReferences(command,files);
 
-            }else if(command.indexOf("r")>-1){
+            }else if(command.indexOf("configfolder")>-1){
 
                 ManageProperties.setProperty("externalproperties",args[1]);
 
-                System.out.println("New folder for external_references.json file is "+args[1]);
+                System.out.println("New folder forconfiguration files is "+args[1]);
 
-            }else if(command.indexOf("ka")>-1){
+            }else if(command.indexOf("restagroportalapikey")>-1){
 
                 ManageProperties.setProperty("restagroportalapikey",args[1]);
 
                 System.out.println("New api key for Agroportal associated to this script is "+args[1]);
 
-            }else if(command.indexOf("kb")>-1){
+            }else if(command.indexOf("restbioportalapikey")>-1){
 
                 ManageProperties.setProperty("restbioportalapikey",args[1]);
 
                 System.out.println("New api key for Bioportal associated to this script is "+args[1]);
 
-            }else if(command.indexOf("f")>-1){
+            }else if(command.indexOf("outputfolder")>-1){
 
                 ManageProperties.setProperty("outputfolder",args[1]);
 
                 System.out.println("New output folder associated to this script is "+args[1]);
 
-            }else if(command.indexOf("aas")>-1){
+            }else if(command.indexOf("reststageagroportalurl")>-1){
 
                 ManageProperties.setProperty("reststageagroportalurl",args[1]);
 
                 System.out.println("New address to STAGEAGROPORTAL: "+args[1]);
 
-            }else if(command.indexOf("abs")>-1){
+            }else if(command.indexOf("reststagebioportalurl")>-1){
 
                 ManageProperties.setProperty("reststagebioportalurl",args[1]);
 
                 System.out.println("New address to STAGEBIOPORTAL: "+args[1]);
 
-            }else if(command.indexOf("aa")>-1){
+            }else if(command.indexOf("restagroportalurl")>-1){
 
                 ManageProperties.setProperty("restagroportalurl",args[1]);
 
                 System.out.println("New address to AGROPORTAL: "+args[1]);
 
-            }else if(command.indexOf("ab")>-1){
+            }else if(command.indexOf("restbioportalurl")>-1){
 
                 ManageProperties.setProperty("restbioportalurl",args[1]);
 
                 System.out.println("New address to BIOPORTAL: "+args[1]);
+
+            }else if(command.indexOf("restagroportaluser")>-1){
+
+                ManageProperties.setProperty("restagroportaluser",args[1]);
+
+                System.out.println("New user to AGROPORTAL: "+"/user/"+args[1]);
+
+            }else if(command.indexOf("restbioportaluser")>-1){
+
+                ManageProperties.setProperty("restbioportaluser","/user/"+args[1]);
+
+                System.out.println("New user to BIOPORTAL: "+args[1]);
 
             }else{
 
@@ -171,56 +194,7 @@ public class OntologyMappingHarvesterFacade {
 
     }
 
-    /**
-     * Method to show help context for command prompt
-     */
-    private void printHelp(){
 
-        System.out.println("Parameters:");
-        System.out.println("./MappingHarvest [parameters] FILE1 FILE2 FILE3");
-        System.out.println("-j Generate JSON files");
-        System.out.println("-l Generate LOG files");
-        System.out.println("-s Gerate Statistics");
-        System.out.println("-p print LOG on screen");
-        System.out.println("-b bulk load files from folder");
-        System.out.println("-g Generate javascript for Graph representation of matches");
-        System.out.println("-d Download ontologies from AGROPORTAL");
-        System.out.println("-n dowload ontologies from BIOPORTAL");
-        System.out.println("-h Download ontologies from STAGE AGROPORTAL");
-        System.out.println("-f dowload ontologies from STAGE BIOPORTAL");
-        System.out.println("-u Download an unique ontology (require destination folder and acronym)");
-        System.out.println("-vj Validate IRIs and generate definitive JSON files on output folder");
-        System.out.println("-r Setup location folder for configuration files (.cfg)");
-        System.out.println("-ka Setup api key to acess Agroportal from this script");
-        System.out.println("-kb Setup api key to acess Bioportal from this script");
-        System.out.println("-f Setup output folder");
-        System.out.println("-aa Setup AGROPORTAL API ADDRESS");
-        System.out.println("-ab Setup BIOPORTAL API ADDRESS");
-        System.out.println("-aas Setup STAGE AGROPORTAL API ADDRESS");
-        System.out.println("-abs Setup STAGE BIOPORTAL API ADDRESS");
-        System.out.println("-rest[agroportal,stageagroportal,bioportal,stagebioportal] [post,patch,delete] ONTOLOGY_ACRONYMS_LIST to manage matches on Agroportal");
-        System.out.println("-c Clean execution history for the current script execution");
-        System.out.println("Examples of usage:");
-        System.out.println("/.MappingHarvest -jlsp path1/onto1.ref path2/onto2.ref pathn/onto3.ref");
-        System.out.println("/.MappingHarvest -bjlsp path_to_folder_of_xrdf_files");
-        System.out.println("/.MappingHarvest -g path_to_sts_files");
-        System.out.println("/.MappingHarvest -djslp path_to_output_files");
-        System.out.println("/.MappingHarvest -dnjslp");
-        System.out.println("/.MappingHarvest -ujslp ACRONYM");
-        System.out.println("/.MappingHarvest -vj (list of files) if not informed process all files on folder");
-        System.out.println("/.MappingHarvest -r path_to_external_reference_file");
-        System.out.println("/.MappingHarvest -ka api_key");
-        System.out.println("/.MappingHarvest -f path_to_output_folder");
-        System.out.println("/.MappingHarvest -aa http://data.agroportal.lirmm.fr");
-        System.out.println("/.MappingHarvest -ab http://data.bioontology.org");
-        System.out.println("The output files will have the same names as the input files and the");
-        System.out.println("follow sufixes:");
-        System.out.println(".json - JSON file for upload back on the portals");
-        System.out.println(".log  - LOG file of mapping process");
-        System.out.println(".sts  - text file with mapping statistics");
-        System.out.println("-------------------------------------------------------------------------------------");
-        System.out.println("");
-    }
 
 
         /**
@@ -254,6 +228,8 @@ public class OntologyMappingHarvesterFacade {
         service.parse("jlsd", ManageProperties.loadPropertyValue("outputfolder"));
 
     }
+
+
 
 
 }

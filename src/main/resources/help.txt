@@ -1,0 +1,48 @@
+----------------
+      HELP
+----------------
+Basic Operation:
+1) Show this help information:
+java -jar omht.jar -help
+2) Find internal mappings on an ontology on AGROPORTAL
+java -jar omhtjar -jlsuc [ONTOLOGY_ACRONYM]
+Example: 
+java -jar omhtjar -jlsuc FOODON
+3) Find internal mappings on all ontologies on AGROPORTAL
+java -jar omhtjar -jlsdc
+4) Find internal mappings on a list of ontologies on AGROPORTAL
+java -jar omhtjar -jlsuc {[ACRONYM_1], [ACRONYM_2], ...}
+Example:
+java -jar omhtjar -jlsuc FOODON AGRO AGROVOC PO TO
+5) Post all mappings on output folder (*.json) on AGROPORTAL
+java -jar omhtjar -restagroportal post all
+6) Delete all mappings ganerated by this script for one ontology
+java -jar omhtjar -restagroportal delete [ACRONYM]
+Example:
+java -jar omhtjar -restagroportal delete FOODON
+7) Parameter list:
+-j Generate JSON files
+-l Generate LOG files
+-s Gerate Statistics
+-p print LOG on screen
+-g Generate javascript for Graph representation of matches
+-d Download ontologies from AGROPORTAL
+-h Download ontologies from STAGE AGROPORTAL
+-u Download an unique ontology (require destination folder and acronym)
+-c Clean execution history for the current script execution
+8) Setup custom config folder
+java -jar omhtjar -configfolder [FOLDER_PATH]
+9) Setup custom output folder
+java -jar omhtjar -outputfolder [FOLDER_PATH]
+10) Setup URL from AGROPORTAL REST Service
+java -jar omhtjar -restagroportalurl [URL]
+11) Setup URL from BIOPORTAL REST Service
+java -jar omhtjar -restbioportalurl [URL]
+12) Setup AGROPORTAL REST Service API KEY
+java -jar omhtjar -restagroportalapikey [API_KEY]
+13) Setup BIOPORTAL REST Service API KEY
+java -jar omhtjar -restbioportalapikey [API_KEY]
+14) Setup AGROPORTAL user name
+java -jar omhtjar -restbioportaluser [API_KEY]
+15) Setup BIOPORTAL user name
+java -jar omhtjar -restagroportaluser [API_KEY]

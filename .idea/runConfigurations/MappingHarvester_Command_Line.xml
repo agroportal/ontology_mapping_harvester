@@ -2,14 +2,15 @@
   <configuration default="false" name="MappingHarvester Command Line" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="fr.lirmm.agroportal.ontologymappingharvester.MappingHarvester" />
     <module name="ontology_mapping_harvester" />
-    <option name="PROGRAM_PARAMETERS" value="-jlspc $USER_HOME$/data/workarea/PO2_DG.rdf" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    <option name="PROGRAM_PARAMETERS" value="-jlsuc FOODON" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="fr.lirmm.agroportal.ontologymappingharvester.utils.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <method />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
   </configuration>
 </component>

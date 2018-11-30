@@ -19,13 +19,13 @@ public class InstallationUtils {
 
 
         System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
+                System.getProperty("user.home"));
         System.out.println();
 
         boolean success;
 
-        String folder = System.getProperty("user.dir")+ File.separator+"omht_config";
-        String folder2 = System.getProperty("user.dir")+File.separator+"omht_output";
+        String folder = System.getProperty("user.home")+ File.separator+"omht"+File.separator+"omht_config";
+        String folder2 = System.getProperty("user.home")+File.separator+"omht"+File.separator+"omht_output";
 
         File f = new File(folder);
         if (!f.exists()) {
@@ -54,7 +54,7 @@ public class InstallationUtils {
             }
         }
 
-        if(ManageProperties.loadPropertyValue("outputfolder")==null){
+        if(ManageProperties.loadPropertyValue("restagroportalurl")==null){
             createProperties();
             System.out.println("Application properties file created with success. Please setup the API keys and User names.");
             System.out.println();

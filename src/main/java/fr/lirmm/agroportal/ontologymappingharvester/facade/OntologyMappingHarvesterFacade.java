@@ -179,7 +179,7 @@ public class OntologyMappingHarvesterFacade {
 
 
                 if(command.indexOf("d")>-1){
-
+                    System.out.println("Entrou no d");
                     service.parse(command, ManageProperties.loadPropertyValue("outputfolder"));
                 }else if(command.indexOf("u")>-1){
 

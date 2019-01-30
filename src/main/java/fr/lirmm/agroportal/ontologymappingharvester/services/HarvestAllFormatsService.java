@@ -563,15 +563,15 @@ public class HarvestAllFormatsService extends BaseService  {
 
         int validJsonCounter=0;
 
-        String userIdentifier = ManageProperties.loadPropertyValue("restagroportalurl")+ManageProperties.loadPropertyValue("restagroportaluser");
+        String userIdentifier = ManageProperties.loadPropertyValue("restagroportalurl")+File.separator+ManageProperties.loadPropertyValue("restagroportaluser");
         if(command.indexOf("n")>0) {
-            userIdentifier = ManageProperties.loadPropertyValue("restbioportalurl")+ManageProperties.loadPropertyValue("restbioportaluser");
+            userIdentifier = ManageProperties.loadPropertyValue("restbioportalurl")+File.separator+ManageProperties.loadPropertyValue("restbioportaluser");
         }
         if(command.indexOf("f")>0) {
-            userIdentifier = ManageProperties.loadPropertyValue("reststagebioportalurl")+ManageProperties.loadPropertyValue("reststagebioportaluser");
+            userIdentifier = ManageProperties.loadPropertyValue("reststagebioportalurl")+File.separator+ManageProperties.loadPropertyValue("reststagebioportaluser");
         }
         if(command.indexOf("h")>0) {
-            userIdentifier = ManageProperties.loadPropertyValue("reststageagroportalurl")+ManageProperties.loadPropertyValue("reststageagroportaluser");
+            userIdentifier = ManageProperties.loadPropertyValue("reststageagroportalurl")+File.separator+ManageProperties.loadPropertyValue("reststageagroportaluser");
         }
 
         ArrayList<MappingEntity> mappingEntities = new ArrayList<>();

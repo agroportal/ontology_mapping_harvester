@@ -282,7 +282,7 @@ public class MappingsRestService extends LogService{
 
                         try {
                             stdoutLogger.error("ERROR INSERTTING MAPPING: "+cont+" -->" + me.toString() + " Code: " + response.getResponse().code() + " Message: " + response.getResponse().message() + " - Description: " + response.getErrorMessage());
-                            if(errorInserting>10){
+                            if(errorInserting>300){
                                 ManageProperties.setProperty("executionpointer",""+cont);
                                 needUserAction("To much consecutive errors. Do you want do procced ?");
                                 errorInserting=0;
@@ -300,22 +300,14 @@ public class MappingsRestService extends LogService{
 
 
 //                try {
-//                    Thread.sleep(100);
+//                    Thread.sleep(500);
 //                } catch (InterruptedException e) {
 //                    e.printStackTrace();
 //                }
 
 
-                counter++;
-                if(counter%30==0){
-                    // Problems on the server with 0(zero) and 2 (two) seconds interval
-                    stdoutLogger.info("Waiting....");
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+//
+
 
                 stdoutLogger.info("XXXXXXXXX --->" + total + " / " + counter + " / " + sucess);
 

@@ -102,7 +102,7 @@ public class InstallationUtils {
         ManageProperties.setProperty("obofoundryontologies","http://obofoundry.org/registry/ontologies.jsonld");
         ManageProperties.setProperty("identifiersaddress","http://identifiers.org");
         ManageProperties.setProperty("minimummappings","10");
-        ManageProperties.setProperty("executionhistory",";PO2_DG;");
+        //ManageProperties.setProperty("executionhistory",";PO2_DG;");
 
     }
 

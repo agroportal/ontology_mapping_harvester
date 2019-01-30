@@ -2,7 +2,6 @@
   <configuration default="false" name="MappingHarvester Command Line" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="fr.lirmm.agroportal.ontologymappingharvester.MappingHarvester" />
     <module name="ontology_mapping_harvester" />
-    <option name="PROGRAM_PARAMETERS" value="-jlsuc FOODON" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="fr.lirmm.agroportal.ontologymappingharvester.utils.*" />

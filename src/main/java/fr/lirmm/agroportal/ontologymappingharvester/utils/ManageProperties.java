@@ -1,66 +1,64 @@
 package fr.lirmm.agroportal.ontologymappingharvester.utils;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import java.io.*;
 import java.util.Properties;
 
 public class ManageProperties {
 
-    public static void main(String[] args) {
 
 
-        Properties prop = new Properties();
-        InputStream input = null;
+    public static void createPropertiesFile(){
 
+        String current="";
         try {
+            current = new java.io.File(".").getCanonicalPath();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
-            input = new FileInputStream("config.properties");
-
-            // load a properties file
-            prop.load(input);
-
-            // get the property value and print it out
-            //System.out.println(prop.getProperty("externalproperties"));
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        File f = new File(current+File.separator+"config.properties");
+        if(f.exists() && !f.isDirectory()) {
+        }else{
+            try {
+                FileOutputStream fr = new FileOutputStream(current+File.separator+"config.properties");
+                Properties prop = new Properties();
+                prop.store(fr, null);
+                fr.close();
+            }catch(IOException e){
+                e.printStackTrace();
             }
         }
+
 
     }
 
 
     public static String loadPropertyValue(String propertyName){
 
+        String current="";
+        try {
+            current = new java.io.File(".").getCanonicalPath();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+
         propertyName = propertyName.replaceAll("-","");
 
         Properties prop = new Properties();
-        InputStream input = null;
+        //InputStream input = null;
 
         try {
 
-            input = new FileInputStream("config.properties");
+                FileInputStream fi=new FileInputStream(current+File.separator+"config.properties");
+                prop.load(fi);
+                fi.close();
 
-            // load a properties file
-            prop.load(input);
 
         } catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         return prop.getProperty(propertyName);
@@ -68,24 +66,29 @@ public class ManageProperties {
 
     public static void setProperty(String key, String value){
 
-        Properties props = new Properties();
+        String current="";
         try {
-            FileInputStream in = new FileInputStream("config.properties");
-            props.load(in);
-            in.close();
+            current = new java.io.File(".").getCanonicalPath();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
+        Properties prop = new Properties();
+
+
+        try {
+
+            FileInputStream fi=new FileInputStream(current+File.separator+"config.properties");
+            prop.load(fi);
+            fi.close();
+            FileOutputStream fo = new FileOutputStream(current+File.separator+"config.properties");
+            prop.setProperty(key, value);
+            prop.store(fo,null);
+            fo.close();
 
         }catch(IOException e){
-            // do nothing
-        }finally {
-            try {
-                FileOutputStream out = new FileOutputStream("config.properties");
-                props.setProperty(key, value);
-                props.store(out, null);
-                out.close();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
+
     }
 }

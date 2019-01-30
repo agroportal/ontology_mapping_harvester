@@ -67,7 +67,7 @@ public class OntologyMappingHarvesterFacade {
             }
 
 
-            if(command.indexOf("rest")>-1){
+            if(command.indexOf("rest ")>-1){
 
                 MappingsRestService mrs = new MappingsRestService(args[0]);
 
@@ -81,23 +81,6 @@ public class OntologyMappingHarvesterFacade {
                     mrs.deleteMappings(args);
                 }
 
-
-            }else if(command.indexOf("g")>-1) {
-
-                GenerateJSService generateJSService = new GenerateJSService();
-                generateJSService.generateJs(args[1], args[2]);
-
-            }else if(command.indexOf("v")>-1){
-
-//                ValidateIRIService validateIRIService = new ValidateIRIService();
-//                validateIRIService.setupLogProperties("","","");
-//                validateIRIService.loadAndProcessOntologiesMetadata(command);
-//                validateIRIService.validateIRIs(command,files);
-
-                ValidadeTargetReferenceService validadeTargetReferenceService = new ValidadeTargetReferenceService();
-                validadeTargetReferenceService.setupLogProperties("","","");
-                validadeTargetReferenceService.loadAndProcessOntologiesMetadata(command);
-                validadeTargetReferenceService.validateTargetReferences(command,files);
 
             }else if(command.indexOf("configfolder")>-1){
 
@@ -158,6 +141,23 @@ public class OntologyMappingHarvesterFacade {
                 ManageProperties.setProperty("restbioportaluser","/user/"+args[1]);
 
                 System.out.println("New user to BIOPORTAL: "+args[1]);
+
+            }else if(command.indexOf("g")>-1) {
+
+                GenerateJSService generateJSService = new GenerateJSService();
+                generateJSService.generateJs(args[1], args[2]);
+
+            }else if(command.indexOf("v")>-1){
+
+//                ValidateIRIService validateIRIService = new ValidateIRIService();
+//                validateIRIService.setupLogProperties("","","");
+//                validateIRIService.loadAndProcessOntologiesMetadata(command);
+//                validateIRIService.validateIRIs(command,files);
+
+                ValidadeTargetReferenceService validadeTargetReferenceService = new ValidadeTargetReferenceService();
+                validadeTargetReferenceService.setupLogProperties("","","");
+                validadeTargetReferenceService.loadAndProcessOntologiesMetadata(command);
+                validadeTargetReferenceService.validateTargetReferences(command,files);
 
             }else{
 

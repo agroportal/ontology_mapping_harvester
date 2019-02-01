@@ -168,3 +168,9 @@ java -jar omhtjar -restbioportaluser [API_KEY]
 15) Setup BIOPORTAL user name
 
 java -jar omhtjar -restagroportaluser [API_KEY]
+
+## Curation File
+
+If the ontology is on the OBO format and the mapping relation is of type oboInOwl#hasDbXref then the script considers a external file to map concepts to valid URI. This last version of this file could be finded on the folder https://github.com/agroportal/ontology_mapping_harvester/src/main/resources/OMHT_external_matches_phase_1.cfg and is automatic copied to the omht_config folder when the jar file is executed for the fisrt time.
+
+If you have a old version of the script please check the date of the file to assure you got the last version of the curation file in orther to get better mappings.

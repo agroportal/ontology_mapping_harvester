@@ -67,7 +67,95 @@ public class OntologyMappingHarvesterFacade {
             }
 
 
-            if(command.indexOf("rest ")>-1){
+            if(command.indexOf("configfolder")>-1){
+
+                ManageProperties.setProperty("externalproperties",args[1]);
+
+                System.out.println("New folder forconfiguration files is "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("restagroportalapikey")>-1){
+
+                ManageProperties.setProperty("restagroportalapikey",args[1]);
+
+                System.out.println("New api key for Agroportal associated to this script is "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("restbioportalapikey")>-1){
+
+                ManageProperties.setProperty("restbioportalapikey",args[1]);
+
+                System.out.println("New api key for Bioportal associated to this script is "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("outputfolder")>-1){
+
+                ManageProperties.setProperty("outputfolder",args[1]);
+
+                System.out.println("New output folder associated to this script is "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("reststageagroportalurl")>-1){
+
+                ManageProperties.setProperty("reststageagroportalurl",args[1]);
+
+                System.out.println("New address to STAGEAGROPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("reststagebioportalurl")>-1){
+
+                ManageProperties.setProperty("reststagebioportalurl",args[1]);
+
+                System.out.println("New address to STAGEBIOPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("restagroportalurl")>-1){
+
+                ManageProperties.setProperty("restagroportalurl",args[1]);
+
+                System.out.println("New address to AGROPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("restbioportalurl")>-1){
+
+                ManageProperties.setProperty("restbioportalurl",args[1]);
+
+                System.out.println("New address to BIOPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("reststageagroportaluser")>-1){
+
+                ManageProperties.setProperty("reststageagroportaluser","/user/"+args[1]);
+
+                System.out.println("New user to STAGEAGROPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("restagroportaluser")>-1){
+
+                ManageProperties.setProperty("restagroportaluser","/user/"+args[1]);
+
+                System.out.println("New user to AGROPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("restbioportaluser")>-1){
+
+                ManageProperties.setProperty("restbioportaluser","/user/"+args[1]);
+
+                System.out.println("New user to BIOPORTAL: "+args[1]);
+
+                System.exit(0);
+
+            }else if(command.indexOf("rest")>-1){
 
                 MappingsRestService mrs = new MappingsRestService(args[0]);
 
@@ -81,66 +169,6 @@ public class OntologyMappingHarvesterFacade {
                     mrs.deleteMappings(args);
                 }
 
-
-            }else if(command.indexOf("configfolder")>-1){
-
-                ManageProperties.setProperty("externalproperties",args[1]);
-
-                System.out.println("New folder forconfiguration files is "+args[1]);
-
-            }else if(command.indexOf("restagroportalapikey")>-1){
-
-                ManageProperties.setProperty("restagroportalapikey",args[1]);
-
-                System.out.println("New api key for Agroportal associated to this script is "+args[1]);
-
-            }else if(command.indexOf("restbioportalapikey")>-1){
-
-                ManageProperties.setProperty("restbioportalapikey",args[1]);
-
-                System.out.println("New api key for Bioportal associated to this script is "+args[1]);
-
-            }else if(command.indexOf("outputfolder")>-1){
-
-                ManageProperties.setProperty("outputfolder",args[1]);
-
-                System.out.println("New output folder associated to this script is "+args[1]);
-
-            }else if(command.indexOf("reststageagroportalurl")>-1){
-
-                ManageProperties.setProperty("reststageagroportalurl",args[1]);
-
-                System.out.println("New address to STAGEAGROPORTAL: "+args[1]);
-
-            }else if(command.indexOf("reststagebioportalurl")>-1){
-
-                ManageProperties.setProperty("reststagebioportalurl",args[1]);
-
-                System.out.println("New address to STAGEBIOPORTAL: "+args[1]);
-
-            }else if(command.indexOf("restagroportalurl")>-1){
-
-                ManageProperties.setProperty("restagroportalurl",args[1]);
-
-                System.out.println("New address to AGROPORTAL: "+args[1]);
-
-            }else if(command.indexOf("restbioportalurl")>-1){
-
-                ManageProperties.setProperty("restbioportalurl",args[1]);
-
-                System.out.println("New address to BIOPORTAL: "+args[1]);
-
-            }else if(command.indexOf("restagroportaluser")>-1){
-
-                ManageProperties.setProperty("restagroportaluser",args[1]);
-
-                System.out.println("New user to AGROPORTAL: "+"/user/"+args[1]);
-
-            }else if(command.indexOf("restbioportaluser")>-1){
-
-                ManageProperties.setProperty("restbioportaluser","/user/"+args[1]);
-
-                System.out.println("New user to BIOPORTAL: "+args[1]);
 
             }else if(command.indexOf("g")>-1) {
 

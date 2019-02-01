@@ -1803,7 +1803,7 @@ public class HarvestAllFormatsService extends BaseService  {
                 sb = new StringBuffer("");
                 sts = new StringBuffer("");
                 totalMappings.clear();
-                ManageProperties.setProperty("executionhistory", executionHistory + currentOntologyName.toUpperCase() + ";");
+                //ManageProperties.setProperty("executionhistory", executionHistory + currentOntologyName.toUpperCase() + ";");
             } else {
                 errorLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");
                 //stdoutLogger.warn("Ontology: " + currentOntologyName.toUpperCase() + " Already processes on previous history, process skiped.");

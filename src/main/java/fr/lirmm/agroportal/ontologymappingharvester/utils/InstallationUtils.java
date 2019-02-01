@@ -3,8 +3,7 @@ package fr.lirmm.agroportal.ontologymappingharvester.utils;
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -21,6 +20,8 @@ public class InstallationUtils {
         System.out.println("Working Directory = " +
                 System.getProperty("user.home"));
         System.out.println();
+
+        ManageProperties.createPropertiesFile();
 
         boolean success;
 
@@ -41,6 +42,8 @@ public class InstallationUtils {
                     e.printStackTrace();
                 }
             }
+        }else{
+            ManageProperties.setProperty("externalproperties",folder);
         }
 
         f = new File(folder2);
@@ -52,6 +55,8 @@ public class InstallationUtils {
             } else {
                 ManageProperties.setProperty("outputfolder", folder2);
             }
+        }else{
+            ManageProperties.setProperty("outputfolder", folder2);
         }
 
         if(ManageProperties.loadPropertyValue("restagroportalurl")==null){
@@ -102,7 +107,7 @@ public class InstallationUtils {
         ManageProperties.setProperty("obofoundryontologies","http://obofoundry.org/registry/ontologies.jsonld");
         ManageProperties.setProperty("identifiersaddress","http://identifiers.org");
         ManageProperties.setProperty("minimummappings","10");
-        ManageProperties.setProperty("executionhistory",";PO2_DG;");
+        //ManageProperties.setProperty("executionhistory",";PO2_DG;");
 
     }
 
@@ -111,22 +116,19 @@ public class InstallationUtils {
      */
     public void printHelp(){
 
+
+        InputStream in = getClass().getResourceAsStream("/help.txt");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
         StringBuilder result = new StringBuilder("");
 
-        //Get file from resources folder
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("help.txt").getFile());
+        String sCurrentLine;
 
-        try (Scanner scanner = new Scanner(file)) {
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                result.append(line).append("\n");
+        try {
+            while ((sCurrentLine = reader.readLine()) != null) {
+                result.append(sCurrentLine).append("\n");
             }
-
-            scanner.close();
-
-        } catch (IOException e) {
+        }catch (IOException e){
             e.printStackTrace();
         }
 

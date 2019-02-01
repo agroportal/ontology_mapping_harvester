@@ -70,9 +70,9 @@ public class MappingsRestService extends LogService{
 
             AgroportalRestService service = new AgroportalRestService();
 
-            System.out.println("Arg: "+args[0].replaceAll("-",""));
+            stdoutLogger.info("Arg: "+args[0].replaceAll("-",""));
             String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
-            System.out.println("User: "+user);
+            stdoutLogger.info("User: "+user);
 
             list = getInternalMappings(args,user, false, args[2]);
 
@@ -99,7 +99,7 @@ public class MappingsRestService extends LogService{
             }
 
 
-            System.out.println("Total mappings delete for: "+args[2]+" -->"+ counter);
+            //System.out.println("Total mappings delete for: "+args[2]+" -->"+ counter);
             stdoutLogger.info("Total mappings delete for: "+args[2]+" -->"+ counter);
         }
     }
@@ -234,12 +234,12 @@ public class MappingsRestService extends LogService{
 
         HashMap<String,MappingEntity> map =  new HashMap<>();
 
-        String key="";
-        System.out.println("List size: "+map.size());
-        for (Map.Entry<String, MappingEntity> entry : map.entrySet()) {
-            key = entry.getKey();
-            System.out.println("Chave: "+key);
-        }
+//        String key="";
+//        System.out.println("List size: "+map.size());
+//        for (Map.Entry<String, MappingEntity> entry : map.entrySet()) {
+//            key = entry.getKey();
+//            System.out.println("Chave: "+key);
+//        }
 
         //System.exit(0);
 
@@ -252,13 +252,13 @@ public class MappingsRestService extends LogService{
         int cont=0;
         int errorInserting=0;
 
-        int lastposted = Integer.parseInt(ManageProperties.loadPropertyValue("executionpointer"));
+        //int lastposted = Integer.parseInt(ManageProperties.loadPropertyValue("executionpointer"));
 
         for(MappingEntity me: maps) {
 
             cont++;
 
-            if(cont>=lastposted){
+            //if(cont>=lastposted){
 
             //System.out.println("ID1----->"+me.getIdentifier().getId1()+" --> "+map.get(me.getIdentifier().getId1()));
             //System.out.println("ID2----->"+me.getIdentifier().getId2()+" --> "+map.get(me.getIdentifier().getId2()));
@@ -282,13 +282,14 @@ public class MappingsRestService extends LogService{
 
                         try {
                             stdoutLogger.error("ERROR INSERTTING MAPPING: "+cont+" -->" + me.toString() + " Code: " + response.getResponse().code() + " Message: " + response.getResponse().message() + " - Description: " + response.getErrorMessage());
-                            if(errorInserting>300){
-                                ManageProperties.setProperty("executionpointer",""+cont);
-                                needUserAction("To much consecutive errors. Do you want do procced ?");
-                                errorInserting=0;
-                            }
+//                            if(errorInserting>300){
+//                                ManageProperties.setProperty("executionpointer",""+cont);
+//                                needUserAction("To much consecutive errors. Do you want do procced ?");
+//                                errorInserting=0;
+//                            }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            errorLogger.error(e.getMessage());
+//                            e.printStackTrace();
                         }
                     }
 
@@ -332,10 +333,10 @@ public class MappingsRestService extends LogService{
 //                stdoutLogger.info("--> "+me.toString());
 //
 //            }
+        //}
         }
-        }
-        System.out.println("Already exsitent mappings: "+cc);
-        System.out.println("UPLOADED WITH SUCESS FOR : "+(file.getName().toUpperCase().replace(".JSON",""))+" --> "+sucess);
+        //System.out.println("Already exsitent mappings: "+cc);
+        //System.out.println("UPLOADED WITH SUCESS FOR : "+(file.getName().toUpperCase().replace(".JSON",""))+" --> "+sucess);
         summaryLogger.info(""+(file.getName().toUpperCase().replace(".JSON","")+";uploaded maps;"+sucess));
     }
 
@@ -364,126 +365,15 @@ public class MappingsRestService extends LogService{
             Gson gson = new GsonBuilder().create();
             mappingE = gson.fromJson(everything, MappingEntity[].class);
 
-            System.out.println("Tamanho: "+mappingE.length);
+            //System.out.println("Tamanho: "+mappingE.length);
 
 
         } catch (IOException e) {
-            System.out.println("Error trying to load external references JSON file located in: "+file.toString()+" - "+e.getMessage());
+            errorLogger.error("Error trying to load external references JSON file located in: "+file.toString()+" - "+e.getMessage());
         }
 
         return mappingE;
     }
 
-
-    private void doPostExplorer(File file, String[] args){
-
-        setupLogProperties(this.command+ "pl",file.getName().toUpperCase().replace(".JSON",""),ManageProperties.loadPropertyValue("outputfolder"));
-
-
-        AgroportalRestService ars = new AgroportalRestService();
-        String user = ManageProperties.loadPropertyValue(args[0].replaceAll("-","")+"user");
-
-
-        MappingEntity[] maps = loadJSONFile(file);
-
-        // TODO retirar isso...
-        //HashMap<String,MappingEntity> map = getInternalMappings(args,user, true, file.getName().toUpperCase().replace(".JSON",""));
-
-        HashMap<String,MappingEntity> map =  new HashMap<>();
-
-        String key="";
-        System.out.println("List size: "+map.size());
-        for (Map.Entry<String, MappingEntity> entry : map.entrySet()) {
-            key = entry.getKey();
-            System.out.println("Chave: "+key);
-        }
-
-        //System.exit(0);
-
-        CustomRetrofitResponse response =null;
-
-        int total = maps.length;
-        int counter=0;
-        int sucess = 0;
-        int cc=0;
-        MappingEntity me = null;
-        for(int xx = 179803; xx<maps.length;xx++){
-
-            me = maps[xx];
-            //System.out.println("ID1----->"+me.getIdentifier().getId1()+" --> "+map.get(me.getIdentifier().getId1()));
-            //System.out.println("ID2----->"+me.getIdentifier().getId2()+" --> "+map.get(me.getIdentifier().getId2()));
-
-            if(map.get(me.getIdentifier().getId1())==null && map.get(me.getIdentifier().getId2())==null){
-
-                //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
-
-                response = ars.postMappings(me, this.command);
-
-
-                if(response != null && response.getResponse() !=null){
-
-                    if(response.getResponse().isSuccessful()){
-                        stdoutLogger.info("MAPPING POSTED WITH SUCESS-->: "+xx+"  -->"+me.toString());
-                        sucess++;
-                    }else{
-                        try {
-                            stdoutLogger.error("ERROR INSERTTING MAPPING: "+xx+" -->" + me.toString() + " Code: " + response.getResponse().code() + " Message: " + response.getResponse().message() + " - Description: " + response.getErrorMessage());
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-
-                }else{
-                    stdoutLogger.error("ERROR:"+response.getErrorMessage()+" - NULL RESPONSE FROM SERVER FOR MAPPING: "+me.toString());
-                }
-
-
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-
-                counter++;
-                if(counter%30==0){
-                    // Problems on the server with 0(zero) and 2 (two) seconds interval
-                    stdoutLogger.info("Waiting....");
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                stdoutLogger.info("XXXXXXXXX --->"+total+" / "+counter+" / "+sucess);
-
-            }else{
-                stdoutLogger.info("MAPPING ALREADY EXISTIS, skiping insert for--> "+me.toString());
-            }
-
-
-//            if(map.get(me.getIdentifier().getId1())!=null || map.get(me.getIdentifier().getId2())!=null){
-//
-//                //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
-//                cc++;
-//                stdoutLogger.info("EXISTS--> "+me.toString());
-//
-//            }
-
-
-//            if(map.get(me.getIdentifier().getId1())==null || map.get(me.getIdentifier().getId2())==null){
-//
-//                //System.out.println("MAPPINF NOT EXISTIS, INSERTING-->: "+me.toString());
-//
-//                stdoutLogger.info("--> "+me.toString());
-//
-//            }
-
-        }
-        System.out.println("Already exsitent mappings: "+cc);
-        System.out.println("UPLOADED WITH SUCESS FOR : "+(file.getName().toUpperCase().replace(".JSON",""))+" --> "+sucess);
-        summaryLogger.info(""+(file.getName().toUpperCase().replace(".JSON","")+";uploaded maps;"+sucess));
-    }
 
 }

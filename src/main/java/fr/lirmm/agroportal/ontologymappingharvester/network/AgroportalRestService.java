@@ -391,18 +391,19 @@ public class AgroportalRestService extends LogService {
 
         link=ManageProperties.loadPropertyValue("restagroportalurl");
         apiKey = ManageProperties.loadPropertyValue("restagroportalapikey");
-//        System.out.println("Command--> "+command+"<--");
-//        System.out.println("URL--> "+link+"<--");
-//        System.out.println("KEY--> "+apiKey+"<--");
+
         if(command.indexOf("n")>-1){
             link=ManageProperties.loadPropertyValue("restbioportalurl");
             apiKey = ManageProperties.loadPropertyValue("restbioportalapikey");
         }
 
-        if(command.indexOf("h")>-1){
-            link=ManageProperties.loadPropertyValue("reststageagroportalurl");
+        if(command.indexOf("h")>-1) {
+            link = ManageProperties.loadPropertyValue("reststageagroportalurl");
             apiKey = ManageProperties.loadPropertyValue("reststageagroportalapikey");
         }
+        System.out.println("Command--> "+command+"<--");
+        System.out.println("URL--> "+link+"<--");
+        System.out.println("KEY--> "+apiKey+"<--");
     }
 
 
